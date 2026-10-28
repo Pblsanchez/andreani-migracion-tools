@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Portal de herramientas para la migración de datos Integra (B2C) a DMS (B2B+B2C) - Andreani">
+<title>Herramientas de migración Integra → DMS · Andreani</title>
+<style>
+/* ===== Design System Cartesian (Andreani) - tokens ===== */
+:root {
+  /* Primitivos usados por tokens semánticos */
+  --c-red-50: #fbe8e9; --c-red-600: #d71920; --c-red-700: #b6040b; --c-red-800: #810f13;
+  --c-blue-50: #edeffb; --c-blue-600: #4e63d7; --c-blue-900: #1f2856;
+  --c-green-50: #ddf3ea; --c-green-900: #0c3224;
+  --c-orange-50: #fdefe9; --c-orange-900: #5d2810;
+  --c-gray-000: #ffffff; --c-gray-50: #fafafa; --c-gray-100: #dfe1e3; --c-gray-200: #c0c3c8;
+  --c-gray-600: #4e555e; --c-gray-700: #3a4046; --c-gray-800: #272a2f;
+
+  /* Semánticos - fondo / superficie */
+  --c-color-bg: var(--c-gray-50);
+  --c-color-surface: var(--c-gray-000);
+  --c-color-surface-neutral: var(--c-gray-100);
+  --c-color-surface-primary: var(--c-red-600);
+  --c-color-surface-info-subtle: var(--c-blue-50);
+  --c-color-surface-success-subtle: var(--c-green-50);
+  --c-color-surface-warning-subtle: var(--c-orange-50);
+
+  /* Semánticos - fill */
+  --c-color-fill-primary: var(--c-red-600);
+  --c-color-fill-primary-hover: var(--c-red-700);
+  --c-color-fill-primary-pressed: var(--c-red-800);
+  --c-color-fill-primary-subtle: var(--c-red-50);
+
+  /* Semánticos - texto */
+  --c-color-text-strong: var(--c-gray-800);
+  --c-color-text: var(--c-gray-600);
+  --c-color-text-inverse: var(--c-gray-000);
+  --c-color-text-primary: var(--c-red-600);
+  --c-color-text-info-strong: var(--c-blue-900);
+  --c-color-text-success-strong: var(--c-green-900);
+  --c-color-text-caution-strong: var(--c-orange-900);
+
+  /* Semánticos - borde */
+  --c-color-border-subtle: var(--c-gray-200);
+  --c-color-border-info: var(--c-blue-600);
+
+  /* Bordes */
+  --c-border-width-subtle: 1px;
+  --c-border-width-regular: 2px;
+  --c-border-width-strong: 3px;
+  --c-border-radius-xsmall: 4px;
+  --c-border-radius-small: 8px;
+  --c-border-radius-medium: 16px;
+  --c-border-radius-xlarge: 99px;
+
+  /* Espaciado */
+  --c-spacing-1: 4px; --c-spacing-2: 8px; --c-spacing-3: 12px; --c-spacing-4: 16px;
+  --c-spacing-5: 24px; --c-spacing-6: 32px; --c-spacing-7: 48px; --c-spacing-8: 64px;
+
+  /* Tipografía (Rubik/Roboto si están instaladas; sin CDN por regla de autocontención) */
+  --c-font-family-headline: "Rubik", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --c-font-family-title: "Rubik", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --c-font-family-body: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --c-font-family-label: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --c-font-family-caption: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --c-font-weight-regular: 400;
+  --c-font-weight-medium: 500;
+  --c-font-weight-bold: 700;
+
+  /* Sombras */
+  --c-shadow-bottom-subtle: 0 1px 2px #4e555e40;
+  /* PROVISORIO: el Design System no define el valor de shadow-focus-regular */
+  --c-shadow-focus-regular: 0 0 0 3px var(--c-blue-600);
+
+  --footer-height: 56px;
+}
+
+/* ===== Base ===== */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--c-color-bg);
+  color: var(--c-color-text);
+  font-family: var(--c-font-family-body);
+  font-size: 16px; line-height: 24px; /* bodymedium */
+  font-weight: var(--c-font-weight-regular);
+  min-height: 100vh;
+  padding-bottom: calc(var(--footer-height) + var(--c-spacing-5));
+}
+a { color: var(--c-color-text-primary); }
+a:focus-visible, button:focus-visible, main:focus-visible {
+  outline: 2px solid transparent; /* se mantiene visible en modo alto contraste */
+  box-shadow: var(--c-shadow-focus-regular);
+}
+.skip-link {
+  position: absolute; left: var(--c-spacing-4); top: -100px; z-index: 10;
+  background: var(--c-color-surface); color: var(--c-color-text-strong);
+  padding: var(--c-spacing-2) var(--c-spacing-4);
+  border-radius: var(--c-border-radius-small);
+}
+.skip-link:focus { top: var(--c-spacing-2); }
+
+/* ===== Header (logo siempre a la izquierda) ===== */
+.header {
+  background: var(--c-color-surface);
+  border-bottom: var(--c-border-width-strong) solid var(--c-color-surface-primary);
+  box-shadow: var(--c-shadow-bottom-subtle);
+}
+.header__inner {
+  max-width: 1200px; margin: 0 auto;
+  padding: var(--c-spacing-3) var(--c-spacing-5);
+  display: flex; align-items: center; gap: var(--c-spacing-4);
+}
+.brand {
+  font-family: var(--c-font-family-headline);
+  font-size: 24px; line-height: 28px; /* headline4 */
+  font-weight: var(--c-font-weight-bold);
+  color: var(--c-color-text-primary);
+  text-decoration: none;
+  border-radius: var(--c-border-radius-xsmall);
+}
+.header__divider { width: var(--c-border-width-subtle); height: 24px; background: var(--c-color-border-subtle); }
+.header__title {
+  font-family: var(--c-font-family-title);
+  font-size: 16px; line-height: 24px; /* titlemedium */
+  font-weight: var(--c-font-weight-medium);
+  color: var(--c-color-text-strong);
+  margin: 0;
+}
+
+/* ===== Layout ===== */
+main { max-width: 1200px; margin: 0 auto; padding: var(--c-spacing-6) var(--c-spacing-5); }
+.hero h1 {
+  font-family: var(--c-font-family-headline);
+  font-size: 32px; line-height: 36px; /* headline3 desktop */
+  font-weight: var(--c-font-weight-bold);
+  color: var(--c-color-text-strong);
+  margin: 0 0 var(--c-spacing-2);
+}
+.hero p { font-size: 18px; line-height: 28px; /* bodylarge */ margin: 0 0 var(--c-spacing-5); max-width: 760px; }
+section { margin-top: var(--c-spacing-6); }
+h2 {
+  font-family: var(--c-font-family-headline);
+  font-size: 20px; line-height: 24px; /* headline5 desktop */
+  font-weight: var(--c-font-weight-medium);
+  color: var(--c-color-text-strong);
+  margin: 0 0 var(--c-spacing-4);
+}
+
+/* ===== Alert inline (info) - icono + texto ===== */
+.alert {
+  display: flex; gap: var(--c-spacing-3); align-items: flex-start;
+  background: var(--c-color-surface-info-subtle);
+  border: var(--c-border-width-subtle) solid var(--c-color-border-info);
+  border-left-width: var(--c-border-width-strong);
+  border-radius: var(--c-border-radius-small);
+  padding: var(--c-spacing-4);
+  color: var(--c-color-text-info-strong);
+  font-size: 14px; line-height: 20px; /* bodysmall */
+  max-width: 760px;
+}
+.alert svg { flex: 0 0 auto; }
+.alert strong { font-weight: var(--c-font-weight-bold); }
+
+/* ===== Cards ===== */
+.grid {
+  display: grid; gap: var(--c-spacing-4);
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  list-style: none; margin: 0; padding: 0;
+}
+.card {
+  background: var(--c-color-surface);
+  border: var(--c-border-width-subtle) solid var(--c-color-border-subtle);
+  border-radius: var(--c-border-radius-medium);
+  padding: var(--c-spacing-5);
+  display: flex; flex-direction: column; gap: var(--c-spacing-3);
+  box-shadow: var(--c-shadow-bottom-subtle);
+  height: 100%;
+}
+.card h3 {
+  font-family: var(--c-font-family-title);
+  font-size: 18px; line-height: 28px; /* titlelarge */
+  font-weight: var(--c-font-weight-medium);
+  color: var(--c-color-text-strong);
+  margin: 0;
+}
+.card p { margin: 0; font-size: 14px; line-height: 20px; flex: 1; }
+.card__meta { display: flex; flex-wrap: wrap; gap: var(--c-spacing-2); }
+
+/* Badge de estado (pill): siempre icono + texto, nunca solo color */
+.badge {
+  display: inline-flex; align-items: center; gap: var(--c-spacing-1);
+  padding: var(--c-spacing-1) var(--c-spacing-3);
+  border-radius: var(--c-border-radius-xlarge);
+  font-family: var(--c-font-family-caption);
+  font-size: 12px; line-height: 16px; /* caption */
+  font-weight: var(--c-font-weight-medium);
+}
+.badge--ok   { background: var(--c-color-surface-success-subtle); color: var(--c-color-text-success-strong); }
+.badge--beta { background: var(--c-color-surface-warning-subtle); color: var(--c-color-text-caution-strong); }
+.badge--repo { background: var(--c-color-surface-neutral);        color: var(--c-color-text-strong); }
+
+/* Botones: pill (xlarge), 40px desktop; Large 48px y 90% en mobile */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--c-spacing-2);
+  min-height: 40px; padding: 0 var(--c-spacing-5);
+  border-radius: var(--c-border-radius-xlarge);
+  font-family: var(--c-font-family-label);
+  font-size: 16px; line-height: 24px; /* labelmedium */
+  font-weight: var(--c-font-weight-medium);
+  text-decoration: none; cursor: pointer;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+  align-self: flex-start;
+}
+.btn--secondary {
+  background: transparent; color: var(--c-color-text-primary);
+  border: var(--c-border-width-regular) solid var(--c-color-fill-primary);
+}
+.btn--secondary:hover { color: var(--c-color-fill-primary-hover); border-color: var(--c-color-fill-primary-hover); background: var(--c-color-fill-primary-subtle); }
+.btn--secondary:active { color: var(--c-color-fill-primary-pressed); border-color: var(--c-color-fill-primary-pressed); }
+
+/* Estado vacío */
+.empty {
+  background: var(--c-color-surface);
+  border: var(--c-border-width-regular) dashed var(--c-color-border-subtle);
+  border-radius: var(--c-border-radius-medium);
+  padding: var(--c-spacing-6) var(--c-spacing-5);
+  text-align: center;
+}
+.empty svg { color: var(--c-color-text); }
+.empty h3 {
+  font-family: var(--c-font-family-title);
+  font-size: 18px; line-height: 28px; /* titlelarge */
+  font-weight: var(--c-font-weight-medium);
+  color: var(--c-color-text-strong);
+  margin: var(--c-spacing-3) 0 var(--c-spacing-1);
+}
+.empty p { margin: 0; font-size: 14px; line-height: 20px; }
+
+/* ===== Footer (anclado abajo) ===== */
+.footer {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  min-height: var(--footer-height);
+  background: var(--c-color-surface);
+  border-top: var(--c-border-width-subtle) solid var(--c-color-border-subtle);
+  display: flex; align-items: center;
+}
+.footer__inner {
+  width: 100%; max-width: 1200px; margin: 0 auto;
+  padding: var(--c-spacing-2) var(--c-spacing-5);
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--c-spacing-2);
+  font-family: var(--c-font-family-caption);
+  font-size: 12px; line-height: 16px; /* caption */
+  color: var(--c-color-text);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 1023px) {
+  .hero h1 { font-size: 24px; line-height: 28px; } /* headline3 mobile */
+  h2 { font-size: 18px; line-height: 22px; }        /* headline5 mobile */
+  .brand { font-size: 20px; line-height: 24px; }    /* headline4 mobile */
+}
+@media (max-width: 599px) {
+  main { padding: var(--c-spacing-5) var(--c-spacing-4); }
+  .header__inner { padding: var(--c-spacing-3) var(--c-spacing-4); }
+  .header__divider, .header__title { display: none; }
+  .btn { min-height: 48px; width: 90%; align-self: center; }
+  .footer__inner { padding: var(--c-spacing-2) var(--c-spacing-4); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+<header class="header">
+  <div class="header__inner">
+    <a class="brand" href="./" aria-label="Andreani, inicio del portal">Andreani</a>
+    <span class="header__divider" aria-hidden="true"></span>
+    <p class="header__title">Migración Integra → DMS</p>
+  </div>
+</header>
+
+<main id="contenido" tabindex="-1">
+  <div class="hero">
+    <h1>Herramientas de migración</h1>
+    <p>Soluciones para preparar, auditar y monitorear la migración de datos desde Integra (B2C) hacia DMS (B2B+B2C).</p>
+    <div class="alert" role="note" aria-label="Privacidad de los datos">
+      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 15h-2v-6h2v6Zm0-8h-2V7h2v2Z"/></svg>
+      <div><strong>Tus datos no salen de tu equipo.</strong> Las herramientas procesan los archivos en el navegador. No subas exports de Integra ni datos de clientes a este repositorio.</div>
+    </div>
+  </div>
+
+  <section aria-labelledby="titulo-herramientas">
+    <h2 id="titulo-herramientas">Herramientas disponibles</h2>
+    <div id="lista-herramientas"></div>
+  </section>
+
+  <section aria-labelledby="titulo-relacionados">
+    <h2 id="titulo-relacionados">Repositorios relacionados</h2>
+    <ul class="grid" id="lista-relacionados"></ul>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="footer__inner">
+    <span>Andreani · Equipo de migración Integra → DMS</span>
+    <span>Última actualización del portal: <time datetime="2026-10-28">28/10/2026</time></span>
+  </div>
+</footer>
+
+<script>
+/*
+ * Catálogo de herramientas.
+ * Para publicar una nueva: crear la carpeta /<id>/index.html y agregar un objeto acá.
+ * estado: "estable" | "beta"
+ */
+var HERRAMIENTAS = [
+  // { id: "auditoria-integra", nombre: "Auditoría de exports Integra", descripcion: "...", estado: "beta" }
+];
+
+var RELACIONADOS = [
+  {
+    nombre: "DMS Contract Normalizer",
+    descripcion: "Normaliza archivos .xlsx de alta de contratos DMS: valida campos, convierte fórmulas a valores y limpia direcciones vacías.",
+    url: "https://github.com/Pblsanchez/dms-contract-normalizer"
+  },
+  {
+    nombre: "Configurador de contratos DMS",
+    descripcion: "Formulario web que valida en tiempo real y genera el Excel normalizado de contratos para DMS.",
+    url: "https://github.com/Pblsanchez/configurador-contratos-dms"
+  }
+];
+
+var ICONOS = {
+  ok: "M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2Z",
+  beta: "M1 21h22L12 2 1 21Zm12-3h-2v-2h2v2Zm0-4h-2v-4h2v4Z",
+  repo: "M4 4a2 2 0 0 1 2-2h12v16H6a1 1 0 0 0 0 2h12v2H6a3 3 0 0 1-3-3V4h1Zm4 1v2h8V5H8Z",
+  vacio: "M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Zm-6 14h-2v-4H7v-2h4V7h2v4h4v2h-4v4Z"
+};
+
+var ESTADOS = {
+  estable: { clase: "badge--ok",   texto: "Estable", icono: ICONOS.ok },
+  beta:    { clase: "badge--beta", texto: "Beta",    icono: ICONOS.beta }
+};
+
+function el(tag, attrs, text) {
+  var n = document.createElement(tag);
+  if (attrs) { Object.keys(attrs).forEach(function (k) { n.setAttribute(k, attrs[k]); }); }
+  if (text) { n.textContent = text; }
+  return n;
+}
+
+function icono(path, size) {
+  var ns = "http://www.w3.org/2000/svg";
+  var s = String(size || 14);
+  var svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("width", s); svg.setAttribute("height", s);
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("aria-hidden", "true"); svg.setAttribute("focusable", "false");
+  var p = document.createElementNS(ns, "path");
+  p.setAttribute("fill", "currentColor"); p.setAttribute("d", path);
+  svg.appendChild(p);
+  return svg;
+}
+
+function badge(clase, path, texto) {
+  var b = el("span", { "class": "badge " + clase });
+  b.appendChild(icono(path));
+  b.appendChild(document.createTextNode(texto));
+  return b;
+}
+
+function tarjeta(titulo, badgeEl, descripcion, href, textoBoton, ariaLabel, externo) {
+  var li = el("li");
+  var card = el("article", { "class": "card" });
+  card.appendChild(el("h3", null, titulo));
+  var meta = el("div", { "class": "card__meta" });
+  meta.appendChild(badgeEl);
+  card.appendChild(meta);
+  card.appendChild(el("p", null, descripcion));
+  var attrs = { "class": "btn btn--secondary", href: href, "aria-label": ariaLabel };
+  if (externo) { attrs.target = "_blank"; attrs.rel = "noopener noreferrer"; }
+  card.appendChild(el("a", attrs, textoBoton));
+  li.appendChild(card);
+  return li;
+}
+
+function renderHerramientas() {
+  var cont = document.getElementById("lista-herramientas");
+  if (!HERRAMIENTAS.length) {
+    var vacio = el("div", { "class": "empty" });
+    vacio.appendChild(icono(ICONOS.vacio, 32));
+    vacio.appendChild(el("h3", null, "Todavía no hay herramientas publicadas"));
+    vacio.appendChild(el("p", null, "Las soluciones del equipo de migración van a aparecer acá a medida que se publiquen."));
+    cont.appendChild(vacio);
+    return;
+  }
+  var ul = el("ul", { "class": "grid" });
+  HERRAMIENTAS.forEach(function (h) {
+    var est = ESTADOS[h.estado] || ESTADOS.beta;
+    ul.appendChild(tarjeta(
+      h.nombre, badge(est.clase, est.icono, est.texto), h.descripcion,
+      "./" + encodeURIComponent(h.id) + "/", "Abrir", "Abrir " + h.nombre, false
+    ));
+  });
+  cont.appendChild(ul);
+}
+
+function renderRelacionados() {
+  var ul = document.getElementById("lista-relacionados");
+  RELACIONADOS.forEach(function (r) {
+    ul.appendChild(tarjeta(
+      r.nombre, badge("badge--repo", ICONOS.repo, "Repositorio GitHub"), r.descripcion,
+      r.url, "Ver repositorio", "Ver repositorio " + r.nombre + " (se abre en una pestaña nueva)", true
+    ));
+  });
+}
+
+renderHerramientas();
+renderRelacionados();
+</script>
+</body>
+</html>
