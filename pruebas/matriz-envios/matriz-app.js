@@ -104,7 +104,7 @@
   function toast(msg) { var t = $("toast"); t.textContent = msg; t.setAttribute("data-open", "true"); clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.setAttribute("data-open", "false"); }, 5000); }
 
   /* ---------- Series de tipos ---------- */
-  function serieTipo(t) { if (/paquet/i.test(t)) return "s1"; if (/sobre/i.test(t)) return "s2"; if (/inversa/i.test(t)) return "s3"; if (/sin servicio/i.test(t)) return "s4"; return "s5"; }
+  function serieTipo(t) { if (/paquet/i.test(t)) return "s1"; if (/sobre/i.test(t)) return "s2"; if (/inversa/i.test(t)) return "s3"; if (/sin servicio|no informado/i.test(t)) return "s4"; return "s5"; }
   function tiposOrdenados() { var u = {}; base.registros.forEach(function (r) { u[r.tipo] = 1; }); return Object.keys(u).sort(); }
 
   /* ---------- Filtros ---------- */
@@ -279,7 +279,8 @@
       g.appendChild(s("rect", { "class": "bar-h", x: L, y: y + 4, width: w, height: rowH - 10, rx: 4 }));
       g.appendChild(s("text", { x: L - 8, y: y + rowH / 2 + 3, "text-anchor": "end", "class": sel ? "bar-label" : null }, [(sel ? "✓ " : "") + etiqueta]));
       g.appendChild(s("text", { x: W - Rv + 8, y: y + rowH / 2 + 3, "class": "bar-label" }, [corto(d.envios)]));
-      g.appendChild(s("rect", { "class": "focus-ring", x: 1, y: y + 1, width: W - 2, height: rowH - 4, rx: 6 }));
+      /* Anillo de foco: fill/stroke explícitos como atributos además del CSS, para que nunca se pinte negro por defecto */
+      g.appendChild(s("rect", { "class": "focus-ring", x: 1, y: y + 1, width: W - 2, height: rowH - 4, rx: 6, fill: "none", stroke: "none" }));
       conTip(g, d.clave + " · " + n(d.envios) + " envíos · " + n(d.clientes) + " clientes · " + n(d.contratos) + " contratos");
       g.addEventListener("click", function () { onPick(d.clave); });
       g.addEventListener("keydown", function (ev) { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); onPick(d.clave); } });
@@ -311,7 +312,11 @@
   }
   function share(v, tot) { var p = tot ? v / tot : 0; return el("span", { "class": "share" }, [pct(p), el("span", { "class": "share__bar", "aria-hidden": "true" }, [el("span", { style: "width:" + Math.min(100, p * 100).toFixed(1) + "%" })])]); }
 
+  /* Rankings y pestañas: sin clientes internos (D-016) ni filas sin contrato */
+  function paraRanking(regs) { return regs.filter(function (r) { return r.cliente && !M.esInterno(r.cliente) && r.contrato !== M.SIN_CON; }); }
+  function notaInternos() { return el("p", { "class": "tab-note", style: "margin:var(--c-spacing-3) 0 0" }, ["No incluye clientes internos (" + M.INTERNOS.join(", ") + ") ni registros sin razón social."]); }
   function renderRankings(regs, k) {
+    regs = paraRanking(regs);
     var porCli = M.agrupar(regs.filter(function (r) { return M.sumaMeses(r, k.meses) > 0; }), M.cliDe, k.meses);
     var top = porCli.slice().sort(function (a, b) { return b.contratos - a.contratos || b.envios - a.envios; }).slice(0, 10);
     $("rk-contratos").innerHTML = "";
@@ -325,6 +330,8 @@
       { t: "#", f: function (r) { return top2.indexOf(r) + 1; }, cls: "rank" }, { t: "Cliente", f: function (r) { return linkCliente(r.clave); } },
       { t: "Envíos", n: 1, f: function (r) { return n(r.envios); } }, { t: "Participación", n: 1, f: function (r) { return share(r.envios, k.envios); } }
     ], top2, { caption: "Clientes con más envíos" })]));
+    $("rk-contratos").appendChild(notaInternos());
+    $("rk-envios").appendChild(notaInternos());
   }
 
   var TABS = [
@@ -332,6 +339,7 @@
     { id: "multi", t: "Clientes multiservicio" }, { id: "servcli", t: "Servicios con más clientes" }, { id: "inactivos", t: "Sin envíos recientes" }, { id: "nuevos", t: "Clientes nuevos" }
   ];
   function renderTabs(regs, k) {
+    regs = paraRanking(regs);
     var bar = $("tabs"); bar.innerHTML = "";
     TABS.forEach(function (tb, i) {
       var b = el("button", { type: "button", role: "tab", "class": "tab", id: "tab-" + tb.id, "aria-controls": "tab-panel", "aria-selected": ui.tab === tb.id ? "true" : "false", tabindex: ui.tab === tb.id ? "0" : "-1",
@@ -378,7 +386,7 @@
       filas = M.clientesNuevos(base, regs);
       cols = [{ t: "Cliente", f: function (r) { return linkCliente(r.clave); } }, { t: "Primer mes", f: function (r) { return M.mesTxt(r.mes); } }, { t: "Envíos desde entonces", n: 1, f: function (r) { return n(r.envios); } }];
     }
-    p.appendChild(el("p", { "class": "tab-note" }, [nota + " " + n(filas.length) + " en total."]));
+    p.appendChild(el("p", { "class": "tab-note" }, [nota + " " + n(filas.length) + " en total. No incluye clientes internos (" + M.INTERNOS.join(", ") + ") ni registros sin razón social."]));
     p.appendChild(el("div", { "class": "table-wrap" }, [tabla(cols, filas.slice(0, LIM), { caption: TABS.filter(function (x) { return x.id === ui.tab; })[0].t })]));
     if (filas.length > 15) p.appendChild(el("div", { "class": "pager" }, [el("span", { text: "Mostrando " + n(Math.min(LIM, filas.length)) + " de " + n(filas.length) }),
       el("button", { type: "button", "class": "btn btn--ghost btn--small", onclick: function () { ui.verTodoTab = !ui.verTodoTab; renderTabs(regs, k); } }, [ui.verTodoTab ? "Ver menos" : "Ver todos (hasta 500)"])]));
@@ -538,6 +546,11 @@
     else if (parsed.filtros) res.appendChild(el("p", { "class": "panel__sub", text: "Filtros de la descarga: " + parsed.filtros }));
     if (d.duplicados) res.appendChild(alerta("warning", [n(d.duplicados) + " registros repetidos en la descarga (misma clave): se toma el primero."]));
     if (parsed.fillDown) res.appendChild(alerta("info", ["Las etiquetas venían en blanco en las filas repetidas: se completaron hacia abajo."]));
+    if (parsed.sinTipo) res.appendChild(alerta("info", [el("strong", { text: "La descarga no trae la columna «Tipo de Servicio». " }),
+      esDemo ? "Los registros quedan como «" + M.NO_INF + "». Si una descarga posterior la trae, se completa sola sin duplicar registros."
+        : n(d.tiposDeducidos) + " de " + n(parsed.registros.length) + " registros toman el tipo de la base (mismo contrato y servicio); el resto queda como «" + M.NO_INF + "»."]));
+    var sinCon = parsed.registros.filter(function (r) { return r.contrato === M.SIN_CON; });
+    if (sinCon.length) res.appendChild(alerta("warning", [n(sinCon.length) + " filas tienen servicio y envíos pero no tienen segmento, razón social ni contrato (" + n(sinCon.reduce(function (a, r) { return a + r.valores.reduce(function (x, y) { return x + y; }, 0); }, 0)) + " envíos). Se incluyen como «" + M.SIN_CON + "» para que el total cuadre."]));
     if (!esDemo && d.cambios.length) {
       res.appendChild(el("details", { "class": "details-data" }, [el("summary", { text: "Ver valores que cambian (" + n(d.cambios.length) + ")" }),
         el("div", { "class": "table-wrap", style: "margin-top:8px;max-height:240px" }, [tabla([{ t: "Contrato", f: function (x) { return x.contrato; } }, { t: "Servicio", f: function (x) { return x.servicio; } }, { t: "Mes", f: function (x) { return M.mesTxt(x.mes); } }, { t: "Antes", n: 1, f: function (x) { return n(x.antes); } }, { t: "Después", n: 1, f: function (x) { return n(x.despues); } }], d.cambios.slice(0, 200))])]));
