@@ -176,6 +176,27 @@ section { margin-top: var(--c-spacing-5); }
 .chip--more { border-style: dashed; color: var(--c-color-text); }
 .chip__count { font-size: 12px; line-height: 16px; color: var(--c-color-text); }
 .chip[aria-pressed="true"] .chip__count { color: var(--c-color-text-error-strong); }
+.filter-row__body { display: flex; flex-direction: column; gap: var(--c-spacing-2); min-width: 0; }
+.filter-row__label > span { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--c-spacing-2); }
+.filter-row__count { flex-basis: 100%; padding-left: 32px; font-size: 12px; line-height: 16px; font-weight: var(--c-font-weight-regular); color: var(--c-color-text); }
+.nivel-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--c-color-fill-primary-subtle); color: var(--c-color-text-error-strong); font-size: 12px; line-height: 16px; font-weight: var(--c-font-weight-bold); }
+.input--chip-search { height: 32px; width: 30ch; max-width: 100%; font-size: 14px; }
+.filters__sep { border: 0; border-top: 1px dashed var(--c-color-border-subtle); margin: var(--c-spacing-1) 0; width: 100%; }
+.page-head .page-head__lead { font-size: 16px; line-height: 24px; color: var(--c-color-text-strong); max-width: 820px; }
+
+/* ===== Explorador jerárquico ===== */
+.arbol td { height: 40px; }
+.arbol__celda { white-space: nowrap; }
+.arbol__toggle { display: inline-flex; align-items: center; gap: var(--c-spacing-1); border: 0; background: transparent; padding: var(--c-spacing-1) var(--c-spacing-2) var(--c-spacing-1) 0; min-height: 32px; cursor: pointer; color: var(--c-color-text-strong); text-align: left; border-radius: var(--c-border-radius-xsmall); font: inherit; }
+.arbol__toggle:hover { color: var(--c-color-text-primary); }
+.arbol__toggle[aria-expanded="true"] { font-weight: var(--c-font-weight-medium); }
+.arbol__hoja { display: inline-flex; align-items: center; gap: var(--c-spacing-2); color: var(--c-color-text-strong); padding-left: 4px; }
+.arbol__punto { width: 6px; height: 6px; border-radius: 50%; background: var(--c-color-border-strong); display: inline-block; margin-right: 4px; }
+.arbol__nombre { white-space: normal; }
+.arbol__nivel { margin-left: var(--c-spacing-2); font-weight: var(--c-font-weight-regular); }
+.arbol__fila--n0 td { background: var(--c-color-surface-hover); }
+.arbol__fila--n0 .arbol__toggle { font-weight: var(--c-font-weight-bold); }
+
 .filters__bottom { display: flex; flex-wrap: wrap; gap: var(--c-spacing-3); align-items: center; justify-content: space-between; border-top: 1px solid var(--c-color-border-subtle); padding-top: var(--c-spacing-3); }
 .active-filters { display: flex; flex-wrap: wrap; gap: var(--c-spacing-2); align-items: center; font-size: 14px; line-height: 20px; }
 .tag { display: inline-flex; align-items: center; gap: var(--c-spacing-1); padding: 2px var(--c-spacing-1) 2px var(--c-spacing-3); border-radius: var(--c-border-radius-xlarge); background: var(--c-color-surface-neutral); color: var(--c-color-text-strong); font-size: 12px; line-height: 16px; }
