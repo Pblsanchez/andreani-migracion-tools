@@ -393,6 +393,8 @@ th[aria-sort="ascending"] .th-sort svg, th[aria-sort="descending"] .th-sort svg 
 .toolbar__label { font-size: 14px; line-height: 20px; font-weight: var(--c-font-weight-medium); color: var(--c-color-text-strong); }
 .input--select { height: 32px; font-size: 14px; padding: 0 var(--c-spacing-2); }
 label.btn { cursor: pointer; }
+/* El input de archivo está oculto visualmente: su foco se muestra en la etiqueta-botón que lo sigue */
+input[type="file"].sr-only:focus-visible + label.btn { box-shadow: var(--c-shadow-focus-regular); }
 .mig-check { width: 20px; height: 20px; margin: 0 var(--c-spacing-2) 0 0; accent-color: var(--c-green-600); vertical-align: middle; cursor: pointer; flex: 0 0 auto; }
 .arbol__fila--migrado td { background: var(--c-color-surface-success-subtle); }
 .progress-wrap { display: inline-flex; align-items: center; gap: var(--c-spacing-2); justify-content: flex-end; min-width: 120px; }
