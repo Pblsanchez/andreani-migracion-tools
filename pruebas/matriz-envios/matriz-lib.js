@@ -307,16 +307,64 @@ var MATRIZ = (function () {
   function sumaMeses(r, meses) { var t = 0; for (var i = 0; i < meses.length; i++) t += r.v[meses[i]] || 0; return t; }
   function completos(base) { return base.meses.filter(function (m) { return m !== base.mesParcial; }); }
 
-  /* f: { tipos:[], segmentos:[], servicios:[], texto:"", cliente:"" } (vacío = todos). Los meses se aplican al sumar. */
+  /* Jerarquía de la información (pedido de Pablo, D-018): SEGMENTO > RAZÓN SOCIAL > TIPO DE SERVICIO > SERVICIO > N° CONTRATO */
+  var NIVELES = [
+    { id: "segmentos", nombre: "Segmento", valor: function (r) { return segDe(r); } },
+    { id: "clientes", nombre: "Razón social", valor: function (r) { return cliDe(r); } },
+    { id: "tipos", nombre: "Tipo de servicio", valor: function (r) { return r.tipo; } },
+    { id: "servicios", nombre: "Servicio", valor: function (r) { return r.servicio; } },
+    { id: "contratos", nombre: "N° contrato", valor: function (r) { return r.contrato; } }
+  ];
+  function ok(arr, v) { return !arr || !arr.length || arr.indexOf(v) >= 0; }
+  /* Aplica los filtros de los niveles 0..hasta-1 (hasta = 5 aplica todos) */
+  function pasaNiveles(r, f, hasta) {
+    for (var i = 0; i < hasta; i++) if (!ok(f[NIVELES[i].id], NIVELES[i].valor(r))) return false;
+    return true;
+  }
+  /* f: { segmentos:[], clientes:[], tipos:[], servicios:[], contratos:[], texto:"" } (vacío = todos). Los meses se aplican al sumar. */
   function filtrar(base, f) {
     var txt = sinAcentos(f.texto || "");
-    function ok(arr, v) { return !arr || !arr.length || arr.indexOf(v) >= 0; }
     return base.registros.filter(function (r) {
-      if (!ok(f.tipos, r.tipo) || !ok(f.segmentos, segDe(r)) || !ok(f.servicios, r.servicio)) return false;
-      if (f.cliente && cliDe(r) !== f.cliente) return false;
+      if (!pasaNiveles(r, f, NIVELES.length)) return false;
       if (txt && sinAcentos(r.cliente).indexOf(txt) < 0 && r.contrato.indexOf(txt) < 0) return false;
       return true;
     });
+  }
+  /* Opciones de un nivel en cascada: solo valores compatibles con lo elegido en los niveles de arriba. Ordenadas por envíos. */
+  function opciones(base, f, nivel, meses) {
+    var map = {}, N = NIVELES[nivel];
+    base.registros.forEach(function (r) {
+      if (!pasaNiveles(r, f, nivel)) return;
+      var k = N.valor(r); map[k] = (map[k] || 0) + sumaMeses(r, meses);
+    });
+    return Object.keys(map).map(function (k) { return { valor: k, envios: map[k] }; })
+      .sort(function (a, b) { return b.envios - a.envios || a.valor.localeCompare(b.valor, "es"); });
+  }
+  /* Quita selecciones de niveles inferiores que ya no son compatibles con los superiores. Devuelve cuántas quitó. */
+  function podar(base, f) {
+    var quitadas = 0;
+    for (var i = 1; i < NIVELES.length; i++) {
+      var id = NIVELES[i].id; if (!f[id] || !f[id].length) continue;
+      var validos = {}; opciones(base, f, i, []).forEach(function (o) { validos[o.valor] = 1; });
+      var antes = f[id].length; f[id] = f[id].filter(function (v) { return validos[v]; }); quitadas += antes - f[id].length;
+    }
+    return quitadas;
+  }
+  /* Agrupa registros por un nivel de la jerarquía (para el explorador) */
+  function grupoNivel(regs, nivel, meses, mesRef) {
+    var map = {}, N = NIVELES[nivel];
+    regs.forEach(function (r) {
+      var k = N.valor(r), g = map[k] || (map[k] = { clave: k, envios: 0, ref: 0, regs: [], cli: {}, con: {} });
+      var t = sumaMeses(r, meses); g.envios += t; g.ref += mesRef ? (r.v[mesRef] || 0) : 0; g.regs.push(r);
+      if (r.cliente) g.cli[r.cliente] = 1; if (r.contrato !== SIN_CON) g.con[r.contrato] = 1;
+    });
+    return Object.keys(map).map(function (k) { var g = map[k]; return { clave: k, envios: g.envios, ref: g.ref, regs: g.regs, clientes: Object.keys(g.cli).length, contratos: Object.keys(g.con).length }; })
+      .sort(function (a, b) { return b.envios - a.envios || a.clave.localeCompare(b.clave, "es"); });
+  }
+  /* Orden jerárquico para el detalle */
+  function compararJer(a, b) {
+    for (var i = 0; i < NIVELES.length; i++) { var x = NIVELES[i].valor(a), y = NIVELES[i].valor(b); if (x !== y) return x.localeCompare(y, "es"); }
+    return 0;
   }
 
   function agrupar(regs, keyFn, meses) {
@@ -490,6 +538,7 @@ var MATRIZ = (function () {
     filtrar: filtrar, agrupar: agrupar, kpis: kpis, tendencia: tendencia, sinActividad: sinActividad, clientesNuevos: clientesNuevos,
     calidad: calidad, completos: completos, sumaMeses: sumaMeses, segDe: segDe, cliDe: cliDe, clave: clave, sinAcentos: sinAcentos, demo: demo,
     completarTipo: completarTipo, esInterno: esInterno, INTERNOS: INTERNOS,
+    NIVELES: NIVELES, opciones: opciones, podar: podar, grupoNivel: grupoNivel, compararJer: compararJer,
     SIN_RS: SIN_RS, SIN_SEG: SIN_SEG, NO_INF: NO_INF, SIN_CON: SIN_CON
   };
 })();
