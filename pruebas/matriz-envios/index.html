@@ -1,1 +1,187 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Matriz de Envíos · Dashboard · Andreani</title>
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+<header class="header">
+  <div class="header__inner">
+    <a class="brand" href="../../" aria-label="Andreani, ir al portal de herramientas">Andreani</a>
+    <span class="header__divider" aria-hidden="true"></span>
+    <p class="header__title">Matriz de Envíos B2C</p>
+    <div class="header__actions">
+      <button type="button" class="btn btn--secondary" id="btn-descargar">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M5 20h14v-2H5v2Zm7-3 6-6-1.4-1.4-3.6 3.6V3h-2v10.2L7.4 9.6 6 11l6 6Z"/></svg>
+        Descargar dashboard
+      </button>
+      <button type="button" class="btn btn--primary" id="btn-actualizar" aria-haspopup="dialog">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M5 20h14v-2H5v2Zm7-17-6 6 1.4 1.4L11 6.8V17h2V6.8l3.6 3.6L18 9l-6-6Z"/></svg>
+        Actualizar con nueva descarga
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="contenido" tabindex="-1">
+  <div class="page-head">
+    <div>
+      <h1>Matriz de Envíos</h1>
+      <p id="subtitulo">Cargando…</p>
+    </div>
+    <div id="estado-base"></div>
+  </div>
+
+  <div id="alertas" aria-live="polite"></div>
+
+  <section aria-labelledby="t-kpis" style="margin-top:0">
+    <h2 id="t-kpis" class="sr-only">Indicadores principales</h2>
+    <ul class="kpis" id="kpis"></ul>
+  </section>
+
+  <section aria-labelledby="t-filtros">
+    <div class="panel">
+      <div class="panel__head">
+        <div>
+          <h2 id="t-filtros">Filtros</h2>
+          <p class="panel__sub">Podés elegir varias opciones por categoría. También filtrás haciendo clic en un cliente o en una barra.</p>
+        </div>
+        <div class="search-wrap">
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M15.5 14h-.8l-.3-.3A6.5 6.5 0 1 0 14 15.5l.3.3v.8l5 5 1.5-1.5-5-5Zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z"/></svg>
+          <label for="buscar" class="sr-only">Buscar cliente o contrato</label>
+          <input id="buscar" class="input input--search" type="search" placeholder="Buscar cliente o contrato" autocomplete="off">
+        </div>
+      </div>
+      <div class="filters" id="filtros"></div>
+      <div class="filters__bottom" style="margin-top:var(--c-spacing-3)">
+        <div class="active-filters" id="filtros-activos" aria-live="polite"></div>
+        <button type="button" class="btn btn--ghost btn--small" id="btn-limpiar">Limpiar filtros</button>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-evolucion">
+    <div class="grid-3-1">
+      <div class="panel">
+        <div class="panel__head"><div><h2 id="t-evolucion">Evolución mensual por tipo de servicio</h2><p class="panel__sub" id="evo-sub"></p></div></div>
+        <div id="ch-evolucion"></div>
+      </div>
+      <div class="panel">
+        <div class="panel__head"><div><h2 id="t-mix">Participación por tipo</h2><p class="panel__sub">Envíos del período filtrado</p></div></div>
+        <div id="ch-mix"></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-seg">
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel__head"><div><h2 id="t-seg">Envíos por segmento</h2><p class="panel__sub">Clic en una barra para filtrar</p></div></div>
+        <div id="ch-segmentos"></div>
+      </div>
+      <div class="panel">
+        <div class="panel__head"><div><h2 id="t-serv">Servicios con más envíos</h2><p class="panel__sub">Clic en una barra para filtrar</p></div></div>
+        <div id="ch-servicios"></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-rank">
+    <h2 id="t-rank" class="sr-only">Rankings de clientes</h2>
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel__head"><div><h3>Clientes con más contratos</h3><p class="panel__sub">Top 10 · contratos con envíos en el período</p></div></div>
+        <div id="rk-contratos"></div>
+      </div>
+      <div class="panel">
+        <div class="panel__head"><div><h3>Clientes con más envíos</h3><p class="panel__sub">Top 10 · participación sobre el total filtrado</p></div></div>
+        <div id="rk-envios"></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-mas">
+    <div class="panel">
+      <div class="panel__head"><div><h2 id="t-mas">Más rankings</h2></div></div>
+      <div class="tabs" role="tablist" aria-labelledby="t-mas" id="tabs"></div>
+      <div id="tab-panel" role="tabpanel" tabindex="0"></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-calidad">
+    <div class="grid-3-1">
+      <div class="panel">
+        <div class="panel__head"><div><h2 id="t-calidad">Calidad de datos</h2><p class="panel__sub">Sobre toda la base, sin filtros</p></div></div>
+        <ul class="quality" id="calidad"></ul>
+      </div>
+      <div class="panel">
+        <div class="panel__head"><div><h2 id="t-base">Base de datos</h2></div></div>
+        <dl class="meta-list" id="base-meta"></dl>
+        <h3>Historial de actualizaciones</h3>
+        <ul class="hist" id="historial"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-detalle">
+    <div class="panel">
+      <div class="panel__head">
+        <div><h2 id="t-detalle">Detalle</h2><p class="panel__sub" id="detalle-sub"></p></div>
+        <button type="button" class="btn btn--secondary btn--small" id="btn-csv">
+          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M5 20h14v-2H5v2Zm7-3 6-6-1.4-1.4-3.6 3.6V3h-2v10.2L7.4 9.6 6 11l6 6Z"/></svg>
+          Exportar CSV
+        </button>
+      </div>
+      <div class="table-wrap" id="detalle"></div>
+      <div class="pager" id="pager"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="footer__inner">
+    <span>Andreani · Migración Integra → DMS · Matriz de Envíos</span>
+    <span id="footer-base"></span>
+  </div>
+</footer>
+
+<div class="modal-backdrop" id="modal" data-open="false">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-desc">
+    <div class="modal__head">
+      <h2 id="modal-title">Actualizar con nueva descarga</h2>
+      <button type="button" class="icon-btn" id="modal-cerrar" aria-label="Cerrar">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12 19 6.4Z"/></svg>
+      </button>
+    </div>
+    <div class="modal__body" id="modal-body">
+      <p id="modal-desc" style="margin:0;font-size:14px;line-height:20px">Elegí el Excel (.xlsx) o CSV exportado de Power BI. Se procesa en tu navegador: el archivo no se sube a ningún servidor. Antes de cambiar nada vas a ver un resumen.</p>
+      <div class="drop" id="drop">
+        <svg width="32" height="32" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Zm4 18H6V4h7v5h5v11ZM8 15h8v2H8v-2Zm0-4h8v2H8v-2Z"/></svg>
+        <p><strong>Arrastrá el archivo acá</strong> o</p>
+        <label class="btn btn--secondary btn--small" for="archivo" style="cursor:pointer">Elegir archivo</label>
+        <input type="file" id="archivo" accept=".xlsx,.csv,.txt" class="sr-only">
+        <p id="archivo-nombre" class="num"></p>
+      </div>
+      <div id="modal-resultado" aria-live="polite"></div>
+    </div>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--ghost" id="modal-cancelar">Cancelar</button>
+      <button type="button" class="btn btn--primary" id="modal-aplicar" disabled>Agregar a la base</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="chart-tip" id="tip" aria-hidden="true"></div>
+
+<!-- Base embebida. null = datos sintéticos de prueba (D-014). "Descargar dashboard" la reemplaza con la base actual. -->
+<script id="base-datos" type="application/json">null</script>
+<script src="matriz-lib.js"></script>
+<script src="matriz-app.js"></script>
+</body>
+</html>
