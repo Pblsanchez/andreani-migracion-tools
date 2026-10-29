@@ -14,7 +14,7 @@
   <div class="header__inner">
     <a class="brand" href="../../" aria-label="Andreani, ir al portal de herramientas">Andreani</a>
     <span class="header__divider" aria-hidden="true"></span>
-    <p class="header__title">Matriz de Envíos B2C</p>
+    <p class="header__title">Migración Integra → DMS · Canal B2C</p>
     <div class="header__actions">
       <button type="button" class="btn btn--secondary" id="btn-descargar">
         <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M5 20h14v-2H5v2Zm7-3 6-6-1.4-1.4-3.6 3.6V3h-2v10.2L7.4 9.6 6 11l6 6Z"/></svg>
@@ -31,7 +31,8 @@
 <main id="contenido" tabindex="-1">
   <div class="page-head">
     <div>
-      <h1>Matriz de Envíos</h1>
+      <h1>Universo de envíos B2C a migrar</h1>
+      <p class="page-head__lead">Envíos de los contratos y clientes de Grupo Logístico Andreani del canal B2C que pasan del sistema operativo Integra a DMS.</p>
       <p id="subtitulo">Cargando…</p>
     </div>
     <div id="estado-base"></div>
@@ -49,7 +50,7 @@
       <div class="panel__head">
         <div>
           <h2 id="t-filtros">Filtros</h2>
-          <p class="panel__sub">Podés elegir varias opciones por categoría. También filtrás haciendo clic en un cliente o en una barra.</p>
+          <p class="panel__sub">En cascada: Segmento › Razón social › Tipo de servicio › Servicio › N° contrato. Cada nivel muestra solo las opciones de lo elegido arriba. Podés elegir varias por nivel.</p>
         </div>
         <div class="search-wrap">
           <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M15.5 14h-.8l-.3-.3A6.5 6.5 0 1 0 14 15.5l.3.3v.8l5 5 1.5-1.5-5-5Zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z"/></svg>
@@ -62,6 +63,16 @@
         <div class="active-filters" id="filtros-activos" aria-live="polite"></div>
         <button type="button" class="btn btn--ghost btn--small" id="btn-limpiar">Limpiar filtros</button>
       </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-arbol">
+    <div class="panel">
+      <div class="panel__head">
+        <div><h2 id="t-arbol" tabindex="-1">Universo por jerarquía</h2><p class="panel__sub">Segmento › Razón social › Tipo de servicio › Servicio › N° contrato. Expandí cada nivel para bajar al siguiente. Respeta los filtros.</p></div>
+        <button type="button" class="btn btn--ghost btn--small" id="btn-contraer">Contraer todo</button>
+      </div>
+      <div id="arbol"></div>
     </div>
   </section>
 
