@@ -201,8 +201,9 @@ section { margin-top: var(--c-spacing-5); }
 .chart .bar-h-bg { fill: var(--c-color-surface-info-subtle); }
 .chart .clickable { cursor: pointer; }
 .chart .clickable:hover .bar-h, .chart .clickable:focus .bar-h { fill: var(--c-color-fill-info-hover); }
+.chart .focus-ring { fill: none; stroke: none; pointer-events: none; }
 .chart .clickable:focus { outline: none; }
-.chart .clickable:focus .focus-ring { stroke: var(--c-blue-600); stroke-width: 3; fill: none; }
+.chart .clickable:focus-visible .focus-ring { stroke: var(--c-blue-600); stroke-width: 3; }
 .chart .sel .bar-h { fill: var(--c-color-fill-primary); }
 .chart .bar-label { fill: var(--c-color-text-strong); font-weight: var(--c-font-weight-medium); }
 .chart .partial-label { fill: var(--c-color-text-caution-strong); font-weight: var(--c-font-weight-medium); }
