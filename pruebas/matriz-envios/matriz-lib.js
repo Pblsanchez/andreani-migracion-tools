@@ -286,7 +286,12 @@ var MATRIZ = (function () {
       if (!b) { b = { segmento: r.segmento, cliente: r.cliente, tipo: r.tipo, servicio: r.servicio, contrato: r.contrato, v: {} }; idx[clave(b)] = b; base.registros.push(b); }
       else {
         if (r.segmento) b.segmento = r.segmento; if (r.cliente) b.cliente = r.cliente;
-        if (b.tipo === NO_INF && r.tipo !== NO_INF) { delete idx[clave(b)]; b.tipo = r.tipo; idx[clave(b)] = b; }
+        if (b.tipo === NO_INF && r.tipo !== NO_INF) {
+          /* Cambia la clave: se mueve también la marca de migración */
+          var viejo = clave(b), mk = migracion(base).marcas;
+          delete idx[viejo]; b.tipo = r.tipo; idx[clave(b)] = b;
+          if (mk[viejo]) { mk[clave(b)] = mk[viejo]; delete mk[viejo]; }
+        }
       }
       parsed.meses.forEach(function (m, i) { var x = r.valores[i] || 0; if (x) b.v[m] = x; else delete b.v[m]; });
     });
@@ -365,6 +370,55 @@ var MATRIZ = (function () {
   function compararJer(a, b) {
     for (var i = 0; i < NIVELES.length; i++) { var x = NIVELES[i].valor(a), y = NIVELES[i].valor(b); if (x !== y) return x.localeCompare(y, "es"); }
     return 0;
+  }
+
+  /* ---------- Migración a DMS (D-020) ----------
+     Unidad mínima = registro (contrato + tipo + servicio). Marcar un nodo de la jerarquía marca todos sus registros.
+     base.migracion = { marcas: { clave: "AAAA-MM-DD" }, historial: [...] } */
+  function migracion(base) { return base.migracion || (base.migracion = { marcas: {}, historial: [] }); }
+  function esMigrado(base, r) { return !!migracion(base).marcas[clave(r)]; }
+  /* Marca (valor=true) o desmarca registros. Devuelve los cambios para poder deshacer. */
+  function marcarMigrado(base, regs, valor, fecha, desc) {
+    var mg = migracion(base), cambios = [];
+    regs.forEach(function (r) {
+      var k = clave(r), antes = mg.marcas[k] || null;
+      if (valor ? !antes : !!antes) { cambios.push({ k: k, antes: antes }); if (valor) mg.marcas[k] = fecha; else delete mg.marcas[k]; }
+    });
+    if (cambios.length) mg.historial.push({ fecha: new Date().toISOString(), accion: valor ? "Marcado como migrado" : "Desmarcado", registros: cambios.length, desc: desc || "" });
+    return cambios;
+  }
+  function deshacerMigrado(base, cambios, desc) {
+    var mg = migracion(base);
+    cambios.forEach(function (c) { if (c.antes) mg.marcas[c.k] = c.antes; else delete mg.marcas[c.k]; });
+    mg.historial.push({ fecha: new Date().toISOString(), accion: "Deshecho", registros: cambios.length, desc: desc || "" });
+  }
+  /* Resumen de avance sobre un conjunto de registros */
+  function resumenMigracion(base, regs, meses, mesRef) {
+    var mk = migracion(base).marcas, o = { registros: 0, registrosMigrados: 0, envios: 0, enviosMigrados: 0, ref: 0, refMigrado: 0 }, con = {}, cli = {};
+    regs.forEach(function (r) {
+      var m = !!mk[clave(r)], e = sumaMeses(r, meses), x = mesRef ? (r.v[mesRef] || 0) : 0;
+      o.registros++; o.envios += e; o.ref += x;
+      if (m) { o.registrosMigrados++; o.enviosMigrados += e; o.refMigrado += x; }
+      if (r.contrato !== SIN_CON) { var c = con[r.contrato] || (con[r.contrato] = { t: 0, m: 0 }); c.t++; if (m) c.m++; }
+      if (r.cliente) { var d = cli[r.cliente] || (cli[r.cliente] = { t: 0, m: 0 }); d.t++; if (m) d.m++; }
+    });
+    function cuenta(map) { var x = { total: 0, completos: 0, parciales: 0 }; Object.keys(map).forEach(function (k) { var g = map[k]; x.total++; if (g.m === g.t) x.completos++; else if (g.m) x.parciales++; }); return x; }
+    o.contratos = cuenta(con); o.clientes = cuenta(cli);
+    o.estado = !o.registrosMigrados ? "pendiente" : o.registrosMigrados === o.registros ? "migrado" : "parcial";
+    return o;
+  }
+  /* Lista de contratos desde un archivo (CSV/XLSX): columna que contenga "contrato" o cualquier número de 6 a 12 dígitos */
+  function contratosDesdeFilas(rows) {
+    var col = -1, desde = 0;
+    for (var i = 0; i < Math.min(rows.length, 10) && col < 0; i++) {
+      var r = rows[i] || [];
+      for (var c = 0; c < r.length; c++) if (/contrato/.test(sinAcentos(r[c]))) { col = c; desde = i + 1; break; }
+    }
+    var set = {};
+    rows.slice(desde).forEach(function (row) {
+      (col >= 0 ? [(row || [])[col]] : (row || [])).forEach(function (v) { var s = norm(v).replace(/\.0+$/, ""); if (/^\d{6,12}$/.test(s)) set[s] = 1; });
+    });
+    return Object.keys(set);
   }
 
   function agrupar(regs, keyFn, meses) {
@@ -539,6 +593,8 @@ var MATRIZ = (function () {
     calidad: calidad, completos: completos, sumaMeses: sumaMeses, segDe: segDe, cliDe: cliDe, clave: clave, sinAcentos: sinAcentos, demo: demo,
     completarTipo: completarTipo, esInterno: esInterno, INTERNOS: INTERNOS,
     NIVELES: NIVELES, opciones: opciones, podar: podar, grupoNivel: grupoNivel, compararJer: compararJer,
+    migracion: migracion, esMigrado: esMigrado, marcarMigrado: marcarMigrado, deshacerMigrado: deshacerMigrado,
+    resumenMigracion: resumenMigracion, contratosDesdeFilas: contratosDesdeFilas,
     SIN_RS: SIN_RS, SIN_SEG: SIN_SEG, NO_INF: NO_INF, SIN_CON: SIN_CON
   };
 })();
