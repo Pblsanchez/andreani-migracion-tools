@@ -161,6 +161,7 @@ h2 {
 }
 .alert svg { flex: 0 0 auto; }
 .alert strong { font-weight: var(--c-font-weight-bold); }
+.alert a { color: var(--c-color-text-info-strong); }
 
 /* ===== Cards ===== */
 .grid {
@@ -287,9 +288,9 @@ h2 {
   <div class="hero">
     <h1>Herramientas de migración</h1>
     <p>Soluciones para preparar, auditar y monitorear la migración de datos desde Integra (B2C) hacia DMS (B2B+B2C).</p>
-    <div class="alert" role="note" aria-label="Privacidad de los datos">
+    <div class="alert" role="note" aria-label="Dónde se guardan los datos">
       <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 15h-2v-6h2v6Zm0-8h-2V7h2v2Z"/></svg>
-      <div><strong>Tus datos no salen de tu equipo.</strong> Las herramientas procesan los archivos en el navegador. No subas exports de Integra ni datos de clientes a este repositorio.</div>
+      <div><strong>Dónde se guardan los datos.</strong> Las herramientas procesan los archivos en tu navegador. Excepción: la <strong>Matriz de Envíos</strong> guarda su base y el avance de la migración en la rama <code>datos</code> de este repositorio (público), para que todos vean la información al día.</div>
     </div>
   </div>
 
@@ -307,7 +308,7 @@ h2 {
 <footer class="footer">
   <div class="footer__inner">
     <span>Andreani · Equipo de migración Integra → DMS</span>
-    <span>Última actualización del portal: <time datetime="2026-10-28">28/10/2026</time></span>
+    <span>Última actualización del portal: <time datetime="2026-10-29">29/10/2026</time></span>
   </div>
 </footer>
 
@@ -318,7 +319,7 @@ h2 {
  * estado: "estable" | "beta"
  */
 var HERRAMIENTAS = [
-  // { id: "auditoria-integra", nombre: "Auditoría de exports Integra", descripcion: "...", estado: "beta" }
+  { id: "matriz-envios", nombre: "Matriz de Envíos · universo B2C a migrar", descripcion: "Envíos por segmento, razón social, tipo de servicio, servicio y contrato, con el avance de la migración a DMS. Datos vivos: lo que se marca o se carga se guarda en GitHub y lo ve cualquiera.", estado: "beta" }
 ];
 
 var RELACIONADOS = [
