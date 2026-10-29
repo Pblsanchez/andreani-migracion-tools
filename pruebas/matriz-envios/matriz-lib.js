@@ -6,6 +6,14 @@ var MATRIZ = (function () {
   var MESES_TXT = ["", "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
   var SIN_RS = "(Sin razón social)";
   var SIN_SEG = "(Sin segmento)";
+  var NO_INF = "(Tipo no informado)";
+  var SIN_CON = "(Sin contrato)";
+  /* Clientes internos: no aparecen en rankings ni en la concentración top 10 (pedido de Pablo, D-016) */
+  var INTERNOS = ["CORREO ANDREANI S.A.", "ANDREANI ONLINE"];
+  function esInterno(nombre) {
+    var s = sinAcentos(nombre).replace(/[.\s]+/g, " ").trim();
+    return INTERNOS.some(function (x) { var k = sinAcentos(x).replace(/[.\s]+/g, " ").trim(); return s === k || s.indexOf(k + " ") === 0; });
+  }
 
   /* ---------- Utilidades ---------- */
   function norm(s) { return String(s == null ? "" : s).trim(); }
@@ -56,10 +64,11 @@ var MATRIZ = (function () {
     var faltan = [];
     if (cols.seg < 0) faltan.push("Segmento");
     if (cols.rs < 0) faltan.push("Razón Social");
-    if (cols.tipo < 0) faltan.push("Tipo de Servicio");
     if (cols.serv < 0) faltan.push("Servicio");
-    if (faltan.length) throw new Error("Faltan columnas: " + faltan.join(", ") + ".");
-    var dimCols = [cols.seg, cols.rs, cols.tipo, cols.serv, cols.contrato];
+    if (faltan.length) throw new Error("Faltan columnas: " + faltan.join(", ") + ". Columnas encontradas: " + (rows[iHead] || []).filter(function (x) { return norm(x); }).join(", ") + ".");
+    /* "Tipo de Servicio" es opcional: algunas descargas no la traen (se completa con la base, ver completarTipo) */
+    var sinTipo = cols.tipo < 0;
+    var dimCols = [cols.seg, cols.rs, cols.tipo, cols.serv, cols.contrato].filter(function (c) { return c >= 0; });
 
     /* Meses: en la fila de encabezado o arriba (Power BI pone "Año, Mes" + meses en la fila 1) */
     var meses = [], colMes = [], maxCol = 0;
@@ -82,11 +91,12 @@ var MATRIZ = (function () {
     }
     /* Si la exportación deja en blanco las etiquetas repetidas, se completan hacia abajo */
     /* El tipo de servicio nunca viene vacío en una fila de dato: si falta en muchas, se completa hacia abajo */
-    var vaciosTipo = dataRows.filter(function (r) { return norm(r[cols.tipo]) === ""; }).length;
+    var colRef = sinTipo ? cols.serv : cols.tipo;
+    var vaciosTipo = dataRows.filter(function (r) { return norm(r[colRef]) === ""; }).length;
     var fillDown = dataRows.length > 0 && vaciosTipo / dataRows.length > 0.2;
 
     var registros = [], totalGeneral = null, last = {};
-    var dims = ["seg", "rs", "tipo", "serv", "contrato"];
+    var dims = sinTipo ? ["seg", "rs", "serv", "contrato"] : ["seg", "rs", "tipo", "serv", "contrato"];
     dataRows.forEach(function (row) {
       var esSub = dims.some(function (d) { return esTotal(row[cols[d]]); }) || esTotal(row[0]);
       if (esSub) {
@@ -97,15 +107,20 @@ var MATRIZ = (function () {
       }
       var v = {};
       dims.forEach(function (d) { var x = norm(row[cols[d]]); if (fillDown && x === "") x = last[d] || ""; v[d] = x; });
-      if (!v.contrato) return;
+      /* Filas con servicio y envíos pero sin segmento, razón social ni contrato: se conservan para que el total cuadre */
+      if (!v.contrato) {
+        var tot = 0; colMes.forEach(function (c) { tot += Math.abs(num(row[c])); });
+        if (!v.serv || !tot) return;
+        v.contrato = SIN_CON;
+      }
       dims.forEach(function (d) { last[d] = v[d]; });
       registros.push({
-        segmento: v.seg, cliente: v.rs, tipo: v.tipo, servicio: v.serv, contrato: v.contrato.replace(/\.0+$/, ""),
+        segmento: v.seg, cliente: v.rs, tipo: sinTipo ? NO_INF : v.tipo, servicio: v.serv, contrato: v.contrato.replace(/\.0+$/, ""),
         valores: colMes.map(function (c) { return num(row[c]); })
       });
     });
     var suma = 0; registros.forEach(function (r) { r.valores.forEach(function (x) { suma += x; }); });
-    return { meses: meses, registros: registros, filtros: filtros, fillDown: fillDown,
+    return { meses: meses, registros: registros, filtros: filtros, fillDown: fillDown, sinTipo: sinTipo,
       control: { totalGeneral: totalGeneral, sumaDetalle: suma, cuadra: totalGeneral == null ? null : Math.round(totalGeneral) === Math.round(suma) } };
   }
 
@@ -214,34 +229,65 @@ var MATRIZ = (function () {
     return b;
   }
 
+  /* Si la descarga no trae "Tipo de Servicio", se toma de la base (mismo contrato + servicio) o del servicio.
+     Devuelve una copia de parsed; no modifica la base. */
+  function completarTipo(base, parsed) {
+    if (!parsed.sinTipo) return parsed;
+    var porCS = {}, porServ = {};
+    base.registros.forEach(function (r) {
+      if (r.tipo === NO_INF) return;
+      (porCS[r.contrato + "|" + r.servicio] = porCS[r.contrato + "|" + r.servicio] || {})[r.tipo] = 1;
+      (porServ[r.servicio] = porServ[r.servicio] || {})[r.tipo] = 1;
+    });
+    var deducidos = 0;
+    var regs = parsed.registros.map(function (r) {
+      var c = Object.assign({}, r), a = Object.keys(porCS[r.contrato + "|" + r.servicio] || {}), b = Object.keys(porServ[r.servicio] || {});
+      if (a.length === 1) c.tipo = a[0]; else if (b.length === 1) c.tipo = b[0];
+      if (c.tipo !== NO_INF) deducidos++;
+      return c;
+    });
+    return Object.assign({}, parsed, { registros: regs, tiposDeducidos: deducidos });
+  }
+  /* Busca el registro de la base para r. Si la base tiene el registro sin tipo y la descarga sí lo trae, también lo encuentra. */
+  function buscar(idxBase, r) { return idxBase[clave(r)] || (r.tipo !== NO_INF ? idxBase[r.contrato + "|" + NO_INF + "|" + r.servicio] : null) || null; }
+
   /* Compara una descarga con la base (D-011). No modifica nada. */
   function diferencias(base, parsed) {
+    parsed = completarTipo(base, parsed);
     var idxBase = {}; base.registros.forEach(function (r) { idxBase[clave(r)] = r; });
     var mesesNuevos = parsed.meses.filter(function (m) { return base.meses.indexOf(m) < 0; });
     var nuevos = [], cambios = [], dup = 0, vistos = {};
     parsed.registros.forEach(function (r) {
       var k = clave(r);
       if (vistos[k]) { dup++; return; } vistos[k] = 1;
-      var b = idxBase[k];
+      var b = buscar(idxBase, r);
       if (!b) { nuevos.push(r); return; }
+      vistos[clave(b)] = 1;
       parsed.meses.forEach(function (m, i) {
         var nv = r.valores[i] || 0, ov = b.v[m] || 0;
         if (base.meses.indexOf(m) >= 0 && nv !== ov) cambios.push({ contrato: r.contrato, cliente: r.cliente || b.cliente, servicio: r.servicio, mes: m, antes: ov, despues: nv });
       });
     });
     var ausentes = base.registros.filter(function (r) { return !vistos[clave(r)]; }).length;
-    var filtrosDistintos = !!(base.filtros && parsed.filtros && sinAcentos(base.filtros) !== sinAcentos(parsed.filtros));
-    return { nuevos: nuevos, cambios: cambios, mesesNuevos: mesesNuevos, ausentes: ausentes, duplicados: dup, filtrosDistintos: filtrosDistintos, control: parsed.control, registrosDescarga: parsed.registros.length };
+    var filtrosDistintos = !!(base.filtros && parsed.filtros && normFiltros(base.filtros) !== normFiltros(parsed.filtros));
+    return { nuevos: nuevos, cambios: cambios, mesesNuevos: mesesNuevos, ausentes: ausentes, duplicados: dup, filtrosDistintos: filtrosDistintos, control: parsed.control,
+      registrosDescarga: parsed.registros.length, sinTipo: !!parsed.sinTipo, tiposDeducidos: parsed.tiposDeducidos || 0 };
   }
+  /* Compara filtros ignorando el orden y los separadores */
+  function normFiltros(s) { return sinAcentos(s).split(/\s*·\s*/).map(function (x) { return x.trim(); }).filter(Boolean).sort().join("|"); }
 
   /* Aplica la descarga (D-011): agrega nuevos, reemplaza meses existentes, conserva lo ausente. */
   function fusionar(base, parsed, archivo, hoy) {
     var d = diferencias(base, parsed);
+    parsed = completarTipo(base, parsed);
     var idx = {}; base.registros.forEach(function (r) { idx[clave(r)] = r; });
     parsed.registros.forEach(function (r) {
-      var k = clave(r), b = idx[k];
-      if (!b) { b = { segmento: r.segmento, cliente: r.cliente, tipo: r.tipo, servicio: r.servicio, contrato: r.contrato, v: {} }; idx[k] = b; base.registros.push(b); }
-      else { if (r.segmento) b.segmento = r.segmento; if (r.cliente) b.cliente = r.cliente; }
+      var b = buscar(idx, r);
+      if (!b) { b = { segmento: r.segmento, cliente: r.cliente, tipo: r.tipo, servicio: r.servicio, contrato: r.contrato, v: {} }; idx[clave(b)] = b; base.registros.push(b); }
+      else {
+        if (r.segmento) b.segmento = r.segmento; if (r.cliente) b.cliente = r.cliente;
+        if (b.tipo === NO_INF && r.tipo !== NO_INF) { delete idx[clave(b)]; b.tipo = r.tipo; idx[clave(b)] = b; }
+      }
       parsed.meses.forEach(function (m, i) { var x = r.valores[i] || 0; if (x) b.v[m] = x; else delete b.v[m]; });
     });
     d.mesesNuevos.forEach(function (m) { base.meses.push(m); });
@@ -278,7 +324,7 @@ var MATRIZ = (function () {
     regs.forEach(function (r) {
       var k = keyFn(r), g = map[k] || (map[k] = { clave: k, envios: 0, contratos: {}, clientes: {}, servicios: {} });
       var t = sumaMeses(r, meses);
-      g.envios += t; g.contratos[r.contrato] = 1; g.servicios[r.servicio] = 1;
+      g.envios += t; if (r.contrato !== SIN_CON) g.contratos[r.contrato] = 1; g.servicios[r.servicio] = 1;
       if (t > 0) g.clientes[cliDe(r)] = 1;
     });
     return Object.keys(map).map(function (k) {
@@ -295,13 +341,13 @@ var MATRIZ = (function () {
     regs.forEach(function (r) {
       var t = 0; meses.forEach(function (m) { var x = r.v[m] || 0; porMes[m] += x; t += x; });
       total += t;
-      if (t > 0) { contratos[r.contrato] = 1; if (r.cliente) clientes[r.cliente] = 1; servicios[r.servicio] = 1; segmentos[segDe(r)] = 1; }
+      if (t > 0) { if (r.contrato !== SIN_CON) contratos[r.contrato] = 1; if (r.cliente) clientes[r.cliente] = 1; servicios[r.servicio] = 1; segmentos[segDe(r)] = 1; }
     });
     var ultimo = comp[comp.length - 1] || null, previo = comp[comp.length - 2] || null;
     var activos = {};
-    if (ultimo) regs.forEach(function (r) { if ((r.v[ultimo] || 0) > 0) activos[r.contrato] = 1; });
+    if (ultimo) regs.forEach(function (r) { if ((r.v[ultimo] || 0) > 0 && r.contrato !== SIN_CON) activos[r.contrato] = 1; });
     var sumComp = 0; comp.forEach(function (m) { sumComp += porMes[m]; });
-    var porCli = agrupar(regs.filter(function (r) { return r.cliente; }), cliDe, meses).sort(function (a, b) { return b.envios - a.envios; });
+    var porCli = agrupar(regs.filter(function (r) { return r.cliente && !esInterno(r.cliente); }), cliDe, meses).sort(function (a, b) { return b.envios - a.envios; });
     var top10 = 0; porCli.slice(0, 10).forEach(function (c) { top10 += c.envios; });
     var nContratos = Object.keys(contratos).length;
     return {
@@ -354,6 +400,7 @@ var MATRIZ = (function () {
     var rec = comp.slice(-3), antes = base.meses.filter(function (m) { return m < rec[0]; });
     var porC = {};
     regs.forEach(function (r) {
+      if (r.contrato === SIN_CON) return;
       var g = porC[r.contrato] || (porC[r.contrato] = { contrato: r.contrato, cliente: cliDe(r), servicios: {}, rec: 0, antes: 0, ultimo: null });
       g.servicios[r.servicio] = 1; g.rec += sumaMeses(r, rec); g.antes += sumaMeses(r, antes);
       antes.forEach(function (m) { if ((r.v[m] || 0) > 0 && (!g.ultimo || m > g.ultimo)) g.ultimo = m; });
@@ -365,9 +412,11 @@ var MATRIZ = (function () {
   }
 
   function calidad(base) {
-    var sinSeg = {}, sinSegEnv = 0, sinServ = {}, formato = {}, contratoServ = {}, negativos = 0, claves = {}, dup = 0;
+    var sinSeg = {}, sinSegEnv = 0, sinServ = {}, formato = {}, contratoServ = {}, negativos = 0, claves = {}, dup = 0, sinCon = 0, sinConEnv = 0, sinTipo = 0;
     base.registros.forEach(function (r) {
       var t = 0; for (var m in r.v) { t += r.v[m]; if (r.v[m] < 0) negativos++; }
+      if (r.tipo === NO_INF) sinTipo++;
+      if (r.contrato === SIN_CON) { sinCon++; sinConEnv += t; return; }
       if (!r.segmento || !r.cliente) { sinSeg[r.contrato] = 1; sinSegEnv += t; }
       if (/sin servicio/i.test(r.tipo) || /sin servicio/i.test(r.servicio)) sinServ[r.contrato] = 1;
       if (!/^\d{9}$/.test(r.contrato)) formato[r.contrato] = 1;
@@ -380,9 +429,10 @@ var MATRIZ = (function () {
       { id: "sinserv", nivel: "warning", titulo: "Contratos con «Sin servicio asignado»", cantidad: Object.keys(sinServ).length, ejemplos: Object.keys(sinServ).slice(0, 5) },
       { id: "multi", nivel: "info", titulo: "Contratos en más de un servicio", cantidad: multi.length, ejemplos: multi.slice(0, 5), nota: "No es un error: por eso la clave es contrato + tipo + servicio." },
       { id: "formato", nivel: "warning", titulo: "Contratos con formato distinto a 9 dígitos", cantidad: Object.keys(formato).length, ejemplos: Object.keys(formato).slice(0, 5) },
+      { id: "sincon", nivel: "error", titulo: "Filas sin contrato (solo servicio)", cantidad: sinCon, extra: sinConEnv, extraTxt: "envíos sin segmento, razón social ni contrato" },
       { id: "dup", nivel: "error", titulo: "Registros duplicados (misma clave)", cantidad: dup },
       { id: "neg", nivel: "error", titulo: "Valores negativos", cantidad: negativos }
-    ];
+    ].concat(sinTipo ? [{ id: "sintipo", nivel: "info", titulo: "Registros sin tipo de servicio", cantidad: sinTipo, nota: "La descarga no trae la columna «Tipo de Servicio». Se completa sola si una descarga posterior la incluye." }] : []);
   }
 
   /* ---------- Datos sintéticos (prueba visual pública, D-014). Nombres y contratos inventados. ---------- */
@@ -439,7 +489,8 @@ var MATRIZ = (function () {
     desdeFilas: desdeFilas, nuevaBase: nuevaBase, diferencias: diferencias, fusionar: fusionar, totalBase: totalBase,
     filtrar: filtrar, agrupar: agrupar, kpis: kpis, tendencia: tendencia, sinActividad: sinActividad, clientesNuevos: clientesNuevos,
     calidad: calidad, completos: completos, sumaMeses: sumaMeses, segDe: segDe, cliDe: cliDe, clave: clave, sinAcentos: sinAcentos, demo: demo,
-    SIN_RS: SIN_RS, SIN_SEG: SIN_SEG
+    completarTipo: completarTipo, esInterno: esInterno, INTERNOS: INTERNOS,
+    SIN_RS: SIN_RS, SIN_SEG: SIN_SEG, NO_INF: NO_INF, SIN_CON: SIN_CON
   };
 })();
 if (typeof module !== "undefined" && module.exports) module.exports = MATRIZ;
