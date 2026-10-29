@@ -34,7 +34,7 @@
     pie: "M11 2v20a10 10 0 0 1 0-20Zm2 0v9h9a10 10 0 0 0-9-9Zm0 11v9a10 10 0 0 0 9-9h-9Z",
     star: "m12 17.3 6.2 3.7-1.6-7L22 9.2l-7.2-.6L12 2 9.2 8.6 2 9.2 7.4 14l-1.6 7L12 17.3Z",
     grid: "M3 3h8v8H3V3Zm10 0h8v8h-8V3ZM3 13h8v8H3v-8Zm10 0h8v8h-8v-8Z",
-    up: "M7 14l5-5 5 5H7Z", down: "M7 10l5 5 5-5H7Z",
+    up: "M7 14l5-5 5 5H7Z", down: "M7 10l5 5 5-5H7Z", right: "M10 7l5 5-5 5V7Z",
     check: "M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2Z",
     close: "M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12 19 6.4Z",
     info: "M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 15h-2v-6h2v6Zm0-8h-2V7h2v2Z",
@@ -56,8 +56,8 @@
   function badge(nivel, texto) { var d = NIVEL[nivel]; return el("span", { "class": "badge badge--" + d.cls }, [svgIcon(d.icon, 14), texto || d.txt]); }
 
   /* ---------- Estado ---------- */
-  var base, f, ui = { verTodosServ: false, tab: "crec", sortKey: "total", sortDir: -1, page: 0, pageSize: 25, verTodoTab: false };
-  function filtrosVacios() { return { meses: [], tipos: [], segmentos: [], servicios: [], texto: "", cliente: "" }; }
+  var base, f, ui = { verTodos: {}, busq: {}, tab: "crec", sortKey: "jer", sortDir: 1, page: 0, pageSize: 25, verTodoTab: false, abiertos: {}, limites: {} };
+  function filtrosVacios() { return { segmentos: [], clientes: [], tipos: [], servicios: [], contratos: [], meses: [], texto: "" }; }
   f = filtrosVacios();
 
   function cargarBase() {
@@ -107,60 +107,78 @@
   function serieTipo(t) { if (/paquet/i.test(t)) return "s1"; if (/sobre/i.test(t)) return "s2"; if (/inversa/i.test(t)) return "s3"; if (/sin servicio|no informado/i.test(t)) return "s4"; return "s5"; }
   function tiposOrdenados() { var u = {}; base.registros.forEach(function (r) { u[r.tipo] = 1; }); return Object.keys(u).sort(); }
 
-  /* ---------- Filtros ---------- */
-  function conteos(dim) {
-    var c = {}; var meses = mesesSel();
-    base.registros.forEach(function (r) { var k = dim(r); c[k] = (c[k] || 0) + M.sumaMeses(r, meses); });
-    return c;
-  }
+  /* ---------- Filtros en cascada: SEGMENTO > RAZÓN SOCIAL > TIPO DE SERVICIO > SERVICIO > N° CONTRATO (D-018) ---------- */
+  var VISIBLES = 12, MAX_TODOS = 300;
   function mesesSel() { return f.meses.length ? base.meses.filter(function (m) { return f.meses.indexOf(m) >= 0; }) : base.meses; }
   function toggle(arr, v) { var i = arr.indexOf(v); if (i >= 0) arr.splice(i, 1); else arr.push(v); }
-  function chip(label, pressed, onClick, count, extraCls) {
-    return el("button", { type: "button", "class": "chip" + (extraCls ? " " + extraCls : ""), "aria-pressed": pressed ? "true" : "false", onclick: onClick }, [
+  function chip(label, pressed, onClick, count, extraCls, fid) {
+    return el("button", { type: "button", "class": "chip" + (extraCls ? " " + extraCls : ""), "aria-pressed": pressed ? "true" : "false", onclick: onClick, "data-fid": fid || null }, [
       el("span", { "class": "chip__check" }, [svgIcon("check", 14)]), label, count != null ? el("span", { "class": "chip__count num" }, [" · " + corto(count)]) : null
     ]);
   }
-  function filaFiltro(titulo, id, chips) {
+  function filaFiltro(titulo, id, chips, extra) {
     var lab = el("div", { "class": "filter-row__label", id: id }, [titulo]);
-    return el("div", { "class": "filter-row" }, [lab, el("div", { "class": "chips", role: "group", "aria-labelledby": id }, chips)]);
+    var der = el("div", { "class": "filter-row__body" }, [extra || null, el("div", { "class": "chips", role: "group", "aria-labelledby": id, id: id + "-chips" }, chips)]);
+    return el("div", { "class": "filter-row" }, [lab, der]);
+  }
+  /* Chips de un nivel: los 12 con más envíos + los elegidos; con búsqueda propia si hay muchos */
+  function chipsNivel(i) {
+    var N = M.NIVELES[i], sel = f[N.id], q = M.sinAcentos(ui.busq[N.id] || "");
+    var ops = M.opciones(base, f, i, mesesSel());
+    var filtradas = q ? ops.filter(function (o) { return M.sinAcentos(o.valor).indexOf(q) >= 0; }) : ops;
+    var lim = ui.verTodos[N.id] ? MAX_TODOS : VISIBLES;
+    var vis = filtradas.slice(0, lim);
+    sel.forEach(function (v) { if (!vis.some(function (o) { return o.valor === v; })) { var o = ops.filter(function (x) { return x.valor === v; })[0]; vis.unshift(o || { valor: v, envios: 0 }); } });
+    var out = vis.map(function (o) {
+      return chip(o.valor, sel.indexOf(o.valor) >= 0, function () { toggle(sel, o.valor); cambio(); }, o.envios, null, N.id + ":" + o.valor);
+    });
+    if (!filtradas.length) out.push(el("span", { "class": "chip__count", text: q ? "Sin coincidencias para «" + ui.busq[N.id] + "»." : "Sin opciones para la selección de arriba." }));
+    if (filtradas.length > VISIBLES) out.push(el("button", { type: "button", "class": "chip chip--more", "aria-expanded": ui.verTodos[N.id] ? "true" : "false", "data-fid": N.id + ":__mas",
+      onclick: function () { ui.verTodos[N.id] = !ui.verTodos[N.id]; renderChipsNivel(i); var b = document.querySelector("[data-fid='" + N.id + ":__mas']"); if (b) b.focus(); } },
+      [ui.verTodos[N.id] ? "Ver menos" : "Ver " + (filtradas.length > MAX_TODOS ? MAX_TODOS + " de " + n(filtradas.length) : "los " + n(filtradas.length))]));
+    return out;
+  }
+  function renderChipsNivel(i) {
+    var cont = $("fl-" + M.NIVELES[i].id + "-chips"); if (!cont) return;
+    cont.innerHTML = ""; chipsNivel(i).forEach(function (c) { cont.appendChild(c); });
   }
   function renderFiltros() {
     var c = $("filtros"); c.innerHTML = "";
-    c.appendChild(filaFiltro("Período", "fl-mes", base.meses.map(function (m) {
-      return chip(M.mesTxt(m) + (m === base.mesParcial ? " (parcial)" : ""), f.meses.indexOf(m) >= 0, function () { toggle(f.meses, m); cambio(); });
+    M.NIVELES.forEach(function (N, i) {
+      var total = M.opciones(base, f, i, []).length, extra = null;
+      if (total > VISIBLES) {
+        var inp = el("input", { "class": "input input--chip-search", type: "search", placeholder: "Buscar " + N.nombre.toLowerCase(), "aria-label": "Buscar " + N.nombre.toLowerCase() + " (" + n(total) + " opciones)", autocomplete: "off", "data-fid": N.id + ":__buscar" });
+        inp.value = ui.busq[N.id] || "";
+        inp.addEventListener("input", function (ev) { ui.busq[N.id] = ev.target.value; renderChipsNivel(i); });
+        extra = inp;
+      }
+      var titulo = el("span", null, [el("span", { "class": "nivel-num", "aria-hidden": "true" }, [String(i + 1)]), N.nombre, el("span", { "class": "filter-row__count" }, [n(total) + " opciones"])]);
+      c.appendChild(filaFiltro(titulo, "fl-" + N.id, chipsNivel(i), extra));
+    });
+    c.appendChild(el("hr", { "class": "filters__sep" }));
+    c.appendChild(filaFiltro(el("span", null, ["Período"]), "fl-mes", base.meses.map(function (m) {
+      return chip(M.mesTxt(m) + (m === base.mesParcial ? " (parcial)" : ""), f.meses.indexOf(m) >= 0, function () { toggle(f.meses, m); cambio(); }, null, null, "mes:" + m);
     })));
-    var ct = conteos(function (r) { return r.tipo; });
-    c.appendChild(filaFiltro("Tipo de servicio", "fl-tipo", tiposOrdenados().map(function (t) {
-      return chip(t, f.tipos.indexOf(t) >= 0, function () { toggle(f.tipos, t); cambio(); }, ct[t]);
-    })));
-    var cs = conteos(M.segDe);
-    var segs = Object.keys(cs).sort(function (a, b) { return cs[b] - cs[a]; });
-    c.appendChild(filaFiltro("Segmento", "fl-seg", segs.map(function (s) {
-      return chip(s, f.segmentos.indexOf(s) >= 0, function () { toggle(f.segmentos, s); cambio(); }, cs[s]);
-    })));
-    var cv = conteos(function (r) { return r.servicio; });
-    var servs = Object.keys(cv).sort(function (a, b) { return cv[b] - cv[a]; });
-    var visibles = ui.verTodosServ ? servs : servs.slice(0, 12);
-    f.servicios.forEach(function (s) { if (visibles.indexOf(s) < 0) visibles.push(s); });
-    var chipsServ = visibles.map(function (s) { return chip(s, f.servicios.indexOf(s) >= 0, function () { toggle(f.servicios, s); cambio(); }, cv[s]); });
-    if (servs.length > 12) chipsServ.push(el("button", { type: "button", "class": "chip chip--more", "aria-expanded": ui.verTodosServ ? "true" : "false", onclick: function () { ui.verTodosServ = !ui.verTodosServ; renderFiltros(); } }, [ui.verTodosServ ? "Ver menos" : "Ver los " + servs.length]));
-    c.appendChild(filaFiltro("Servicio", "fl-serv", chipsServ));
   }
   function renderActivos() {
     var c = $("filtros-activos"); c.innerHTML = "";
     var tags = [];
     function tag(txt, quitar) { tags.push(el("span", { "class": "tag" }, [txt, el("button", { type: "button", "aria-label": "Quitar filtro " + txt, onclick: function () { quitar(); cambio(); } }, [svgIcon("close", 14)])])); }
-    f.meses.forEach(function (m) { tag(M.mesTxt(m), function () { toggle(f.meses, m); }); });
-    f.tipos.forEach(function (m) { tag(m, function () { toggle(f.tipos, m); }); });
-    f.segmentos.forEach(function (m) { tag(m, function () { toggle(f.segmentos, m); }); });
-    f.servicios.forEach(function (m) { tag(m, function () { toggle(f.servicios, m); }); });
-    if (f.cliente) tag("Cliente: " + f.cliente, function () { f.cliente = ""; });
+    M.NIVELES.forEach(function (N) { f[N.id].forEach(function (v) { tag(N.nombre + ": " + v, function () { toggle(f[N.id], v); }); }); });
+    f.meses.forEach(function (m) { tag("Período: " + M.mesTxt(m), function () { toggle(f.meses, m); }); });
     if (f.texto) tag("Búsqueda: " + f.texto, function () { f.texto = ""; $("buscar").value = ""; });
-    if (!tags.length) c.appendChild(el("span", { text: "Sin filtros: se muestra toda la base." }));
+    if (!tags.length) c.appendChild(el("span", { text: "Sin filtros: se muestra todo el universo B2C." }));
     else { c.appendChild(el("span", { text: "Filtros activos:" })); tags.forEach(function (t) { c.appendChild(t); }); }
     $("btn-limpiar").disabled = !tags.length;
   }
-  function cambio() { ui.page = 0; renderTodo(); }
+  /* Cada cambio poda las selecciones inferiores incompatibles y devuelve el foco al mismo control */
+  function cambio() {
+    var act = document.activeElement, fid = act && act.getAttribute ? act.getAttribute("data-fid") : null;
+    var quitadas = M.podar(base, f);
+    ui.page = 0; renderTodo();
+    if (quitadas) toast("Se quitaron " + quitadas + " selecciones de niveles inferiores que ya no corresponden a la selección de arriba.");
+    if (fid) { var b = document.querySelector("[data-fid='" + fid.replace(/'/g, "\\'") + "']"); if (b && b.focus) b.focus(); }
+  }
 
   /* ---------- KPIs ---------- */
   function renderKpis(k) {
@@ -308,7 +326,7 @@
   }
   function linkCliente(nombre) {
     if (nombre === M.SIN_RS) return el("span", { text: nombre });
-    return el("button", { type: "button", "class": "linkbtn", title: "Filtrar por este cliente", onclick: function () { f.cliente = f.cliente === nombre ? "" : nombre; cambio(); document.getElementById("t-filtros").scrollIntoView({ behavior: "smooth", block: "start" }); } }, [nombre]);
+    return el("button", { type: "button", "class": "linkbtn", title: "Filtrar por este cliente", onclick: function () { if (f.clientes.indexOf(nombre) < 0) { f.clientes.push(nombre); cambio(); toast("Filtro: Razón social = " + nombre); } document.getElementById("t-filtros").scrollIntoView({ behavior: "smooth", block: "start" }); } }, [nombre]);
   }
   function share(v, tot) { var p = tot ? v / tot : 0; return el("span", { "class": "share" }, [pct(p), el("span", { "class": "share__bar", "aria-hidden": "true" }, [el("span", { style: "width:" + Math.min(100, p * 100).toFixed(1) + "%" })])]); }
 
@@ -422,6 +440,48 @@
     $("footer-base").textContent = "Base actualizada: " + fecha(base.actualizado);
   }
 
+  /* ---------- Explorador jerárquico: SEGMENTO > RAZÓN SOCIAL > TIPO > SERVICIO > N° CONTRATO (D-018) ---------- */
+  var PASO = 25;
+  function renderArbol(regs, k) {
+    var cont = $("arbol"); cont.innerHTML = "";
+    var ref = k.mesUltimo, total = k.envios || 0, tbody = el("tbody");
+    var abiertos = 0;
+    function fila(g, nivel, ruta) {
+      var N = M.NIVELES[nivel], hoja = nivel === M.NIVELES.length - 1, key = ruta.concat([g.clave]).join("\u0001");
+      var abierto = !hoja && !!ui.abiertos[key];
+      var nombre = el("span", { "class": "arbol__nombre" }, [el("span", { "class": "sr-only", text: N.nombre + ": " }), g.clave]);
+      var celda = hoja
+        ? el("span", { "class": "arbol__hoja num" }, [el("span", { "class": "arbol__punto", "aria-hidden": "true" }), nombre])
+        : el("button", { type: "button", "class": "arbol__toggle", "aria-expanded": abierto ? "true" : "false", "data-fid": "arbol:" + key,
+            onclick: function () { if (ui.abiertos[key]) delete ui.abiertos[key]; else ui.abiertos[key] = 1; renderArbol(regs, k); var b = document.querySelector("[data-fid='arbol:" + key.replace(/'/g, "\\'") + "']"); if (b) b.focus(); } },
+            [svgIcon(abierto ? "down" : "right", 18), nombre]);
+      tbody.appendChild(el("tr", { "class": "arbol__fila arbol__fila--n" + nivel }, [
+        el("td", { "class": "arbol__celda", style: "padding-left:calc(var(--c-spacing-4) + " + (nivel * 24) + "px)" }, [celda, el("span", { "class": "badge badge--neutral arbol__nivel" }, [N.nombre])]),
+        el("td", { "class": "n", text: n(g.envios) }), el("td", { "class": "n" }, [share(g.envios, total)]),
+        el("td", { "class": "n", text: nivel < 1 ? n(g.clientes) : "—" }), el("td", { "class": "n", text: nivel < 4 ? n(g.contratos) : "—" }),
+        el("td", { "class": "n", text: ref ? n(g.ref) : "—" })
+      ]));
+      if (abierto) { abiertos++; hijos(g.regs, nivel + 1, ruta.concat([g.clave])); }
+    }
+    function hijos(rs, nivel, ruta) {
+      var grupos = M.grupoNivel(rs, nivel, k.meses, ref).filter(function (g) { return g.envios > 0 || nivel > 0; });
+      var lk = ruta.join("\u0001") || "__raiz", lim = ui.limites[lk] || PASO;
+      grupos.slice(0, lim).forEach(function (g) { fila(g, nivel, ruta); });
+      if (grupos.length > lim) {
+        tbody.appendChild(el("tr", null, [el("td", { colspan: 6, style: "padding-left:calc(var(--c-spacing-4) + " + (nivel * 24) + "px)" }, [
+          el("button", { type: "button", "class": "btn btn--ghost btn--small", "data-fid": "arbolmas:" + lk, onclick: function () { ui.limites[lk] = lim + PASO; renderArbol(regs, k); var b = document.querySelector("[data-fid='arbolmas:" + lk.replace(/'/g, "\\'") + "']"); if (b) b.focus(); } },
+            ["Mostrar " + Math.min(PASO, grupos.length - lim) + " más (" + n(grupos.length - lim) + " restantes de " + M.NIVELES[nivel].nombre.toLowerCase() + ")"])])]));
+      }
+    }
+    hijos(regs, 0, []);
+    var head = el("thead", null, [el("tr", null, [
+      el("th", { scope: "col", text: M.NIVELES.map(function (x) { return x.nombre; }).join(" › ") }), el("th", { scope: "col", "class": "n", text: "Envíos" }),
+      el("th", { scope: "col", "class": "n", text: "% del universo" }), el("th", { scope: "col", "class": "n", text: "Clientes" }),
+      el("th", { scope: "col", "class": "n", text: "Contratos" }), el("th", { scope: "col", "class": "n", text: ref ? M.mesTxt(ref) + " (últ. mes completo)" : "Últ. mes completo" })])]);
+    cont.appendChild(el("div", { "class": "table-wrap" }, [el("table", { "class": "arbol" }, [el("caption", { "class": "sr-only", text: "Universo de envíos por segmento, razón social, tipo de servicio, servicio y contrato. Usá los botones para expandir cada nivel." }), head, tbody])]));
+    $("btn-contraer").disabled = !Object.keys(ui.abiertos).length;
+  }
+
   /* ---------- Detalle ---------- */
   function filasDetalle(regs, meses) {
     return regs.map(function (r) { var o = { r: r, total: M.sumaMeses(r, meses) }; return o; });
@@ -430,11 +490,13 @@
     var meses = k.meses, filas = filasDetalle(regs, meses);
     var key = ui.sortKey, dir = ui.sortDir;
     function val(o) { if (key === "total") return o.total; if (key.indexOf("m:") === 0) return o.r.v[key.slice(2)] || 0; if (key === "cliente") return M.cliDe(o.r); if (key === "segmento") return M.segDe(o.r); return o.r[key]; }
-    filas.sort(function (a, b) { var x = val(a), y = val(b); return (typeof x === "number" ? x - y : String(x).localeCompare(String(y), "es")) * dir; });
+    if (key === "jer") filas.sort(function (a, b) { return M.compararJer(a.r, b.r) * dir; });
+    else filas.sort(function (a, b) { var x = val(a), y = val(b); return (typeof x === "number" ? x - y : String(x).localeCompare(String(y), "es")) * dir || M.compararJer(a.r, b.r); });
     var pages = Math.max(1, Math.ceil(filas.length / ui.pageSize)); if (ui.page >= pages) ui.page = pages - 1;
     var vis = filas.slice(ui.page * ui.pageSize, (ui.page + 1) * ui.pageSize);
-    var cols = [{ t: "Contrato", key: "contrato", f: function (o) { return o.r.contrato; }, cls: "num" }, { t: "Cliente", key: "cliente", f: function (o) { return linkCliente(M.cliDe(o.r)); } },
-      { t: "Segmento", key: "segmento", f: function (o) { return M.segDe(o.r); } }, { t: "Tipo", key: "tipo", f: function (o) { return o.r.tipo; } }, { t: "Servicio", key: "servicio", f: function (o) { return o.r.servicio; } }]
+    /* Columnas en el orden de la jerarquía (D-018) */
+    var cols = [{ t: "Segmento", key: "segmento", f: function (o) { return M.segDe(o.r); } }, { t: "Razón social", key: "cliente", f: function (o) { return linkCliente(M.cliDe(o.r)); } },
+      { t: "Tipo de servicio", key: "tipo", f: function (o) { return o.r.tipo; } }, { t: "Servicio", key: "servicio", f: function (o) { return o.r.servicio; } }, { t: "N° contrato", key: "contrato", f: function (o) { return o.r.contrato; }, cls: "num" }]
       .concat(meses.map(function (m) { return { t: M.mesTxt(m) + (m === base.mesParcial ? "*" : ""), key: "m:" + m, n: 1, f: function (o) { return o.r.v[m] ? n(o.r.v[m]) : "—"; } }; }))
       .concat([{ t: "Total", key: "total", n: 1, f: function (o) { return n(o.total); } }]);
     var c = $("detalle"); c.innerHTML = "";
@@ -443,6 +505,7 @@
     var pg = $("pager"); pg.innerHTML = "";
     pg.appendChild(el("span", { text: filas.length ? "Registros " + n(ui.page * ui.pageSize + 1) + "–" + n(Math.min(filas.length, (ui.page + 1) * ui.pageSize)) + " de " + n(filas.length) + " · página " + (ui.page + 1) + " de " + pages : "" }));
     pg.appendChild(el("div", { "class": "pager__btns" }, [
+      ui.sortKey !== "jer" ? el("button", { type: "button", "class": "btn btn--ghost btn--small", onclick: function () { ui.sortKey = "jer"; ui.sortDir = 1; ui.page = 0; renderDetalle(regs, k); } }, ["Volver al orden jerárquico"]) : null,
       el("button", { type: "button", "class": "btn btn--ghost btn--small", disabled: ui.page === 0, onclick: function () { ui.page--; renderDetalle(regs, k); } }, ["Anterior"]),
       el("button", { type: "button", "class": "btn btn--ghost btn--small", disabled: ui.page >= pages - 1, onclick: function () { ui.page++; renderDetalle(regs, k); } }, ["Siguiente"])
     ]));
@@ -453,8 +516,8 @@
     if (!ultimoDetalle) return;
     var meses = ultimoDetalle.meses;
     function q(v) { v = String(v == null ? "" : v); return /[";\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
-    var lines = [["Contrato", "Razón Social", "Segmento", "Tipo de Servicio", "Servicio"].concat(meses.map(M.mesTxt), ["Total"]).map(q).join(";")];
-    ultimoDetalle.filas.forEach(function (o) { lines.push([o.r.contrato, o.r.cliente, o.r.segmento, o.r.tipo, o.r.servicio].concat(meses.map(function (m) { return o.r.v[m] || 0; }), [o.total]).map(q).join(";")); });
+    var lines = [["Segmento", "Razón Social", "Tipo de Servicio", "Servicio", "N° Contrato"].concat(meses.map(M.mesTxt), ["Total"]).map(q).join(";")];
+    ultimoDetalle.filas.forEach(function (o) { lines.push([o.r.segmento, o.r.cliente, o.r.tipo, o.r.servicio, o.r.contrato].concat(meses.map(function (m) { return o.r.v[m] || 0; }), [o.total]).map(q).join(";")); });
     descargar("\uFEFF" + lines.join("\r\n"), "matriz-envios-filtrado-" + hoyISO() + ".csv", "text/csv;charset=utf-8");
     toast("Se exportaron " + n(ultimoDetalle.filas.length) + " registros a CSV.");
   }
@@ -560,12 +623,13 @@
       pendiente = { parsed: parsed, nombre: nombre, modo: "reemplazar" };
     } else {
       var grupo = el("fieldset", { "class": "choice", style: "border:0;padding:0;margin:0" }, [el("legend", { "class": "sr-only", text: "Cómo aplicar la descarga" }),
-        el("label", null, [el("input", { type: "radio", name: "modo", value: "agregar", checked: true }), el("span", null, [el("strong", { text: "Agregar a la base (recomendado). " }), "Suma lo nuevo, reemplaza los meses que ya estaban y conserva lo que no viene."])]),
-        el("label", null, [el("input", { type: "radio", name: "modo", value: "reemplazar" }), el("span", null, [el("strong", { text: "Reemplazar la base completa. " }), "Descarta la base actual y usa solo esta descarga."])])]);
+        el("label", null, [el("input", { type: "radio", name: "modo", value: "agregar", checked: !d.filtrosDistintos }), el("span", null, [el("strong", { text: "Agregar a la base" + (d.filtrosDistintos ? ". " : " (recomendado). ") }), "Suma lo nuevo, reemplaza los meses que ya estaban y conserva lo que no viene."])]),
+        el("label", null, [el("input", { type: "radio", name: "modo", value: "reemplazar", checked: d.filtrosDistintos }), el("span", null, [el("strong", { text: "Reemplazar la base completa" + (d.filtrosDistintos ? " (recomendado: los filtros son distintos). " : ". ") }), "Descarta la base actual y usa solo esta descarga."])])]);
       grupo.addEventListener("change", function (ev) { pendiente.modo = ev.target.value; $("modal-aplicar").textContent = ev.target.value === "agregar" ? "Agregar a la base" : "Reemplazar base"; });
       res.appendChild(grupo);
-      pendiente = { parsed: parsed, nombre: nombre, modo: "agregar" };
+      pendiente = { parsed: parsed, nombre: nombre, modo: d.filtrosDistintos ? "reemplazar" : "agregar" };
     }
+    $("modal-aplicar").textContent = pendiente.modo === "agregar" ? "Agregar a la base" : (esDemo ? "Usar como base" : "Reemplazar base");
     $("modal-aplicar").disabled = false;
   }
   function aplicar() {
@@ -580,7 +644,7 @@
     }
     var guardo = guardarLocal();
     pendiente = null; cerrarModal();
-    f = filtrosVacios(); $("buscar").value = ""; ui.page = 0;
+    f = filtrosVacios(); $("buscar").value = ""; ui.page = 0; ui.abiertos = {}; ui.limites = {}; ui.busq = {}; ui.verTodos = {};
     var r = $("alerta-respaldo"); if (r) r.remove();
     renderTodo();
     var a = alerta("success", [el("strong", { text: msg + " " }), guardo ? "Quedó un respaldo en este navegador. " : "", "Para guardarla en un archivo tocá ", el("strong", { text: "Descargar dashboard" }), " y guardalo en OneDrive (no lo subas a GitHub: tiene datos de clientes)."],
@@ -595,6 +659,7 @@
     renderAlertas(); renderBase(); renderFiltros(); renderActivos();
     var regs = M.filtrar(base, f), k = M.kpis(base, regs, f.meses);
     renderKpis(k);
+    renderArbol(regs, k);
     chartEvolucion(regs, k); chartMix(regs, k);
     var seg = M.agrupar(regs, M.segDe, k.meses).filter(function (x) { return x.envios > 0; }).sort(function (a, b) { return b.envios - a.envios; }).slice(0, 12);
     chartBarras("ch-segmentos", seg, f.segmentos, function (v) { toggle(f.segmentos, v); cambio(); }, "Envíos por segmento");
@@ -606,8 +671,9 @@
   /* ---------- Eventos ---------- */
   var tBuscar;
   $("buscar").addEventListener("input", function (ev) { clearTimeout(tBuscar); tBuscar = setTimeout(function () { f.texto = ev.target.value.trim(); cambio(); }, 250); });
-  $("btn-limpiar").addEventListener("click", function () { f = filtrosVacios(); $("buscar").value = ""; cambio(); toast("Se limpiaron los filtros."); });
+  $("btn-limpiar").addEventListener("click", function () { f = filtrosVacios(); $("buscar").value = ""; ui.busq = {}; ui.verTodos = {}; cambio(); toast("Se limpiaron los filtros."); });
   $("btn-csv").addEventListener("click", exportarCSV);
+  $("btn-contraer").addEventListener("click", function () { ui.abiertos = {}; ui.limites = {}; var regs = M.filtrar(base, f); renderArbol(regs, M.kpis(base, regs, f.meses)); $("t-arbol").focus(); });
   $("btn-descargar").addEventListener("click", descargarDashboard);
   $("btn-actualizar").addEventListener("click", abrirModal);
   $("modal-cerrar").addEventListener("click", cerrarModal);
