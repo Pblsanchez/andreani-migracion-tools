@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Guía de usuario · Matriz de Envíos · Andreani</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="estilos.css">
 <link rel="stylesheet" href="guia.css">
 </head>
@@ -91,10 +92,12 @@
           <li><span class="badge badge--neutral">1 · Segmento</span></li>
           <li><span class="badge badge--neutral">2 · Razón social</span></li>
           <li><span class="badge badge--neutral">3 · Tipo de servicio</span></li>
-          <li><span class="badge badge--neutral">4 · Servicio</span></li>
-          <li><span class="badge badge--neutral">5 · N° contrato</span></li>
+          <li><span class="badge badge--neutral">4 · Servicio agrupado</span></li>
+          <li><span class="badge badge--neutral">5 · Servicio</span></li>
+          <li><span class="badge badge--neutral">6 · N° contrato</span></li>
         </ol>
-        <p>Cada fila de la base es un <strong>registro</strong>: la combinación de <strong>N° contrato + tipo de servicio + servicio</strong>. Un mismo contrato puede tener varios registros si usa más de un servicio.</p>
+        <p>El <strong>servicio agrupado</strong> reúne servicios parecidos dentro de un tipo de servicio (por ejemplo, «(2.1) Entre 00 a 10 kg» dentro de «(2) PAQUETERIA»). Cada servicio pertenece a un solo servicio agrupado.</p>
+        <p>Cada fila de la base es un <strong>registro</strong>: la combinación de <strong>N° contrato + tipo de servicio + servicio</strong>. Un mismo contrato puede tener varios registros si usa más de un servicio. El servicio agrupado no forma parte de la clave: se deduce del tipo y el servicio.</p>
         <a class="arriba" href="#contenido">↑ Volver arriba</a>
       </section>
 
@@ -116,7 +119,7 @@
 
         <h3 id="leer-filtros">Filtros y período</h3>
         <ul>
-          <li>Hay un filtro por cada nivel de la jerarquía (<strong>Segmento › Razón social › Tipo de servicio › Servicio › N° contrato</strong>) y uno de <strong>Período</strong> (meses).</li>
+          <li>Hay un filtro por cada nivel de la jerarquía (<strong>Segmento › Razón social › Tipo de servicio › Servicio agrupado › Servicio › N° contrato</strong>) y uno de <strong>Período</strong> (meses).</li>
           <li><strong>Son en cascada:</strong> cada filtro muestra solo los valores compatibles con lo elegido en los niveles de arriba, ordenados por cantidad de envíos. Si cambiás un nivel superior, se quitan solas las selecciones de abajo que ya no corresponden.</li>
           <li>Cada filtro admite varios valores y tiene buscador. Los filtros activos se muestran debajo de la barra; <span class="ui">Limpiar</span> los quita todos.</li>
           <li>También podés filtrar haciendo clic en una barra de los gráficos <em>Envíos por segmento</em> y <em>Servicios con más envíos</em>, o en el nombre de un cliente en cualquier ranking.</li>
@@ -139,7 +142,7 @@
               <tr><th scope="row">Variación mensual</th><td>Último mes completo contra el anterior. Necesita 2 meses completos.</td></tr>
               <tr><th scope="row">Concentración top 10</th><td>Porcentaje de envíos de los 10 clientes más grandes, sin clientes internos.</td></tr>
               <tr><th scope="row">Clientes nuevos</th><td>Clientes con primer envío después del primer mes de la base.</td></tr>
-              <tr><th scope="row">Servicios</th><td>Servicios distintos con envíos y cantidad de segmentos.</td></tr>
+              <tr><th scope="row">Servicios</th><td>Servicios distintos con envíos, cantidad de servicios agrupados y de segmentos.</td></tr>
             </tbody>
           </table>
         </div>
@@ -161,9 +164,9 @@
             </ul>
             Se muestran 15 filas; <span class="ui">Ver todos (hasta 500)</span> amplía la lista.
           </li>
-          <li><strong>Calidad de datos:</strong> controles sobre toda la base, sin filtros. Contratos sin segmento o razón social, con «Sin servicio asignado», en más de un servicio (no es error), con formato distinto a 9 dígitos, filas sin contrato, duplicados y valores negativos.</li>
+          <li><strong>Calidad de datos:</strong> controles sobre toda la base, sin filtros. Contratos sin segmento o razón social, con «Sin servicio asignado», en más de un servicio (no es error), con formato distinto a 9 dígitos, filas sin contrato, duplicados y valores negativos. También muestra registros sin servicio agrupado y combinaciones de tipo + servicio que figuran en más de un servicio agrupado (debería ser 0).</li>
           <li><strong>Base de datos</strong> e <strong>Historial de actualizaciones</strong>: qué descargas se cargaron, cuándo, y cuántos registros nuevos y cambios trajo cada una.</li>
-          <li><strong>Detalle:</strong> un registro por fila con los envíos de cada mes, 25 por página, ordenable por columna. <span class="ui">Exportar CSV</span> descarga lo filtrado.</li>
+          <li><strong>Detalle:</strong> un registro por fila (segmento, razón social, tipo de servicio, servicio agrupado, servicio y contrato) con los envíos de cada mes, 25 por página, ordenable por columna. <span class="ui">Exportar CSV</span> descarga lo filtrado con las mismas columnas.</li>
         </ul>
 
         <h3 id="leer-estado">Estado de los datos</h3>
@@ -210,7 +213,7 @@
           <li>La tabla <strong>Marcar lo migrado a DMS</strong> usa la misma jerarquía que el resumen, con la fecha en que se marcó cada nivel.</li>
           <li><span class="ui">Mostrar</span> permite ver <em>Todo</em>, <em>Solo pendientes</em> o <em>Solo migrado</em>.</li>
           <li><strong>Avance por segmento</strong> resume el estado de cada segmento y <strong>Últimos cambios</strong> lista las 8 marcas más recientes.</li>
-          <li><span class="ui">Exportar estado (CSV)</span> descarga lo filtrado con las columnas Segmento, Razón Social, Tipo de Servicio, Servicio, N° Contrato, Migrado a DMS (SI/NO) y Fecha de marca.</li>
+          <li><span class="ui">Exportar estado (CSV)</span> descarga lo filtrado con las columnas Segmento, Razón Social, Tipo de Servicio, Servicio Agrupado, Servicio, N° Contrato, Migrado a DMS (SI/NO) y Fecha de marca.</li>
         </ul>
         <a class="arriba" href="#contenido">↑ Volver arriba</a>
       </section>
@@ -241,7 +244,7 @@
         <h3 id="ed-marcar">Marcar lo migrado</h3>
         <p>En la pestaña <strong>Migración a DMS</strong> hay tres formas de marcar. Las tres marcan con la fecha del día.</p>
         <ol class="pasos">
-          <li><strong>Casilla de la tabla:</strong> marcá un contrato, servicio, tipo, razón social o segmento completo. Marcar un nivel marca todos los registros que tiene adentro.</li>
+          <li><strong>Casilla de la tabla:</strong> marcá un contrato, servicio, servicio agrupado, tipo, razón social o segmento completo. Marcar un nivel marca todos los registros que tiene adentro.</li>
           <li><strong>Marcar lo filtrado:</strong> filtrá con la barra de arriba (por ejemplo, un servicio en todos los clientes) y tocá <span class="ui">Marcar lo filtrado</span>. El botón indica cuántos registros va a marcar. Sin filtros, pide confirmación antes de marcar todo el universo. <span class="ui">Desmarcar lo filtrado</span> hace lo contrario.</li>
           <li><strong>Importar lista de contratos:</strong> <span class="ui">Importar lista de contratos</span> acepta un Excel (.xlsx) o CSV. Toma la columna que contenga «Contrato» o, si no hay, cualquier número de 6 a 12 dígitos, y marca todos los registros de esos contratos. Al final informa cuántos encontró y cuáles no están en la base.</li>
         </ol>
@@ -250,7 +253,7 @@
 
         <h3 id="ed-cargar">Cargar una descarga de Power BI</h3>
         <ol class="pasos">
-          <li>Exportá la Matriz de Envíos desde Power BI en Excel (.xlsx). También se aceptan .csv y .txt.</li>
+          <li>Exportá la Matriz de Envíos desde Power BI en Excel (.xlsx). También se aceptan .csv y .txt. El orden de las columnas no importa: se reconocen por su nombre.</li>
           <li>Tocá <span class="ui">Cargar descarga de Power BI</span> y arrastrá el archivo o usá <span class="ui">Elegir archivo</span>.</li>
           <li>Revisá el resumen: registros nuevos, valores que cambian, meses nuevos, registros de la base que no vienen y avisos (por ejemplo, si el total del archivo no cuadra o si los filtros de Power BI son distintos a los de la base).</li>
           <li>Elegí cómo aplicarla y confirmá. Después tocá <span class="ui">Enviar a GitHub</span>.</li>
@@ -266,6 +269,7 @@
               <tr><td>Razón Social (o Cliente)</td><td><span class="badge badge--info">Sí</span></td><td></td></tr>
               <tr><td>Servicio</td><td><span class="badge badge--info">Sí</span></td><td></td></tr>
               <tr><td>Tipo de Servicio</td><td><span class="badge badge--neutral">No</span></td><td>Si falta, se completa con la base (mismo contrato y servicio). Si una descarga posterior la trae, se completa sola sin duplicar registros.</td></tr>
+              <tr><td>Servicio Agrupado</td><td><span class="badge badge--neutral">No</span></td><td>Si falta, se completa con la base (mismo tipo y servicio); si no hay dato, queda «(Agrupado no informado)». Cuando una descarga lo trae, completa también los registros de la base que no lo tenían, sin tocar las marcas de migración.</td></tr>
               <tr><td>Meses</td><td><span class="badge badge--info">Sí</span></td><td>Una columna por mes, con formatos como «Ene.-26», «Enero 2026» o «2026-01».</td></tr>
             </tbody>
           </table>
@@ -277,7 +281,7 @@
             <thead><tr><th scope="col">Opción</th><th scope="col">Qué hace</th><th scope="col">Cuándo usarla</th></tr></thead>
             <tbody>
               <tr><th scope="row">Agregar a la base</th><td>Suma los registros nuevos, reemplaza los meses que ya estaban y conserva lo que no viene en la descarga. Conserva las marcas de migración.</td><td>Actualización de rutina (opción recomendada).</td></tr>
-              <tr><th scope="row">Reemplazar la base completa</th><td>Descarta la base actual y usa solo esta descarga.</td><td>Cuando los filtros de Power BI cambiaron; el dashboard la sugiere en ese caso.</td></tr>
+              <tr><th scope="row">Reemplazar la base completa</th><td>Descarta la base actual y usa solo esta descarga.</td><td>Cuando los filtros de Power BI cambiaron; el dashboard la sugiere en ese caso. Los «Parámetro_…» del export no cuentan como filtros.</td></tr>
             </tbody>
           </table>
         </div>
@@ -340,6 +344,7 @@
         <h2 id="h-glosario"><span class="guia__num" aria-hidden="true">6</span>Glosario</h2>
         <dl class="glosario">
           <dt>Registro</dt><dd>Combinación de N° contrato + tipo de servicio + servicio. Es la unidad mínima de la base y de la migración.</dd>
+          <dt>Servicio agrupado</dt><dd>Grupo de servicios dentro de un tipo de servicio (por ejemplo, «(1.1) Envío Geolocalizado»). Viene en la descarga de Power BI. No cambia la clave del registro.</dd>
           <dt>Base</dt><dd>Todos los registros con sus envíos por mes, guardados en GitHub.</dd>
           <dt>Descarga</dt><dd>Archivo exportado de Power BI que actualiza la base.</dd>
           <dt>Mes parcial</dt><dd>Mes en curso: sus envíos todavía no están completos y no cuentan para variaciones ni promedios.</dd>
