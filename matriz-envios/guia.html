@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Guía de usuario · Matriz de Envíos · Andreani</title>
+<link rel="stylesheet" href="estilos.css">
+<link rel="stylesheet" href="guia.css">
+</head>
+<body>
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+<header class="header">
+  <div class="header__inner">
+    <a class="brand" href="../" aria-label="Andreani, ir al portal de herramientas">Andreani</a>
+    <span class="header__divider" aria-hidden="true"></span>
+    <p class="header__title">Migración Integra → DMS · Guía de usuario</p>
+    <div class="header__actions">
+      <a class="btn btn--secondary btn--small" href="./">
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20v-2Z"/></svg>
+        Ir al dashboard
+      </a>
+    </div>
+  </div>
+</header>
+
+<main id="contenido" tabindex="-1">
+  <div class="guia">
+    <nav class="guia__indice" aria-labelledby="indice-titulo">
+      <h2 id="indice-titulo">En esta guía</h2>
+      <ol>
+        <li><a href="#para-que">1. Para qué sirve</a></li>
+        <li><a href="#leer">2. Cómo leer el dashboard</a>
+          <ol>
+            <li><a href="#leer-filtros">Filtros y período</a></li>
+            <li><a href="#leer-resumen">Pestaña Resumen</a></li>
+            <li><a href="#leer-analisis">Pestaña Análisis</a></li>
+            <li><a href="#leer-estado">Estado de los datos</a></li>
+          </ol>
+        </li>
+        <li><a href="#migracion">3. Seguimiento de la migración</a></li>
+        <li><a href="#editores">4. Para editores</a>
+          <ol>
+            <li><a href="#ed-conectar">Conectar GitHub</a></li>
+            <li><a href="#ed-marcar">Marcar lo migrado</a></li>
+            <li><a href="#ed-cargar">Cargar una descarga de Power BI</a></li>
+            <li><a href="#ed-enviar">Enviar a GitHub</a></li>
+          </ol>
+        </li>
+        <li><a href="#problemas">5. Problemas frecuentes</a></li>
+        <li><a href="#glosario">6. Glosario</a></li>
+      </ol>
+    </nav>
+
+    <article class="guia__contenido" aria-labelledby="titulo-guia">
+      <div class="page-head" style="display:block">
+        <h1 id="titulo-guia">Guía de usuario · Matriz de Envíos</h1>
+        <p class="guia__lead">Cómo usar el dashboard del universo de envíos B2C que se migra de Integra a DMS: qué muestra, cómo filtrarlo y cómo registrar el avance de la migración.</p>
+      </div>
+
+      <details class="guia__indice-movil">
+        <summary>
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3 6h18v2H3V6Zm0 5h18v2H3v-2Zm0 5h18v2H3v-2Z"/></svg>
+          En esta guía
+        </summary>
+        <ol>
+          <li><a href="#para-que">Para qué sirve</a></li>
+          <li><a href="#leer">Cómo leer el dashboard</a></li>
+          <li><a href="#migracion">Seguimiento de la migración</a></li>
+          <li><a href="#editores">Para editores</a></li>
+          <li><a href="#problemas">Problemas frecuentes</a></li>
+          <li><a href="#glosario">Glosario</a></li>
+        </ol>
+      </details>
+
+      <!-- ============ 1. Para qué sirve ============ -->
+      <section id="para-que" aria-labelledby="h-para-que">
+        <h2 id="h-para-que"><span class="guia__num" aria-hidden="true">1</span>Para qué sirve</h2>
+        <p>La Matriz de Envíos reúne los envíos de los contratos y clientes de Grupo Logístico Andreani del <strong>canal B2C</strong> que se migran del sistema operativo <strong>Integra</strong> al nuevo sistema operativo <strong>DMS</strong>. Sirve para dimensionar el universo a migrar, priorizar clientes y servicios, y seguir el avance de la migración.</p>
+        <ul class="tarjetas">
+          <li><b><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3 5h18l-7 8v6l-4 2v-8L3 5Z"/></svg>Consultar</b><span>Ver envíos, clientes, contratos y servicios con filtros y rankings. No hace falta cuenta.</span></li>
+          <li><b><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2Z"/></svg>Seguir la migración</b><span>Ver qué contratos, servicios y segmentos ya están migrados a DMS.</span></li>
+          <li><b><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M5 20h14v-2H5v2Zm7-17-6 6 1.4 1.4L11 6.8V17h2V6.8l3.6 3.6L18 9l-6-6Z"/></svg>Editar</b><span>Marcar lo migrado y cargar descargas nuevas de Power BI. Requiere conectar GitHub (<a href="#editores">sección 4</a>).</span></li>
+        </ul>
+        <h3>De dónde salen los datos</h3>
+        <p>La fuente es el reporte de la Matriz de Envíos en <strong>Power BI</strong>. Un editor descarga el Excel, lo carga en el dashboard y lo envía a GitHub; desde ese momento todos ven la misma información. Los filtros con los que se exportó la descarga, la fecha de actualización y la cantidad de registros se ven en <span class="ui">Acerca de los datos</span>, junto al título.</p>
+        <h3>Cómo está organizada la información</h3>
+        <p>Todo el dashboard respeta esta jerarquía, de lo general a lo particular:</p>
+        <ol class="jerarquia" aria-label="Jerarquía de la información">
+          <li><span class="badge badge--neutral">1 · Segmento</span></li>
+          <li><span class="badge badge--neutral">2 · Razón social</span></li>
+          <li><span class="badge badge--neutral">3 · Tipo de servicio</span></li>
+          <li><span class="badge badge--neutral">4 · Servicio</span></li>
+          <li><span class="badge badge--neutral">5 · N° contrato</span></li>
+        </ol>
+        <p>Cada fila de la base es un <strong>registro</strong>: la combinación de <strong>N° contrato + tipo de servicio + servicio</strong>. Un mismo contrato puede tener varios registros si usa más de un servicio.</p>
+        <a class="arriba" href="#contenido">↑ Volver arriba</a>
+      </section>
+
+      <!-- ============ 2. Cómo leer el dashboard ============ -->
+      <section id="leer" aria-labelledby="h-leer">
+        <h2 id="h-leer"><span class="guia__num" aria-hidden="true">2</span>Cómo leer el dashboard</h2>
+        <p>El dashboard tiene tres pestañas. La barra de filtros queda fija arriba y aplica a las tres.</p>
+        <div class="table-wrap">
+          <table>
+            <caption class="sr-only">Pestañas del dashboard</caption>
+            <thead><tr><th scope="col">Pestaña</th><th scope="col">Para qué usarla</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Resumen</th><td>Indicadores principales, universo por jerarquía, envíos por segmento, servicios con más envíos y top 10 de clientes.</td></tr>
+              <tr><th scope="row">Análisis</th><td>Evolución mensual, participación por tipo, más rankings, calidad de datos, historial de actualizaciones y detalle exportable.</td></tr>
+              <tr><th scope="row">Migración a DMS</th><td>Avance de la migración y, para editores, las herramientas para marcar lo migrado (<a href="#migracion">sección 3</a>).</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 id="leer-filtros">Filtros y período</h3>
+        <ul>
+          <li>Hay un filtro por cada nivel de la jerarquía (<strong>Segmento › Razón social › Tipo de servicio › Servicio › N° contrato</strong>) y uno de <strong>Período</strong> (meses).</li>
+          <li><strong>Son en cascada:</strong> cada filtro muestra solo los valores compatibles con lo elegido en los niveles de arriba, ordenados por cantidad de envíos. Si cambiás un nivel superior, se quitan solas las selecciones de abajo que ya no corresponden.</li>
+          <li>Cada filtro admite varios valores y tiene buscador. Los filtros activos se muestran debajo de la barra; <span class="ui">Limpiar</span> los quita todos.</li>
+          <li>También podés filtrar haciendo clic en una barra de los gráficos <em>Envíos por segmento</em> y <em>Servicios con más envíos</em>, o en el nombre de un cliente en cualquier ranking.</li>
+        </ul>
+        <div class="alert alert--info" role="note">
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 15h-2v-6h2v6Zm0-8h-2V7h2v2Z"/></svg>
+          <div class="alert__body"><strong>Mes parcial.</strong> Si el último mes de la base es el mes en curso, figura como <em>parcial</em>: se ve atenuado en el gráfico de evolución, se marca con * en el detalle y <strong>no cuenta</strong> para variaciones, promedios ni tendencias, que usan solo meses completos.</div>
+        </div>
+
+        <h3 id="leer-resumen">Pestaña Resumen</h3>
+        <div class="table-wrap">
+          <table>
+            <caption class="sr-only">Indicadores de la pestaña Resumen</caption>
+            <thead><tr><th scope="col">Indicador</th><th scope="col">Qué muestra</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Envíos</th><td>Total de envíos del período filtrado. Aclara si incluye el mes parcial.</td></tr>
+              <tr><th scope="row">Clientes</th><td>Razones sociales con envíos.</td></tr>
+              <tr><th scope="row">Contratos</th><td>Contratos con envíos y cuántos estuvieron activos en el último mes completo.</td></tr>
+              <tr><th scope="row">Promedio mensual</th><td>Promedio de envíos de los meses completos y envíos por contrato.</td></tr>
+              <tr><th scope="row">Variación mensual</th><td>Último mes completo contra el anterior. Necesita 2 meses completos.</td></tr>
+              <tr><th scope="row">Concentración top 10</th><td>Porcentaje de envíos de los 10 clientes más grandes, sin clientes internos.</td></tr>
+              <tr><th scope="row">Clientes nuevos</th><td>Clientes con primer envío después del primer mes de la base.</td></tr>
+              <tr><th scope="row">Servicios</th><td>Servicios distintos con envíos y cantidad de segmentos.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p><strong>Universo por jerarquía:</strong> tabla expandible. Tocá un nivel para ver el siguiente; se muestran 25 filas por nivel y el botón <span class="ui">Mostrar … más</span> carga las siguientes. <span class="ui">Contraer todo</span> cierra todo.</p>
+        <div class="alert alert--info" role="note">
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 15h-2v-6h2v6Zm0-8h-2V7h2v2Z"/></svg>
+          <div class="alert__body"><strong>Clientes internos.</strong> CORREO ANDREANI S.A. y ANDREANI ONLINE no aparecen en los rankings ni en la concentración top 10, pero sí suman en los totales de envíos.</div>
+        </div>
+
+        <h3 id="leer-analisis">Pestaña Análisis</h3>
+        <ul>
+          <li><strong>Evolución mensual por tipo de servicio</strong> y <strong>Participación por tipo</strong>. Cada gráfico tiene <span class="ui">Ver datos en tabla</span> con los números exactos.</li>
+          <li><strong>Más rankings</strong>, en solapas:
+            <ul>
+              <li><em>Mayor crecimiento</em> y <em>Mayor caída</em>: comparan los últimos 3 meses completos contra los 3 anteriores (o menos, si la base tiene pocos meses). Necesitan al menos 2 meses completos.</li>
+              <li><em>Contratos con más envíos</em>, <em>Clientes multiservicio</em> y <em>Servicios con más clientes</em>.</li>
+              <li><em>Sin envíos recientes</em>: contratos con envíos antes y ninguno en los últimos 3 meses completos. Necesita al menos 4 meses completos.</li>
+              <li><em>Clientes nuevos</em>: primer envío posterior al primer mes de la base.</li>
+            </ul>
+            Se muestran 15 filas; <span class="ui">Ver todos (hasta 500)</span> amplía la lista.
+          </li>
+          <li><strong>Calidad de datos:</strong> controles sobre toda la base, sin filtros. Contratos sin segmento o razón social, con «Sin servicio asignado», en más de un servicio (no es error), con formato distinto a 9 dígitos, filas sin contrato, duplicados y valores negativos.</li>
+          <li><strong>Base de datos</strong> e <strong>Historial de actualizaciones</strong>: qué descargas se cargaron, cuándo, y cuántos registros nuevos y cambios trajo cada una.</li>
+          <li><strong>Detalle:</strong> un registro por fila con los envíos de cada mes, 25 por página, ordenable por columna. <span class="ui">Exportar CSV</span> descarga lo filtrado.</li>
+        </ul>
+
+        <h3 id="leer-estado">Estado de los datos</h3>
+        <p>A la derecha del encabezado se ve el estado de la sincronización con GitHub:</p>
+        <div class="table-wrap">
+          <table>
+            <caption class="sr-only">Estados de la sincronización</caption>
+            <thead><tr><th scope="col">Estado</th><th scope="col">Significado</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge badge--success">Datos al día</span></td><td>Estás viendo la última versión guardada en GitHub.</td></tr>
+              <tr><td><span class="badge badge--info">Cargando datos…</span></td><td>Se están leyendo los datos.</td></tr>
+              <tr><td><span class="badge badge--warning">Sin enviar: …</span></td><td>Hay cambios hechos en este navegador que todavía no ve nadie más (solo editores).</td></tr>
+              <tr><td><span class="badge badge--error">Sin conexión con GitHub</span></td><td>No se pudieron leer los datos. Usá <span class="ui">Reintentar</span>.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>El dashboard revisa solo si hay datos nuevos cada 5 minutos y cada vez que volvés a la pestaña del navegador. <span class="ui">Recargar</span> los vuelve a leer en el momento.</p>
+        <a class="arriba" href="#contenido">↑ Volver arriba</a>
+      </section>
+
+      <!-- ============ 3. Seguimiento de la migración ============ -->
+      <section id="migracion" aria-labelledby="h-migracion">
+        <h2 id="h-migracion"><span class="guia__num" aria-hidden="true">3</span>Seguimiento de la migración</h2>
+        <p>La pestaña <strong>Migración a DMS</strong> muestra cuánto del universo ya se migró. Cualquiera puede verla; sin GitHub conectado es de <strong>solo lectura</strong> y muestra quién hizo el último cambio y cuándo.</p>
+        <h3>Indicadores de avance</h3>
+        <ul>
+          <li><strong>Envíos migrados:</strong> porcentaje de envíos del período que corresponden a registros migrados.</li>
+          <li><strong>Volumen del último mes completo:</strong> lo mismo, solo para el último mes completo.</li>
+          <li><strong>Contratos migrados</strong> y <strong>Clientes migrados:</strong> completos sobre el total, y cuántos están a medias.</li>
+        </ul>
+        <h3>Estados</h3>
+        <div class="table-wrap">
+          <table>
+            <caption class="sr-only">Estados de migración</caption>
+            <thead><tr><th scope="col">Estado</th><th scope="col">Significado</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge badge--success">Migrado</span></td><td>Todos los registros del nivel (contrato, servicio, cliente, segmento) están marcados.</td></tr>
+              <tr><td><span class="badge badge--warning">Parcial · %</span></td><td>Algunos registros están marcados; el porcentaje indica cuántos.</td></tr>
+              <tr><td><span class="badge badge--neutral">Pendiente</span></td><td>Ningún registro del nivel está marcado.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <ul>
+          <li>La tabla <strong>Marcar lo migrado a DMS</strong> usa la misma jerarquía que el resumen, con la fecha en que se marcó cada nivel.</li>
+          <li><span class="ui">Mostrar</span> permite ver <em>Todo</em>, <em>Solo pendientes</em> o <em>Solo migrado</em>.</li>
+          <li><strong>Avance por segmento</strong> resume el estado de cada segmento y <strong>Últimos cambios</strong> lista las 8 marcas más recientes.</li>
+          <li><span class="ui">Exportar estado (CSV)</span> descarga lo filtrado con las columnas Segmento, Razón Social, Tipo de Servicio, Servicio, N° Contrato, Migrado a DMS (SI/NO) y Fecha de marca.</li>
+        </ul>
+        <a class="arriba" href="#contenido">↑ Volver arriba</a>
+      </section>
+
+      <!-- ============ 4. Para editores ============ -->
+      <section id="editores" aria-labelledby="h-editores">
+        <h2 id="h-editores"><span class="guia__num" aria-hidden="true">4</span>Para editores</h2>
+        <div class="alert alert--warning" role="note">
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M1 21h22L12 2 1 21Zm12-3h-2v-2h2v2Zm0-4h-2v-4h2v4Z"/></svg>
+          <div class="alert__body">Esta sección es solo para quienes <strong>marcan la migración</strong> o <strong>cargan descargas de Power BI</strong>. Los cambios que envíes a GitHub los ve todo el equipo.</div>
+        </div>
+
+        <h3 id="ed-conectar">Conectar GitHub (una sola vez por navegador)</h3>
+        <p>Para editar hace falta una clave personal de GitHub (token) con permiso de escritura en el repositorio. Tocá <span class="ui">Conectar GitHub</span> en el encabezado y seguí estos pasos:</p>
+        <ol class="pasos">
+          <li>Entrá a <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer">GitHub › Fine-grained tokens › Generate new token (se abre en otra pestaña)</a>.</li>
+          <li>Nombre: «Dashboard matriz de envíos». Vencimiento: el que prefieras (por ejemplo, 90 días).</li>
+          <li>Repository access: «Only select repositories» › <strong>Pblsanchez/andreani-migracion-tools</strong>.</li>
+          <li>Permissions › Repository permissions › <strong>Contents: Read and write</strong>.</li>
+          <li>Tocá «Generate token», copiá la clave, pegala en el campo <span class="ui">Clave de GitHub (token)</span> y tocá <span class="ui">Conectar</span>.</li>
+        </ol>
+        <p>Al conectar, en el encabezado aparece tu usuario de GitHub y los botones <span class="ui">Cargar descarga de Power BI</span> y <span class="ui">Enviar a GitHub</span>.</p>
+        <div class="alert alert--error" role="note">
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 1 3 5v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V5l-9-4Zm0 6a3 3 0 0 1 1 5.8V16h-2v-3.2A3 3 0 0 1 12 7Z"/></svg>
+          <div class="alert__body"><strong>La clave es personal: no la compartas.</strong> Queda guardada solo en ese navegador. Para quitarla, tocá tu usuario en el encabezado y luego <span class="ui">Desconectar este navegador</span>.</div>
+        </div>
+
+        <h3 id="ed-marcar">Marcar lo migrado</h3>
+        <p>En la pestaña <strong>Migración a DMS</strong> hay tres formas de marcar. Las tres marcan con la fecha del día.</p>
+        <ol class="pasos">
+          <li><strong>Casilla de la tabla:</strong> marcá un contrato, servicio, tipo, razón social o segmento completo. Marcar un nivel marca todos los registros que tiene adentro.</li>
+          <li><strong>Marcar lo filtrado:</strong> filtrá con la barra de arriba (por ejemplo, un servicio en todos los clientes) y tocá <span class="ui">Marcar lo filtrado</span>. El botón indica cuántos registros va a marcar. Sin filtros, pide confirmación antes de marcar todo el universo. <span class="ui">Desmarcar lo filtrado</span> hace lo contrario.</li>
+          <li><strong>Importar lista de contratos:</strong> <span class="ui">Importar lista de contratos</span> acepta un Excel (.xlsx) o CSV. Toma la columna que contenga «Contrato» o, si no hay, cualquier número de 6 a 12 dígitos, y marca todos los registros de esos contratos. Al final informa cuántos encontró y cuáles no están en la base.</li>
+        </ol>
+        <p>¿Te equivocaste? <span class="ui">Deshacer</span> revierte la última acción de marcado.</p>
+        <p>Las marcas se ven al instante en tu pantalla, pero <strong>las demás personas no las ven hasta que toques <span class="ui">Enviar a GitHub</span></strong>.</p>
+
+        <h3 id="ed-cargar">Cargar una descarga de Power BI</h3>
+        <ol class="pasos">
+          <li>Exportá la Matriz de Envíos desde Power BI en Excel (.xlsx). También se aceptan .csv y .txt.</li>
+          <li>Tocá <span class="ui">Cargar descarga de Power BI</span> y arrastrá el archivo o usá <span class="ui">Elegir archivo</span>.</li>
+          <li>Revisá el resumen: registros nuevos, valores que cambian, meses nuevos, registros de la base que no vienen y avisos (por ejemplo, si el total del archivo no cuadra o si los filtros de Power BI son distintos a los de la base).</li>
+          <li>Elegí cómo aplicarla y confirmá. Después tocá <span class="ui">Enviar a GitHub</span>.</li>
+        </ol>
+        <p><strong>Columnas que reconoce</strong> (busca la fila de encabezados en las primeras 30 filas):</p>
+        <div class="table-wrap">
+          <table>
+            <caption class="sr-only">Columnas reconocidas en la descarga</caption>
+            <thead><tr><th scope="col">Columna</th><th scope="col">¿Obligatoria?</th><th scope="col">Nota</th></tr></thead>
+            <tbody>
+              <tr><td>N° Contrato</td><td><span class="badge badge--info">Sí</span></td><td>Sin esta columna no se encuentra la fila de encabezados.</td></tr>
+              <tr><td>Segmento</td><td><span class="badge badge--info">Sí</span></td><td></td></tr>
+              <tr><td>Razón Social (o Cliente)</td><td><span class="badge badge--info">Sí</span></td><td></td></tr>
+              <tr><td>Servicio</td><td><span class="badge badge--info">Sí</span></td><td></td></tr>
+              <tr><td>Tipo de Servicio</td><td><span class="badge badge--neutral">No</span></td><td>Si falta, se completa con la base (mismo contrato y servicio). Si una descarga posterior la trae, se completa sola sin duplicar registros.</td></tr>
+              <tr><td>Meses</td><td><span class="badge badge--info">Sí</span></td><td>Una columna por mes, con formatos como «Ene.-26», «Enero 2026» o «2026-01».</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p><strong>Agregar o reemplazar:</strong></p>
+        <div class="table-wrap">
+          <table>
+            <caption class="sr-only">Diferencia entre agregar y reemplazar</caption>
+            <thead><tr><th scope="col">Opción</th><th scope="col">Qué hace</th><th scope="col">Cuándo usarla</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Agregar a la base</th><td>Suma los registros nuevos, reemplaza los meses que ya estaban y conserva lo que no viene en la descarga. Conserva las marcas de migración.</td><td>Actualización de rutina (opción recomendada).</td></tr>
+              <tr><th scope="row">Reemplazar la base completa</th><td>Descarta la base actual y usa solo esta descarga.</td><td>Cuando los filtros de Power BI cambiaron; el dashboard la sugiere en ese caso.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Si todavía no hay datos en GitHub, la primera descarga se usa como <strong>base inicial</strong>.</p>
+
+        <h3 id="ed-enviar">Enviar a GitHub</h3>
+        <ul>
+          <li>Mientras no envíes, tus cambios quedan guardados <strong>en este navegador</strong> y el encabezado muestra <span class="badge badge--warning">Sin enviar: …</span>. Si cerrás la pestaña, el navegador te avisa.</li>
+          <li><span class="ui">Enviar a GitHub</span> guarda todo en un solo cambio. A partir de ahí, quien abra el dashboard ve la información al día.</li>
+          <li><strong>Si otra persona marcó al mismo tiempo,</strong> se combinan las marcas: se conservan las de los dos y, si tocaron el mismo registro, queda el cambio que se envía último.</li>
+          <li><strong>Si otra persona cargó otra descarga</strong> después de que abriste el dashboard, se te pregunta si querés reemplazarla con la tuya.</li>
+          <li>Si al volver hay cambios de una sesión anterior sin enviar, aparece un aviso para <span class="ui">Enviar a GitHub</span> o <span class="ui">Descartar</span>.</li>
+          <li>El historial completo de cambios está en GitHub, con el enlace <span class="ui">Ver todos los cambios en GitHub</span>.</li>
+        </ul>
+        <a class="arriba" href="#contenido">↑ Volver arriba</a>
+      </section>
+
+      <!-- ============ 5. Problemas frecuentes ============ -->
+      <section id="problemas" aria-labelledby="h-problemas">
+        <h2 id="h-problemas"><span class="guia__num" aria-hidden="true">5</span>Problemas frecuentes</h2>
+        <div class="faq">
+          <details>
+            <summary>Dice que los datos pueden tener hasta 5 minutos de demora</summary>
+            <div class="faq__body"><p>GitHub limita las consultas desde una misma red. Mientras tanto, el dashboard lee una copia que puede tener hasta 5 minutos de demora. Esperá unos minutos y tocá <span class="ui">Recargar</span>.</p></div>
+          </details>
+          <details>
+            <summary>«La clave de GitHub no es válida o venció»</summary>
+            <div class="faq__body"><p>La clave venció o se borró. Generá una nueva siguiendo los pasos de <a href="#ed-conectar">Conectar GitHub</a> y conectá de nuevo. Tus cambios sin enviar siguen guardados en el navegador.</p></div>
+          </details>
+          <details>
+            <summary>«GitHub rechazó la operación» al enviar</summary>
+            <div class="faq__body"><p>La clave no tiene el permiso <strong>Contents: Read and write</strong> sobre Pblsanchez/andreani-migracion-tools. Generá una clave nueva con ese permiso.</p></div>
+          </details>
+          <details>
+            <summary>«Faltan columnas» o «No encontré la fila de encabezados» al cargar el Excel</summary>
+            <div class="faq__body"><p>La descarga no trae alguna columna obligatoria (ver <a href="#ed-cargar">Columnas que reconoce</a>). Revisá en Power BI que la tabla incluya Segmento, Razón Social, Servicio, N° Contrato y los meses, y volvé a exportar.</p></div>
+          </details>
+          <details>
+            <summary>«Tu navegador no soporta descompresión nativa»</summary>
+            <div class="faq__body"><p>Para leer archivos .xlsx se necesita un navegador actualizado. Usá <strong>Chrome o Edge</strong> en su última versión, o exportá la descarga en CSV.</p></div>
+          </details>
+          <details>
+            <summary>No veo los botones para marcar ni para cargar descargas</summary>
+            <div class="faq__body"><p>Estás en modo solo lectura. Conectá tu cuenta con <span class="ui">Conectar GitHub</span> (<a href="#ed-conectar">ver pasos</a>).</p></div>
+          </details>
+          <details>
+            <summary>Marqué contratos pero mis compañeros no los ven</summary>
+            <div class="faq__body"><p>Faltan enviar. Tocá <span class="ui">Enviar a GitHub</span>; el estado tiene que pasar a <span class="badge badge--success">Datos al día</span>.</p></div>
+          </details>
+          <details>
+            <summary>Un ranking dice «Se necesitan al menos 2 (o 4) meses completos»</summary>
+            <div class="faq__body"><p>Esos rankings comparan meses completos y la base todavía no tiene suficientes. El mes en curso no cuenta porque es parcial.</p></div>
+          </details>
+        </div>
+        <a class="arriba" href="#contenido">↑ Volver arriba</a>
+      </section>
+
+      <!-- ============ 6. Glosario ============ -->
+      <section id="glosario" aria-labelledby="h-glosario">
+        <h2 id="h-glosario"><span class="guia__num" aria-hidden="true">6</span>Glosario</h2>
+        <dl class="glosario">
+          <dt>Registro</dt><dd>Combinación de N° contrato + tipo de servicio + servicio. Es la unidad mínima de la base y de la migración.</dd>
+          <dt>Base</dt><dd>Todos los registros con sus envíos por mes, guardados en GitHub.</dd>
+          <dt>Descarga</dt><dd>Archivo exportado de Power BI que actualiza la base.</dd>
+          <dt>Mes parcial</dt><dd>Mes en curso: sus envíos todavía no están completos y no cuentan para variaciones ni promedios.</dd>
+          <dt>Mes completo</dt><dd>Mes ya cerrado.</dd>
+          <dt>Clientes internos</dt><dd>CORREO ANDREANI S.A. y ANDREANI ONLINE. Se excluyen de rankings y de la concentración top 10.</dd>
+          <dt>Migrado</dt><dd>Todos los registros del nivel están marcados como migrados a DMS.</dd>
+          <dt>Parcial (migración)</dt><dd>Algunos registros del nivel están marcados.</dd>
+          <dt>Pendiente</dt><dd>Ningún registro del nivel está marcado.</dd>
+          <dt>Clave (token)</dt><dd>Clave personal de GitHub que habilita a editar. Se guarda solo en tu navegador.</dd>
+          <dt>Editor</dt><dd>Persona con GitHub conectado: puede marcar la migración, cargar descargas y enviarlas.</dd>
+          <dt>Cambios sin enviar</dt><dd>Cambios guardados solo en tu navegador hasta que tocás «Enviar a GitHub».</dd>
+        </dl>
+        <a class="arriba" href="#contenido">↑ Volver arriba</a>
+      </section>
+    </article>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer__inner">
+    <span>Andreani · Migración Integra → DMS · Matriz de Envíos</span>
+    <span>Guía de usuario</span>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,90 @@
+/* ===== Guía de usuario de la Matriz de Envíos (T-003) =====
+   Complementa estilos.css: mismos tokens del Design System Cartesian de Andreani. */
+
+/* Botón de la guía en el encabezado del dashboard: solo ícono, área de toque 44×44 px */
+.icon-btn--guia { width: 44px; height: 44px; text-decoration: none; color: var(--c-color-text-strong); }
+.icon-btn--guia:hover { background: var(--c-color-fill-neutral); color: var(--c-color-text-primary); }
+
+/* Layout de la guía: índice lateral + contenido */
+.guia { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: var(--c-spacing-6); align-items: start; }
+.guia__indice { position: sticky; top: var(--c-spacing-4); }
+.guia__indice h2 { font-size: 14px; line-height: 20px; font-family: var(--c-font-family-label); font-weight: var(--c-font-weight-medium); color: var(--c-color-text); text-transform: uppercase; letter-spacing: .04em; margin-bottom: var(--c-spacing-2); }
+.guia__indice ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.guia__indice ol ol { padding-left: var(--c-spacing-4); margin-top: 2px; }
+.guia__indice a { display: flex; align-items: center; min-height: 36px; padding: var(--c-spacing-1) var(--c-spacing-3); border-radius: var(--c-border-radius-small); color: var(--c-color-text-strong); text-decoration: none; font-size: 14px; line-height: 20px; }
+.guia__indice a:hover { background: var(--c-color-fill-neutral); color: var(--c-color-text-primary); }
+.guia__indice ol ol a { color: var(--c-color-text); min-height: 32px; }
+.guia__indice-movil { display: none; }
+
+.guia__contenido { max-width: 820px; min-width: 0; }
+.guia__contenido > section { margin-top: var(--c-spacing-7); scroll-margin-top: var(--c-spacing-4); }
+.guia__contenido > section:first-of-type { margin-top: var(--c-spacing-5); }
+.guia__contenido h2 { font-size: 24px; line-height: 28px; display: flex; align-items: center; gap: var(--c-spacing-3); margin-bottom: var(--c-spacing-3); }
+.guia__contenido h3 { font-size: 18px; line-height: 24px; margin: var(--c-spacing-5) 0 var(--c-spacing-2); scroll-margin-top: var(--c-spacing-4); }
+.guia__contenido p, .guia__contenido li { color: var(--c-color-text-strong); }
+.guia__contenido p { margin: 0 0 var(--c-spacing-3); }
+.guia__contenido ul, .guia__contenido ol { margin: 0 0 var(--c-spacing-3); padding-left: var(--c-spacing-5); }
+.guia__contenido li { margin-bottom: var(--c-spacing-1); }
+.guia__contenido a { color: var(--c-color-text-primary); }
+.guia__contenido .table-wrap { margin: 0 0 var(--c-spacing-4); }
+.guia__contenido td, .guia__contenido th { vertical-align: top; }
+.guia__contenido .alert { margin: 0 0 var(--c-spacing-4); }
+.guia__num { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; width: 32px; height: 32px; border-radius: 50%; background: var(--c-color-fill-primary-subtle); color: var(--c-color-text-error-strong); font-size: 16px; line-height: 20px; font-weight: var(--c-font-weight-bold); }
+.guia__lead { font-size: 18px; line-height: 28px; color: var(--c-color-text-strong); max-width: 820px; margin: var(--c-spacing-2) 0 0; }
+
+/* Nombre de botón o elemento tal como se ve en pantalla */
+.ui { display: inline-block; padding: 0 var(--c-spacing-2); border: 1px solid var(--c-color-border-subtle); border-radius: var(--c-border-radius-xsmall); background: var(--c-color-surface); font-family: var(--c-font-family-label); font-size: 14px; line-height: 22px; font-weight: var(--c-font-weight-medium); color: var(--c-color-text-strong); white-space: nowrap; }
+.ui svg { vertical-align: -3px; margin-right: 2px; }
+
+/* Pasos numerados */
+.pasos { counter-reset: paso; list-style: none; padding-left: 0 !important; }
+.pasos > li { counter-increment: paso; position: relative; padding-left: 44px; margin-bottom: var(--c-spacing-3) !important; min-height: 28px; }
+.pasos > li::before { content: counter(paso); position: absolute; left: 0; top: -2px; width: 28px; height: 28px; border-radius: 50%; background: var(--c-color-fill-info); color: var(--c-color-text-inverse); font-size: 14px; line-height: 28px; text-align: center; font-weight: var(--c-font-weight-bold); }
+
+/* Tarjetas de "qué puedo hacer" */
+.tarjetas { list-style: none; padding: 0 !important; margin: 0 0 var(--c-spacing-4); display: grid; gap: var(--c-spacing-3); grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.tarjetas > li { margin: 0 !important; background: var(--c-color-surface); border: 1px solid var(--c-color-border-subtle); border-radius: var(--c-border-radius-medium); padding: var(--c-spacing-4); box-shadow: var(--c-shadow-bottom-subtle); display: flex; flex-direction: column; gap: var(--c-spacing-1); }
+.tarjetas b { font-family: var(--c-font-family-title); font-weight: var(--c-font-weight-medium); color: var(--c-color-text-strong); display: flex; align-items: center; gap: var(--c-spacing-2); }
+.tarjetas b svg { color: var(--c-color-text-primary); flex: 0 0 auto; }
+.tarjetas span { font-size: 14px; line-height: 20px; color: var(--c-color-text); }
+
+/* Jerarquía Segmento › … › Contrato */
+.jerarquia { list-style: none; padding: 0 !important; display: flex; flex-wrap: wrap; align-items: center; gap: var(--c-spacing-2); }
+.jerarquia li { margin: 0 !important; display: inline-flex; align-items: center; gap: var(--c-spacing-2); }
+.jerarquia li + li::before { content: "›"; color: var(--c-color-text); }
+
+/* Preguntas frecuentes */
+.faq details { border: 1px solid var(--c-color-border-subtle); border-radius: var(--c-border-radius-small); background: var(--c-color-surface); margin-bottom: var(--c-spacing-2); }
+.faq summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; padding: var(--c-spacing-2) var(--c-spacing-4); font-family: var(--c-font-family-title); font-weight: var(--c-font-weight-medium); color: var(--c-color-text-strong); border-radius: var(--c-border-radius-small); }
+.faq summary:hover { background: var(--c-color-surface-hover); }
+.faq details[open] summary { border-bottom: 1px solid var(--c-color-border-subtle); border-radius: var(--c-border-radius-small) var(--c-border-radius-small) 0 0; }
+.faq .faq__body { padding: var(--c-spacing-3) var(--c-spacing-4) var(--c-spacing-1); }
+
+/* Glosario */
+.glosario { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--c-spacing-2) var(--c-spacing-4); margin: 0; }
+.glosario dt { font-weight: var(--c-font-weight-medium); color: var(--c-color-text-strong); }
+.glosario dd { margin: 0; color: var(--c-color-text-strong); }
+
+.arriba { display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; line-height: 20px; }
+
+@media (max-width: 1023px) {
+  .guia { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .guia__indice { display: none; }
+  .guia__indice-movil { display: block; margin-top: var(--c-spacing-4); }
+  .guia__indice-movil summary { min-height: 44px; display: flex; align-items: center; gap: var(--c-spacing-2); padding: 0 var(--c-spacing-4); border: 1px solid var(--c-color-border-subtle); border-radius: var(--c-border-radius-small); background: var(--c-color-surface); cursor: pointer; font-weight: var(--c-font-weight-medium); color: var(--c-color-text-strong); }
+  .guia__indice-movil ol { margin: var(--c-spacing-2) 0 0; padding-left: var(--c-spacing-5); }
+  .guia__indice-movil a { display: inline-flex; min-height: 44px; align-items: center; color: var(--c-color-text-strong); }
+  .tarjetas { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 599px) {
+  .glosario { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .glosario dd { margin-bottom: var(--c-spacing-3); }
+  .guia__contenido h2 { font-size: 20px; line-height: 24px; }
+  .ui { white-space: normal; }
+  .header__actions .btn--small { width: auto; }
+}
+@media print {
+  .guia__indice, .guia__indice-movil, .arriba, .skip-link { display: none !important; }
+  .guia { display: block; }
+  .faq details { break-inside: avoid; }
+}
