@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Propuesta · Matriz de Envíos con RSA, ingreso y rentabilidad · Andreani</title>
+<title>Propuesta v2 · Matriz de Envíos con pestaña Ingreso y resultado · Andreani</title>
 <link rel="icon" href="../../matriz-envios/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../../matriz-envios/estilos.css">
 <style>
@@ -18,21 +18,24 @@
 .seg-ctrl button + button { border-left: 1px solid var(--c-color-border-subtle); }
 .seg-ctrl button[aria-pressed="true"] { background: var(--c-color-fill-primary-subtle); color: var(--c-color-text-error-strong); font-weight: var(--c-font-weight-medium); }
 .fijo { display: inline-flex; align-items: center; min-height: 40px; padding: 0 var(--c-spacing-3); border-radius: var(--c-border-radius-small); background: var(--c-color-surface-neutral); color: var(--c-color-text-strong); font-size: 14px; font-weight: var(--c-font-weight-medium); }
-.grupo-fin { border-top: 1px solid var(--c-color-border-subtle); padding-top: var(--c-spacing-4); margin-top: var(--c-spacing-4); }
-.grupo-fin__head { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: var(--c-spacing-2); margin-bottom: var(--c-spacing-3); }
 .kpi--fin { border-color: var(--c-color-border-info); }
-.rsa { display: inline-flex; align-items: center; gap: var(--c-spacing-1); font-size: 12px; line-height: 16px; padding: 2px var(--c-spacing-2); border-radius: var(--c-border-radius-xlarge); background: var(--c-color-surface-info-subtle); color: var(--c-color-text-info-strong); white-space: nowrap; }
-.rsa--no { background: var(--c-color-surface-warning-subtle); color: var(--c-color-text-caution-strong); }
 .nota { font-size: 12px; line-height: 16px; color: var(--c-color-text); }
+.nuevo { margin-left: var(--c-spacing-2); }
+.tab-lock { margin-left: var(--c-spacing-1); }
 .chart .dot-ok { fill: var(--c-color-fill-success); } .chart .dot-warn { fill: var(--c-color-surface-warning); } .chart .dot-err { fill: var(--c-color-fill-primary); }
 .chart .dot { fill-opacity: .75; stroke: var(--c-color-surface); stroke-width: 1.5; }
 .chart .quad { font-size: 11px; fill: var(--c-color-text); }
 .chart .linea { fill: none; stroke: var(--c-color-text-strong); stroke-width: 2; }
 .chart .punto { fill: var(--c-color-text-strong); }
 .chart .bar-ing { fill: var(--c-color-fill-info); } .chart .bar-res { fill: var(--c-color-fill-success); }
+.chart .bar-b2c { fill: var(--c-color-fill-primary); } .chart .bar-b2b { fill: var(--c-color-fill-info); }
 .chart [tabindex]:focus-visible { outline: none; stroke: var(--c-blue-600); stroke-width: 3; }
 .select-sm { height: 32px; font-size: 14px; padding: 0 var(--c-spacing-2); }
 .arbol-rs td:first-child { padding-left: calc(var(--c-spacing-4) + 28px); }
+.flujo { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--c-spacing-3); grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.flujo li { border: 1px solid var(--c-color-border-subtle); border-radius: var(--c-border-radius-small); padding: var(--c-spacing-3) var(--c-spacing-4); font-size: 14px; line-height: 20px; color: var(--c-color-text-strong); }
+.flujo b { display: block; margin-bottom: var(--c-spacing-1); }
+@media (max-width: 1023px) { .flujo { grid-template-columns: minmax(0, 1fr); } }
 </style>
 </head>
 <body>
@@ -42,7 +45,7 @@
   <div class="header__inner">
     <a class="brand" href="../../" aria-label="Andreani, ir al portal de herramientas">Andreani</a>
     <span class="header__divider" aria-hidden="true"></span>
-    <p class="header__title">Migración Integra → DMS · Propuesta RSA</p>
+    <p class="header__title">Migración Integra → DMS · Propuesta v2</p>
     <div class="header__actions proto">
       <span class="badge badge--warning">Prueba visual · datos sintéticos</span>
       <a class="btn btn--ghost btn--small" href="../../matriz-envios/">Ver el dashboard actual</a>
@@ -52,38 +55,25 @@
 
 <main id="contenido" tabindex="-1">
   <div class="page-head">
-    <h1>Universo de envíos, ingreso y rentabilidad</h1>
-    <p class="page-head__meta">Envíos: Ene-26 a Oct-26 (Oct-26 parcial) · Ingreso y rentabilidad: Ene-26 a Sep-26 · <strong>Maqueta: los números son inventados</strong></p>
-    <details class="about">
-      <summary>Cómo se relacionan las bases</summary>
-      <div class="about__body">
-        <p>Cada razón social de la matriz se vincula a su <strong>RSA</strong> (Razón Social Agrupada). La rentabilidad viene por RSA y por mes.</p>
-        <ol style="margin:0 0 8px;padding-left:20px">
-          <li>Matriz de envíos → razón social</li>
-          <li>Envíos y facturación → número de solicitante</li>
-          <li>Base RSA → ID RSA</li>
-          <li>Rentabilidad → ingreso, costos y resultado del RSA</li>
-        </ol>
-        <p>Cruce real (30/10, con data (25)): <strong>94,27 %</strong> de los envíos encuentra RSA; <strong>76,77 %</strong> con RSA único. El resto se resuelve en «Calidad del vínculo» (pestaña Análisis).</p>
-      </div>
-    </details>
+    <h1>Universo de envíos B2B + B2C</h1>
+    <p class="page-head__meta">Envíos: Ene-26 a Oct-26 (Oct-26 parcial) · Ingreso y resultado: Ene-26 a Sep-26 · <strong>Maqueta: los números son inventados</strong></p>
   </div>
 
   <details class="alert alert--info decisiones" open>
-    <summary>Decisiones a validar en esta propuesta (8)</summary>
+    <summary>Cómo queda la propuesta (v2, con tus definiciones del 30/10)</summary>
     <div class="table-wrap">
       <table>
-        <caption class="sr-only">Decisiones propuestas</caption>
-        <thead><tr><th scope="col">#</th><th scope="col">Tema</th><th scope="col">Propuesta que ves en la maqueta</th></tr></thead>
+        <caption class="sr-only">Definiciones de la propuesta v2</caption>
+        <thead><tr><th scope="col">#</th><th scope="col">Tema</th><th scope="col">Definición</th><th scope="col">Estado</th></tr></thead>
         <tbody>
-          <tr><td>1</td><th scope="row">Pestañas</th><td>Las mismas 3: Resumen · Análisis · Migración a DMS.</td></tr>
-          <tr><td>2</td><th scope="row">Canal (T-006)</th><td>Filtro Todos / B2B / B2C en Resumen y Análisis. En Migración queda fijo en B2C.</td></tr>
-          <tr><td>3</td><th scope="row">Dónde va el RSA</th><td>Filtro aparte y etiqueta junto a cada razón social. <strong>No</strong> es un nivel nuevo de la cascada.</td></tr>
-          <tr><td>4</td><th scope="row">Montos</th><td>Siempre del RSA completo: no se reparten por canal, servicio ni contrato (con aviso).</td></tr>
-          <tr><td>5</td><th scope="row">Rentabilidad</th><td>Se recalcula como resultado ÷ ingreso (nunca se promedia). Semáforo: Alta ≥ 15 % · Media 0–15 % · Negativa &lt; 0.</td></tr>
-          <tr><td>6</td><th scope="row">RSA internos</th><td>88881, 88882, 99999 y 01648 (Contado) fuera de rankings y de los indicadores financieros, como hoy los clientes internos.</td></tr>
-          <tr><td>7</td><th scope="row">Migración</th><td>Suma «Ingreso y resultado de RSA migrados» y una lista de prioridad por RSA.</td></tr>
-          <tr><td>8</td><th scope="row">Vínculos dudosos</th><td>Pantalla «Resolver vínculos» para elegir el RSA a mano (solo editores).</td></tr>
+          <tr><td>1</td><th scope="row">Pestañas</th><td>Resumen · <strong>Ingreso y resultado</strong> (nueva) · Análisis · Migración a DMS.</td><td><span class="badge badge--success">✓ Acordado</span></td></tr>
+          <tr><td>2</td><th scope="row">Matriz</th><td>Una sola descarga con B2B y B2C. El canal es un filtro (Todos / B2B / B2C).</td><td><span class="badge badge--success">✓ Acordado</span></td></tr>
+          <tr><td>3</td><th scope="row">Migración a DMS</th><td>La misma pestaña de hoy, <strong>solo B2C</strong>. Sin montos ni RSA.</td><td><span class="badge badge--success">✓ Acordado</span></td></tr>
+          <tr><td>4</td><th scope="row">Resumen y Análisis</th><td>Como hoy, más el filtro Canal. Sin datos financieros.</td><td><span class="badge badge--success">✓ Acordado</span></td></tr>
+          <tr><td>5</td><th scope="row">Ingreso y resultado</th><td>Todo lo de RSA, ingreso y rentabilidad vive acá. Filtros: Canal (solo afecta envíos), Segmento, Razón social, RSA y Período (Ene–Sep). Tipo, agrupado, servicio y contrato no aplican a los montos y se ocultan.</td><td><span class="badge badge--success">✓ Acordado</span></td></tr>
+          <tr><td>6</td><th scope="row">Montos</th><td>Siempre del RSA completo. Rentabilidad = resultado ÷ ingreso. Semáforo: Alta ≥ 15 % · Media 0–15 % · Negativa &lt; 0.</td><td><span class="badge badge--success">✓ Acordado</span></td></tr>
+          <tr><td>7</td><th scope="row">RSA internos</th><td>88881, 88882, 99999 y 01648 (Contado) fuera de rankings y totales.</td><td><span class="badge badge--success">✓ Acordado</span></td></tr>
+          <tr><td>8</td><th scope="row">Quién ve la pestaña nueva</th><td>Propuesta: solo quien tenga acceso (clave). El resto del dashboard sigue público.</td><td><span class="badge badge--warning">Pendiente</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -95,57 +85,62 @@
       <span class="barra__titulo">Filtros</span>
       <div class="barra" id="barra"></div>
     </div>
+    <p class="nota" id="barra-nota" style="margin:8px 0 0"></p>
   </div>
 
-  <!-- ============ Resumen ============ -->
+  <!-- ============ Resumen (como hoy + Canal) ============ -->
   <div id="vista-resumen" role="tabpanel" aria-labelledby="vtab-resumen" tabindex="-1">
     <section class="sec sec--first" aria-labelledby="t-kpis">
       <h2 id="t-kpis" class="sr-only">Indicadores</h2>
       <ul class="kpis" id="kpis-vol"></ul>
-      <div class="grupo-fin">
-        <div class="grupo-fin__head">
-          <h2 id="t-fin">Ingreso y rentabilidad · por RSA · Ene-26 a Sep-26</h2>
-          <span class="nota" id="fin-nota"></span>
+    </section>
+    <section class="sec" aria-labelledby="t-canal">
+      <div class="grid-3-1">
+        <div class="panel">
+          <div class="panel__head"><div><h2 id="t-arbol">Universo por jerarquía</h2><p class="panel__sub">Igual que hoy (Segmento › Razón social › Tipo › Agrupado › Servicio › Contrato). En la maqueta solo bajan dos niveles.</p></div></div>
+          <div id="arbol"></div>
         </div>
-        <ul class="kpis" id="kpis-fin"></ul>
-      </div>
-    </section>
-    <section class="sec" aria-labelledby="t-arbol">
-      <div class="panel">
-        <div class="panel__head"><div><h2 id="t-arbol">Universo por jerarquía</h2><p class="panel__sub">Igual que hoy, con el RSA y su rentabilidad junto a cada razón social. Expandí un segmento.</p></div></div>
-        <div id="arbol"></div>
-      </div>
-    </section>
-    <section class="sec" aria-labelledby="t-top">
-      <h2 id="t-top" class="sr-only">Rankings de RSA</h2>
-      <div class="grid-2">
-        <div class="panel"><div class="panel__head"><div><h3>Top 10 · RSA con más ingreso</h3><p class="panel__sub">Sin RSA internos</p></div></div><div id="top-ing"></div></div>
-        <div class="panel"><div class="panel__head"><div><h3>Top 10 · RSA con más resultado</h3><p class="panel__sub">Resultado = ingreso − costos</p></div></div><div id="top-res"></div></div>
+        <div class="panel">
+          <div class="panel__head"><div><h2 id="t-canal">Envíos por canal <span class="badge badge--info nuevo">Nuevo</span></h2><p class="panel__sub">Participación B2B y B2C</p></div></div>
+          <div id="ch-canal"></div>
+        </div>
       </div>
     </section>
   </div>
 
-  <!-- ============ Análisis ============ -->
-  <div id="vista-analisis" role="tabpanel" aria-labelledby="vtab-analisis" tabindex="-1" hidden>
-    <section class="sec sec--first" aria-labelledby="t-prio">
+  <!-- ============ Ingreso y resultado (NUEVA) ============ -->
+  <div id="vista-ingreso" role="tabpanel" aria-labelledby="vtab-ingreso" tabindex="-1" hidden>
+    <div class="alert alert--info sec--first" role="note"><div class="alert__body"><strong>Montos por RSA (Razón Social Agrupada).</strong> Ingreso, costos y resultado vienen del RSA completo, sin separar por canal, servicio ni contrato. El filtro Canal solo cambia los envíos. <span id="ing-nota"></span></div></div>
+    <section class="sec sec--first" aria-labelledby="t-fin">
+      <h2 id="t-fin" class="sr-only">Indicadores de ingreso y resultado</h2>
+      <ul class="kpis" id="kpis-fin"></ul>
+    </section>
+    <section class="sec" aria-labelledby="t-rsa">
+      <div class="panel">
+        <div class="panel__head"><div><h2 id="t-rsa">Ingreso y resultado por RSA</h2><p class="panel__sub">Sin RSA internos. Ordenado por ingreso.</p></div>
+          <button type="button" class="btn btn--secondary btn--small" data-maqueta>Exportar CSV</button></div>
+        <div id="tabla-rsa"></div>
+      </div>
+    </section>
+    <section class="sec" aria-labelledby="t-prio">
       <div class="grid-3-1">
         <div class="panel">
-          <div class="panel__head"><div><h2 id="t-prio">Matriz de priorización por RSA</h2><p class="panel__sub">Envíos (eje horizontal) contra rentabilidad (eje vertical). El tamaño del círculo es el ingreso.</p></div></div>
+          <div class="panel__head"><div><h2 id="t-prio">Matriz de priorización</h2><p class="panel__sub">Envíos (horizontal) contra rentabilidad (vertical). El tamaño del círculo es el ingreso.</p></div></div>
           <div id="ch-prio"></div>
         </div>
         <div class="panel">
           <div class="panel__head"><div><h2 id="t-leer">Cómo leerla</h2></div></div>
           <ul class="hist">
-            <li><strong>Arriba a la derecha:</strong> mucho volumen y rentables. Son los de mayor impacto: migrar con cuidado.</li>
-            <li><strong>Abajo a la derecha:</strong> mucho volumen y rentabilidad baja o negativa. Revisar tarifas antes o durante la migración.</li>
-            <li><strong>Izquierda:</strong> poco volumen. Buenos candidatos para pruebas piloto en DMS.</li>
+            <li><strong>Arriba a la derecha:</strong> mucho volumen y rentables. Mayor impacto: migrar con cuidado.</li>
+            <li><strong>Abajo a la derecha:</strong> mucho volumen y rentabilidad baja o negativa. Revisar tarifas.</li>
+            <li><strong>Izquierda:</strong> poco volumen. Candidatos para pilotos en DMS.</li>
           </ul>
         </div>
       </div>
     </section>
     <section class="sec" aria-labelledby="t-evo">
       <div class="panel">
-        <div class="panel__head"><div><h2 id="t-evo">Evolución mensual de ingreso y resultado</h2><p class="panel__sub">RSA vinculados a la matriz, sin internos. La línea es la rentabilidad del mes.</p></div></div>
+        <div class="panel__head"><div><h2 id="t-evo">Evolución mensual de ingreso y resultado</h2><p class="panel__sub">La línea es la rentabilidad del mes.</p></div></div>
         <div id="ch-evo"></div>
       </div>
     </section>
@@ -155,57 +150,61 @@
           <div class="panel__head"><div><h2 id="t-cal">Calidad del vínculo razón social → RSA</h2><p class="panel__sub">Sobre toda la base, sin filtros</p></div></div>
           <ul class="quality" id="calidad"></ul>
           <h3 style="margin-top:var(--c-spacing-5)">Resolver vínculos (solo editores)</h3>
-          <p class="panel__sub">Razones sociales con más de un RSA posible o sin RSA. Lo que elijas queda guardado como vínculo manual.</p>
+          <p class="panel__sub">Razones sociales con más de un RSA posible o sin RSA. Lo elegido queda guardado como vínculo manual.</p>
           <div id="resolver" style="margin-top:var(--c-spacing-3)"></div>
         </div>
         <div class="panel">
-          <div class="panel__head"><div><h2 id="t-bases">Bases</h2></div></div>
+          <div class="panel__head"><div><h2 id="t-bases">Bases que usa</h2></div></div>
           <dl class="meta-list">
-            <dt>Matriz</dt><dd>Descarga de Power BI (como hoy)</dd>
-            <dt>Equivalencias</dt><dd>Razón social → RSA (automático + manual)</dd>
+            <dt>Matriz</dt><dd>B2B + B2C · Ene-26 a Oct-26</dd>
+            <dt>Vínculo</dt><dd>Razón social → solicitante → RSA</dd>
             <dt>Rentabilidad</dt><dd>RSA × mes · Ene-26 a Sep-26</dd>
-            <dt>Clave</dt><dd>ID RSA (= ID_CLIENTE)</dd>
           </dl>
-          <div class="alert alert--warning" role="note"><div class="alert__body"><strong>Visibilidad pendiente.</strong> Ingreso y rentabilidad son datos sensibles: definir quién los ve antes de cargar datos reales.</div></div>
         </div>
       </div>
     </section>
+  </div>
+
+  <!-- ============ Análisis (como hoy + Canal) ============ -->
+  <div id="vista-analisis" role="tabpanel" aria-labelledby="vtab-analisis" tabindex="-1" hidden>
+    <div class="alert alert--info sec--first" role="note"><div class="alert__body"><strong>Igual que hoy</strong> (evolución, participación por tipo, más rankings, calidad de datos, historial y detalle), más el filtro Canal y la columna <strong>Canal</strong> en el detalle y en el CSV.</div></div>
     <section class="sec" aria-labelledby="t-det">
       <div class="panel">
-        <div class="panel__head"><div><h2 id="t-det">Detalle por razón social</h2><p class="panel__sub">Columnas nuevas: ID RSA, RSA, ingreso, resultado y rentabilidad del RSA</p></div>
-          <button type="button" class="btn btn--secondary btn--small" data-maqueta>Exportar CSV</button></div>
+        <div class="panel__head"><div><h2 id="t-det">Detalle (extracto)</h2><p class="panel__sub">Columna nueva: Canal</p></div></div>
         <div id="detalle"></div>
       </div>
     </section>
   </div>
 
-  <!-- ============ Migración a DMS ============ -->
+  <!-- ============ Migración a DMS (como hoy, solo B2C) ============ -->
   <div id="vista-migracion" role="tabpanel" aria-labelledby="vtab-migracion" tabindex="-1" hidden>
-    <div class="alert alert--info sec--first" role="note"><div class="alert__body"><strong>Solo B2C.</strong> Esta pestaña muestra el universo B2C a migrar. El filtro Canal no aplica acá.</div></div>
+    <div class="alert alert--info sec--first" role="note"><div class="alert__body"><strong>Solo B2C</strong>, que es lo que se migra. La pestaña es la misma de hoy: el B2B y los montos no aparecen acá.</div></div>
     <section class="sec sec--first" aria-labelledby="t-mk">
       <h2 id="t-mk" class="sr-only">Avance de la migración</h2>
       <ul class="kpis" id="kpis-mig"></ul>
     </section>
-    <section class="sec" aria-labelledby="t-mprio">
-      <div class="panel">
-        <div class="panel__head">
-          <div><h2 id="t-mprio">Prioridad de migración por RSA</h2><p class="panel__sub">RSA con envíos B2C, ordenados por el criterio elegido. Ayuda a decidir qué migrar primero.</p></div>
-          <span class="toolbar"><label class="toolbar__label" for="orden">Ordenar por</label>
-            <select id="orden" class="input input--select select-sm"><option value="ing">Ingreso</option><option value="res">Resultado</option><option value="env">Envíos B2C</option><option value="pend">Pendientes primero</option></select></span>
-        </div>
-        <div id="mig-prio"></div>
-      </div>
-    </section>
     <section class="sec" aria-labelledby="t-marcar">
       <div class="panel">
-        <div class="panel__head"><div><h2 id="t-marcar">Marcar lo migrado a DMS</h2><p class="panel__sub">Igual que hoy (casillas por nivel), con la etiqueta del RSA. En la maqueta las casillas no guardan.</p></div></div>
+        <div class="panel__head"><div><h2 id="t-marcar">Marcar lo migrado a DMS</h2><p class="panel__sub">Igual que hoy. En la maqueta las casillas no guardan.</p></div></div>
         <div id="mig-arbol"></div>
       </div>
     </section>
   </div>
+
+  <section class="sec" aria-labelledby="t-flujo">
+    <div class="panel">
+      <div class="panel__head"><div><h2 id="t-flujo">Cómo se cargan y se cruzan los datos</h2><p class="panel__sub">Cada base se carga por separado (Excel de Power BI). El cruce se hace solo, en el navegador, cada vez que se abre el dashboard.</p></div></div>
+      <ol class="flujo">
+        <li><b>1 · Matriz B2B + B2C</b>Como hoy, con la columna Canal. Alimenta Resumen, Análisis y Migración (solo B2C).</li>
+        <li><b>2 · Razón social → solicitante</b>Hoja «Matriz_de_envios» de Envíos y facturación.</li>
+        <li><b>3 · Base RSA</b>Solicitante → ID RSA.</li>
+        <li><b>4 · Rentabilidad</b>ID RSA × mes: ingreso, costos y resultado. Se actualiza cuando hay un mes nuevo.</li>
+      </ol>
+    </div>
+  </section>
 </main>
 
-<footer class="footer"><div class="footer__inner"><span>Andreani · Migración Integra → DMS · Propuesta RSA (T-005)</span><span>Prueba visual con datos sintéticos</span></div></footer>
+<footer class="footer"><div class="footer__inner"><span>Andreani · Migración Integra → DMS · Propuesta v2 (T-005, T-006)</span><span>Prueba visual con datos sintéticos</span></div></footer>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="chart-tip" id="tip" aria-hidden="true"></div>
 
@@ -213,7 +212,7 @@
 (function () {
   "use strict";
   /* ---------- Datos sintéticos (nombres y montos inventados) ----------
-     ing = ingreso Ene–Sep en millones de ARS; rent = resultado / ingreso; envíos en miles; mig = parte de los envíos B2C migrada */
+     ing = ingreso Ene–Sep en millones de ARS; rent = resultado / ingreso; envíos en miles; mig = parte del B2C migrada */
   var RSA = [
     { id: "02735", n: "DEMO PAMPA MARKET", ing: 8019, rent: .175, rs: [{ n: "DEMO PAMPA MARKET LOG SRL", seg: "MARKETPLACE", b2c: 7009, b2b: 120, mig: 0 }] },
     { id: "06544", n: "DEMO NIMBUS STORE", ing: 1506, rent: -.154, rs: [{ n: "DEMO NIMBUS STORE ARG SRL", seg: "MARKETPLACE", b2c: 2018, b2b: 0, mig: .4 }] },
@@ -231,7 +230,6 @@
     { id: "04411", n: "DEMO CARDON HOGAR", ing: 95, rent: .224, rs: [{ n: "DEMO CARDON HOGAR SRL", seg: "RETAIL", b2c: 210, b2b: 15, mig: 1 }] },
     { id: "88882", n: "MOVIMIENTOS INTERNOS B2C", ing: 0, rent: 0, interno: true, rs: [{ n: "DEMO CORREO INTERNO SA", seg: "OTROS", b2c: 3879, b2b: 0, mig: .03 }] }
   ];
-  /* Razones sociales sin RSA único (pantalla de resolución) */
   var DUDAS = [
     { n: "DEMO COVE SA", seg: "MARKETPLACE", b2c: 1816, b2b: 0, mig: 0, cand: ["01696 · DEMO COVE", "06833 · DEMO COVE LOGISTICA", "06835 · DEMO COVE RETAIL"], tipo: "Ambiguo" },
     { n: "DEMO ONLINE INTERNO", seg: "OTROS", b2c: 1018, b2b: 0, mig: 0, cand: [], tipo: "Sin RSA" },
@@ -249,11 +247,9 @@
   var NS = "http://www.w3.org/2000/svg";
   function s(t, a, k) { var e = document.createElementNS(NS, t); for (var x in a || {}) if (a[x] != null) e.setAttribute(x, a[x]); (k || []).forEach(function (c) { e.appendChild(typeof c === "string" ? document.createTextNode(c) : c); }); return e; }
   var tt; function toast(m) { var t = $("toast"); t.textContent = m; t.setAttribute("data-open", "true"); clearTimeout(tt); tt = setTimeout(function () { t.setAttribute("data-open", "false"); }, 4500); }
-
   /* Semáforo: color + texto (nunca solo color) */
   function nivel(r) { return r >= .15 ? ["success", "Alta"] : r >= 0 ? ["warning", "Media"] : ["error", "Negativa"]; }
   function rentBadge(r) { var v = nivel(r); return el("span", { "class": "badge badge--" + v[0] }, [v[1] + " · " + pct(r)]); }
-  function rsaTag(r) { return r ? el("span", { "class": "rsa", title: "Razón Social Agrupada" }, ["RSA " + r.id + " · " + r.n]) : el("span", { "class": "rsa rsa--no" }, ["Sin RSA"]); }
   function tabla(cab, filas, cap) {
     return el("div", { "class": "table-wrap" }, [el("table", null, [el("caption", { "class": "sr-only", text: cap }),
       el("thead", null, [el("tr", null, cab.map(function (c) { return el("th", { scope: "col", "class": c[1] ? "n" : null, text: c[0] }); }))]),
@@ -261,119 +257,129 @@
   }
   function kpi(t, v, sub, extra, cls) { return el("li", { "class": "kpi" + (cls ? " " + cls : "") }, [el("span", { "class": "kpi__label", text: t }), el("span", { "class": "kpi__value" }, [v]), extra || null, el("span", { "class": "kpi__sub" }, [sub])]); }
   function progreso(v, t, lab) { var p = t ? v / t : 0; return el("span", { "class": "progress-wrap" }, [el("span", { "class": "progress", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": "100", "aria-valuenow": (p * 100).toFixed(1), "aria-label": lab }, [el("span", { style: "width:" + Math.min(100, p * 100).toFixed(1) + "%" })]), el("span", { "class": "progress__txt num", text: pct(p) })]); }
-
-  /* ---------- Estado ---------- */
-  var VISTAS = [["resumen", "Resumen"], ["analisis", "Análisis"], ["migracion", "Migración a DMS"]];
-  var ui = { vista: "resumen", canal: "Todos", rsa: "", abiertos: {}, orden: "ing" };
-  RSA.forEach(function (r) { r.res = r.ing * r.rent; r.rs.forEach(function (x) { x.rsa = r; }); });
-  function todasRS() { var o = []; RSA.forEach(function (r) { r.rs.forEach(function (x) { o.push(x); }); }); DUDAS.forEach(function (d) { o.push(d); }); return o; }
-  function envDe(x, canal) { return canal === "B2C" ? x.b2c : canal === "B2B" ? x.b2b : x.b2c + x.b2b; }
-  function canalAct() { return ui.vista === "migracion" ? "B2C" : ui.canal; }
-  function rsFilt() { var c = canalAct(); return todasRS().filter(function (x) { return (!ui.rsa || (x.rsa && x.rsa.id === ui.rsa)) && envDe(x, c) > 0; }); }
-  function rsaFilt() { var vis = {}; rsFilt().forEach(function (x) { if (x.rsa) vis[x.rsa.id] = x.rsa; }); return Object.keys(vis).map(function (k) { return vis[k]; }); }
-  function externos(l) { return l.filter(function (r) { return !r.interno; }); }
-
-  /* ---------- Pestañas y barra ---------- */
-  function renderVistas() {
-    var b = $("vistas"); b.innerHTML = "";
-    VISTAS.forEach(function (v, i) {
-      var sel = ui.vista === v[0];
-      b.appendChild(el("button", { type: "button", role: "tab", "class": "tab tab--vista", id: "vtab-" + v[0], "aria-controls": "vista-" + v[0], "aria-selected": sel ? "true" : "false", tabindex: sel ? "0" : "-1",
-        onclick: function () { ir(v[0]); },
-        onkeydown: function (e) { var j = e.key === "ArrowRight" ? (i + 1) % 3 : e.key === "ArrowLeft" ? (i + 2) % 3 : null; if (j != null) { e.preventDefault(); ir(VISTAS[j][0]); $("vtab-" + VISTAS[j][0]).focus(); } } }, [v[1]]));
-      $("vista-" + v[0]).hidden = !sel;
-    });
-  }
-  function ir(id) { ui.vista = id; render(); }
-  function renderBarra() {
-    var b = $("barra"); b.innerHTML = "";
-    if (ui.vista === "migracion") b.appendChild(el("span", { "class": "fijo", title: "En Migración el canal es siempre B2C" }, ["Canal: B2C (fijo)"]));
-    else b.appendChild(el("div", { "class": "seg-ctrl", role: "group", "aria-label": "Canal" }, ["Todos", "B2B", "B2C"].map(function (c) {
-      return el("button", { type: "button", "aria-pressed": ui.canal === c ? "true" : "false", onclick: function () { ui.canal = c; render(); }, text: c === "Todos" ? "Canal: Todos" : c });
-    })));
-    b.appendChild(el("span", { "class": "barra__sep", "aria-hidden": "true" }, ["|"]));
-    ["Segmento", "Razón social", "Tipo de servicio", "Servicio agrupado", "Servicio", "N° contrato"].forEach(function (t, i) {
-      b.appendChild(el("button", { type: "button", "class": "ms__btn", "data-maqueta": "", "aria-label": t + ": Todos (igual que hoy)" }, [el("span", { "class": "ms__lab" }, [el("span", { "class": "nivel-num", "aria-hidden": "true" }, [String(i + 1)]), t]), el("span", { "class": "ms__val", text: "Todos" })]));
-      if (i < 5) b.appendChild(el("span", { "class": "barra__sep", "aria-hidden": "true" }, ["›"]));
-    });
-    b.appendChild(el("span", { "class": "barra__sep", "aria-hidden": "true" }, ["|"]));
-    var sel = el("select", { id: "f-rsa", "class": "input input--select", "aria-label": "Filtro RSA (Razón Social Agrupada)", onchange: function (e) { ui.rsa = e.target.value; render(); $("f-rsa").focus(); } },
-      [el("option", { value: "", text: "RSA: Todos" })].concat(RSA.map(function (r) { return el("option", { value: r.id, text: "RSA " + r.id + " · " + r.n }); })));
-    sel.value = ui.rsa; b.appendChild(sel);
-    b.appendChild(el("button", { type: "button", "class": "ms__btn", "data-maqueta": "", "aria-label": "Período: Todos (igual que hoy)" }, [el("span", { "class": "ms__lab", text: "Período" }), el("span", { "class": "ms__val", text: "Todos" })]));
-  }
-  /* Controles que en la maqueta no responden: un solo listener delegado */
-  document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest("[data-maqueta]")) toast("Maqueta: este control funciona igual que en el dashboard actual. Acá solo responden Canal, RSA y las pestañas."); });
-
-  /* ---------- Resumen ---------- */
-  function renderResumen() {
-    var c = canalAct(), rs = rsFilt(), rsas = rsaFilt(), ext = externos(rsas);
-    var tot = 0, conRsa = 0; rs.forEach(function (x) { var e = envDe(x, c); tot += e; if (x.rsa) conRsa += e; });
-    var k = $("kpis-vol"); k.innerHTML = "";
-    k.appendChild(kpi("Envíos", env(tot), "Canal: " + c + " · igual que hoy"));
-    k.appendChild(kpi("Razones sociales", n(rs.length), "Con envíos en el período"));
-    k.appendChild(kpi("RSA vinculados", n(rsas.length), pct(tot ? conRsa / tot : 0) + " de los envíos tiene RSA"));
-    k.appendChild(kpi("Contratos", n(rs.length * 3), "Igual que hoy"));
-    var ing = 0, res = 0, envR = 0; ext.forEach(function (r) { ing += r.ing; res += r.res; r.rs.forEach(function (x) { envR += envDe(x, c); }); });
-    var f = $("kpis-fin"); f.innerHTML = "";
-    f.appendChild(kpi("Ingreso", ars(ing), n(ext.length) + " RSA · sin internos", null, "kpi--fin"));
-    f.appendChild(kpi("Resultado", ars(res), "Ingreso − costos", null, "kpi--fin"));
-    f.appendChild(kpi("Rentabilidad", rentBadge(ing ? res / ing : 0), "Resultado ÷ ingreso (no se promedia)", null, "kpi--fin"));
-    f.appendChild(kpi("Ingreso por envío", envR ? "$ " + n(ing * 1e6 / (envR * 1000)) : "—", "Ingreso del RSA ÷ envíos del canal elegido (aprox.)", null, "kpi--fin"));
-    $("fin-nota").textContent = c === "Todos" ? "Montos del RSA completo." : "Montos del RSA completo: no se separan por canal (elegiste " + c + ").";
-    renderArbol("arbol", rs, c, false);
-    function top(key) {
-      var l = ext.slice().sort(function (a, b) { return b[key] - a[key]; }).slice(0, 10);
-      return tabla([["#"], ["RSA"], ["Ingreso", 1], ["Resultado", 1], ["Rentabilidad"]], l.map(function (r, i) { return [i + 1, el("span", null, [r.n, el("br"), el("span", { "class": "nota", text: "ID " + r.id + " · " + r.rs.length + (r.rs.length === 1 ? " razón social" : " razones sociales") })]), ars(r.ing), ars(r.res), rentBadge(r.rent)]; }), "Top RSA");
-    }
-    $("top-ing").innerHTML = ""; $("top-ing").appendChild(top("ing"));
-    $("top-res").innerHTML = ""; $("top-res").appendChild(top("res"));
-  }
-  /* Árbol: Segmento › Razón social (con RSA). En la versión real siguen Tipo › Agrupado › Servicio › Contrato, como hoy. */
-  function renderArbol(id, rs, c, mig) {
-    var segs = {}; rs.forEach(function (x) { (segs[x.seg] = segs[x.seg] || []).push(x); });
-    var tot = 0; rs.forEach(function (x) { tot += envDe(x, c); });
-    function sum(l) { var t = 0; l.forEach(function (x) { t += envDe(x, c); }); return t; }
-    var tb = el("tbody");
-    Object.keys(segs).sort(function (a, b) { return sum(segs[b]) - sum(segs[a]); }).forEach(function (sg) {
-      var key = id + "-" + sg, ab = !!ui.abiertos[key], e = sum(segs[sg]);
-      var mg = 0; segs[sg].forEach(function (x) { mg += x.b2c * x.mig; });
-      tb.appendChild(el("tr", { "class": "arbol__fila arbol__fila--n0" }, [
-        el("td", { "class": "arbol__celda" }, [mig ? el("input", { type: "checkbox", "class": "mig-check", disabled: "", "aria-label": "Marcar segmento " + sg + " (maqueta)" }) : null,
-          el("button", { type: "button", "class": "arbol__toggle", "aria-expanded": ab ? "true" : "false", "data-k": key, onclick: function () { ui.abiertos[key] = !ab; render(); var bb = document.querySelector("[data-k='" + key + "']"); if (bb) bb.focus(); } }, [(ab ? "▾ " : "▸ ") + sg]),
-          el("span", { "class": "badge badge--neutral arbol__nivel", text: "Segmento" })]),
-        el("td", { "class": "n", text: env(e) }),
-        mig ? el("td", null, [progreso(mg, e, "Migrado de " + sg)]) : el("td", { "class": "n", text: pct(tot ? e / tot : 0) }),
-        el("td", { text: "" }), el("td", { "class": "n", text: "" }), el("td", { text: "" })]));
-      if (ab) segs[sg].sort(function (a, b) { return envDe(b, c) - envDe(a, c); }).forEach(function (x) {
-        var r = x.rsa, comp = r && r.rs.length > 1;
-        tb.appendChild(el("tr", { "class": "arbol-rs" }, [
-          el("td", null, [mig ? el("input", { type: "checkbox", "class": "mig-check", disabled: "", "aria-label": "Marcar " + x.n + " (maqueta)" }) : null, x.n, el("span", { "class": "badge badge--neutral arbol__nivel", text: "Razón social" })]),
-          el("td", { "class": "n", text: env(envDe(x, c)) }),
-          mig ? el("td", null, [progreso(x.b2c * x.mig, x.b2c, "Migrado de " + x.n)]) : el("td", { "class": "n", text: pct(tot ? envDe(x, c) / tot : 0) }),
-          el("td", null, [rsaTag(r)]),
-          el("td", { "class": "n" }, [r && !r.interno ? ars(r.ing) + (comp ? " *" : "") : "—"]),
-          el("td", null, [r && !r.interno ? rentBadge(r.rent) : el("span", { "class": "nota", text: r ? "Interno" : "Sin dato" })])]));
-      });
-    });
-    var cont = $(id); cont.innerHTML = "";
-    cont.appendChild(el("div", { "class": "table-wrap" }, [el("table", { "class": "arbol" }, [el("caption", { "class": "sr-only", text: "Universo por segmento y razón social, con RSA" }),
-      el("thead", null, [el("tr", null, [["Segmento › Razón social › …"], ["Envíos" + (mig ? " B2C" : ""), 1], [mig ? "Migrado" : "% del universo", 1], ["RSA"], ["Ingreso RSA", 1], ["Rentabilidad RSA"]].map(function (h) { return el("th", { scope: "col", "class": h[1] ? "n" : null, text: h[0] }); }))]), tb])]));
-    cont.appendChild(el("p", { "class": "nota", style: "margin:8px 0 0", text: "* El RSA agrupa más de una razón social: el monto es del RSA completo y no se suma por fila." }));
-  }
-
-  /* ---------- Análisis ---------- */
   function tip(node, t) {
     node.setAttribute("tabindex", "0"); node.setAttribute("aria-label", t);
     node.addEventListener("mousemove", function (e) { var x = $("tip"); x.textContent = t; x.style.display = "block"; x.style.left = Math.min(e.clientX + 12, innerWidth - 290) + "px"; x.style.top = e.clientY + 12 + "px"; });
     node.addEventListener("mouseleave", function () { $("tip").style.display = "none"; });
   }
-  function renderAnalisis() {
-    var c = canalAct(), ext = externos(rsaFilt());
+
+  /* ---------- Estado ---------- */
+  var VISTAS = [["resumen", "Resumen"], ["ingreso", "Ingreso y resultado"], ["analisis", "Análisis"], ["migracion", "Migración a DMS"]];
+  var ui = { vista: "resumen", canal: "Todos", rsa: "", abiertos: {} };
+  RSA.forEach(function (r) { r.res = r.ing * r.rent; r.rs.forEach(function (x) { x.rsa = r; }); });
+  function todasRS() { var o = []; RSA.forEach(function (r) { r.rs.forEach(function (x) { o.push(x); }); }); DUDAS.forEach(function (d) { o.push(d); }); return o; }
+  function envDe(x, canal) { return canal === "B2C" ? x.b2c : canal === "B2B" ? x.b2b : x.b2c + x.b2b; }
+  function canalAct() { return ui.vista === "migracion" ? "B2C" : ui.canal; }
+  /* El filtro RSA solo existe en la pestaña Ingreso y resultado */
+  function rsFilt() { var c = canalAct(), r = ui.vista === "ingreso" ? ui.rsa : ""; return todasRS().filter(function (x) { return (!r || (x.rsa && x.rsa.id === r)) && envDe(x, c) > 0; }); }
+  function rsaFilt() { var vis = {}; rsFilt().forEach(function (x) { if (x.rsa && !x.rsa.interno) vis[x.rsa.id] = x.rsa; }); return Object.keys(vis).map(function (k) { return vis[k]; }); }
+
+  /* ---------- Pestañas y barra ---------- */
+  function renderVistas() {
+    var b = $("vistas"), L = VISTAS.length; b.innerHTML = "";
+    VISTAS.forEach(function (v, i) {
+      var sel = ui.vista === v[0];
+      b.appendChild(el("button", { type: "button", role: "tab", "class": "tab tab--vista", id: "vtab-" + v[0], "aria-controls": "vista-" + v[0], "aria-selected": sel ? "true" : "false", tabindex: sel ? "0" : "-1",
+        onclick: function () { ir(v[0]); },
+        onkeydown: function (e) { var j = e.key === "ArrowRight" ? (i + 1) % L : e.key === "ArrowLeft" ? (i + L - 1) % L : e.key === "Home" ? 0 : e.key === "End" ? L - 1 : null; if (j != null) { e.preventDefault(); ir(VISTAS[j][0]); $("vtab-" + VISTAS[j][0]).focus(); } } },
+        [v[1], v[0] === "ingreso" ? el("span", { "class": "badge badge--info tab-lock", text: "Nueva" }) : null]));
+      $("vista-" + v[0]).hidden = !sel;
+    });
+  }
+  function ir(id) { ui.vista = id; render(); }
+  function msBtn(t, num, val) { return el("button", { type: "button", "class": "ms__btn", "data-maqueta": "", "aria-label": t + ": " + (val || "Todos") + " (igual que hoy)" }, [el("span", { "class": "ms__lab" }, [num ? el("span", { "class": "nivel-num", "aria-hidden": "true" }, [String(num)]) : null, t]), el("span", { "class": "ms__val", text: val || "Todos" })]); }
+  function sep(t) { return el("span", { "class": "barra__sep", "aria-hidden": "true" }, [t]); }
+  function renderBarra() {
+    var b = $("barra"), v = ui.vista, nota = "";
+    b.innerHTML = "";
+    if (v === "migracion") { b.appendChild(el("span", { "class": "fijo", title: "En Migración el canal es siempre B2C" }, ["Canal: B2C (fijo)"])); nota = "Migración muestra solo B2C, como hoy."; }
+    else b.appendChild(el("div", { "class": "seg-ctrl", role: "group", "aria-label": "Canal" }, ["Todos", "B2B", "B2C"].map(function (c) {
+      return el("button", { type: "button", "aria-pressed": ui.canal === c ? "true" : "false", onclick: function () { ui.canal = c; render(); }, text: c === "Todos" ? "Canal: Todos" : c });
+    })));
+    b.appendChild(sep("|"));
+    if (v === "ingreso") {
+      b.appendChild(msBtn("Segmento", 1)); b.appendChild(sep("›")); b.appendChild(msBtn("Razón social", 2)); b.appendChild(sep("|"));
+      var sel = el("select", { id: "f-rsa", "class": "input input--select", "aria-label": "Filtro RSA (Razón Social Agrupada)", onchange: function (e) { ui.rsa = e.target.value; render(); $("f-rsa").focus(); } },
+        [el("option", { value: "", text: "RSA: Todos" })].concat(RSA.filter(function (r) { return !r.interno; }).map(function (r) { return el("option", { value: r.id, text: "RSA " + r.id + " · " + r.n }); })));
+      sel.value = ui.rsa; b.appendChild(sel);
+      b.appendChild(msBtn("Período", 0, "Ene-26 a Sep-26"));
+      nota = "En esta pestaña no aplican Tipo, Servicio agrupado, Servicio ni Contrato: los montos existen solo por RSA. El Canal solo cambia los envíos.";
+    } else {
+      ["Segmento", "Razón social", "Tipo de servicio", "Servicio agrupado", "Servicio", "N° contrato"].forEach(function (t, i) { b.appendChild(msBtn(t, i + 1)); if (i < 5) b.appendChild(sep("›")); });
+      b.appendChild(sep("|")); b.appendChild(msBtn("Período", 0));
+    }
+    $("barra-nota").textContent = nota; $("barra-nota").hidden = !nota;
+  }
+  document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest("[data-maqueta]")) toast("Maqueta: este control funciona igual que en el dashboard actual. Acá responden las pestañas, Canal, RSA y expandir segmentos."); });
+
+  /* Árbol (Resumen y Migración): como hoy, sin montos */
+  function renderArbol(id, rs, c, mig) {
+    var segs = {}; rs.forEach(function (x) { (segs[x.seg] = segs[x.seg] || []).push(x); });
+    function sum(l) { var t = 0; l.forEach(function (x) { t += envDe(x, c); }); return t; }
+    var tot = sum(rs), tb = el("tbody");
+    Object.keys(segs).sort(function (a, b) { return sum(segs[b]) - sum(segs[a]); }).forEach(function (sg) {
+      var key = id + "-" + sg, ab = !!ui.abiertos[key], e = sum(segs[sg]), mg = 0;
+      segs[sg].forEach(function (x) { mg += x.b2c * x.mig; });
+      tb.appendChild(el("tr", { "class": "arbol__fila arbol__fila--n0" }, [
+        el("td", { "class": "arbol__celda" }, [mig ? el("input", { type: "checkbox", "class": "mig-check", disabled: "", "aria-label": "Marcar segmento " + sg + " (maqueta)" }) : null,
+          el("button", { type: "button", "class": "arbol__toggle", "aria-expanded": ab ? "true" : "false", "data-k": key, onclick: function () { ui.abiertos[key] = !ab; render(); var bb = document.querySelector("[data-k='" + key + "']"); if (bb) bb.focus(); } }, [(ab ? "▾ " : "▸ ") + sg]),
+          el("span", { "class": "badge badge--neutral arbol__nivel", text: "Segmento" })]),
+        el("td", { "class": "n", text: env(e) }),
+        mig ? el("td", null, [progreso(mg, e, "Migrado de " + sg)]) : el("td", { "class": "n", text: pct(tot ? e / tot : 0) })]));
+      if (ab) segs[sg].sort(function (a, b) { return envDe(b, c) - envDe(a, c); }).forEach(function (x) {
+        tb.appendChild(el("tr", { "class": "arbol-rs" }, [
+          el("td", null, [mig ? el("input", { type: "checkbox", "class": "mig-check", disabled: "", "aria-label": "Marcar " + x.n + " (maqueta)" }) : null, x.n, el("span", { "class": "badge badge--neutral arbol__nivel", text: "Razón social" })]),
+          el("td", { "class": "n", text: env(envDe(x, c)) }),
+          mig ? el("td", null, [progreso(x.b2c * x.mig, x.b2c, "Migrado de " + x.n)]) : el("td", { "class": "n", text: pct(tot ? envDe(x, c) / tot : 0) })]));
+      });
+    });
+    var cont = $(id); cont.innerHTML = "";
+    cont.appendChild(el("div", { "class": "table-wrap" }, [el("table", { "class": "arbol" }, [el("caption", { "class": "sr-only", text: "Universo por segmento y razón social" }),
+      el("thead", null, [el("tr", null, [["Segmento › Razón social › …"], ["Envíos" + (mig ? " B2C" : ""), 1], [mig ? "Migrado" : "% del universo", 1]].map(function (h) { return el("th", { scope: "col", "class": h[1] ? "n" : null, text: h[0] }); }))]), tb])]));
+  }
+
+  /* ---------- Resumen ---------- */
+  function renderResumen() {
+    var c = canalAct(), rs = rsFilt(), tot = 0, b2b = 0, b2c = 0;
+    rs.forEach(function (x) { tot += envDe(x, c); b2b += x.b2b; b2c += x.b2c; });
+    var k = $("kpis-vol"); k.innerHTML = "";
+    k.appendChild(kpi("Envíos", env(tot), "Canal: " + c));
+    k.appendChild(kpi("Clientes", n(rs.length), "Razones sociales con envíos"));
+    k.appendChild(kpi("Contratos", n(rs.length * 3), "Igual que hoy"));
+    k.appendChild(kpi("Participación B2C", pct(b2b + b2c ? b2c / (b2b + b2c) : 0), "Sobre B2B + B2C · nuevo"));
+    renderArbol("arbol", rs, c, false);
+    /* Envíos por canal (barras horizontales) */
+    var W = 320, H = 120, data = [["B2C", b2c, "bar-b2c"], ["B2B", b2b, "bar-b2b"]], mx = Math.max(b2c, b2b, 1);
+    var svg = s("svg", { "class": "chart", viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": "Envíos por canal: B2C " + env(b2c) + ", B2B " + env(b2b) });
+    data.forEach(function (d, i) {
+      var y = 12 + i * 52, w = (W - 120) * d[1] / mx;
+      svg.appendChild(s("text", { x: 0, y: y + 20, "class": "bar-label" }, [d[0]]));
+      svg.appendChild(s("rect", { "class": "bar-h-bg", x: 40, y: y + 4, width: W - 120, height: 24, rx: 4 }));
+      svg.appendChild(s("rect", { "class": d[2], x: 40, y: y + 4, width: Math.max(2, w), height: 24, rx: 4 }));
+      svg.appendChild(s("text", { x: W - 74, y: y + 20, "class": "bar-label" }, [pct(d[1] / (b2b + b2c || 1))]));
+    });
+    var cc = $("ch-canal"); cc.innerHTML = ""; cc.appendChild(svg);
+    cc.appendChild(tabla([["Canal"], ["Envíos", 1]], [["B2C", env(b2c)], ["B2B", env(b2b)]], "Envíos por canal"));
+  }
+
+  /* ---------- Ingreso y resultado ---------- */
+  function renderIngreso() {
+    var c = canalAct(), ext = rsaFilt(), ing = 0, res = 0, envR = 0;
+    ext.forEach(function (r) { var e = 0; r.rs.forEach(function (x) { e += envDe(x, c); }); r._e = e; ing += r.ing; res += r.res; envR += e; });
+    var f = $("kpis-fin"); f.innerHTML = "";
+    f.appendChild(kpi("Ingreso", ars(ing), n(ext.length) + " RSA · sin internos", null, "kpi--fin"));
+    f.appendChild(kpi("Resultado", ars(res), "Ingreso − costos", null, "kpi--fin"));
+    f.appendChild(kpi("Rentabilidad", rentBadge(ing ? res / ing : 0), "Resultado ÷ ingreso (no se promedia)", null, "kpi--fin"));
+    f.appendChild(kpi("Ingreso por envío", envR ? "$ " + n(ing * 1e6 / (envR * 1000)) : "—", "Ingreso ÷ envíos del canal " + c + " (aprox.)", null, "kpi--fin"));
+    $("ing-nota").textContent = c === "Todos" ? "" : "Elegiste " + c + ": cambian los envíos y el ingreso por envío; los montos son los mismos.";
+    var l = ext.slice().sort(function (a, b) { return b.ing - a.ing; });
+    var tr = $("tabla-rsa"); tr.innerHTML = "";
+    tr.appendChild(tabla([["ID RSA"], ["RSA"], ["Razones sociales"], ["Envíos", 1], ["Ingreso", 1], ["Resultado", 1], ["Rentabilidad"], ["Ingreso por envío", 1]], l.map(function (r) {
+      return [r.id, r.n, r.rs.map(function (x) { return x.n; }).join(" · "), env(r._e), ars(r.ing), ars(r.res), rentBadge(r.rent), r._e ? "$ " + n(r.ing * 1e6 / (r._e * 1000)) : "—"];
+    }), "Ingreso y resultado por RSA"));
     /* Matriz de priorización */
-    var W = 720, H = 340, L = 56, R = 16, T = 16, B = 44, maxE = 1, maxI = 1;
-    ext.forEach(function (r) { var e = 0; r.rs.forEach(function (x) { e += envDe(x, c); }); r._e = e; maxE = Math.max(maxE, e); maxI = Math.max(maxI, r.ing); });
-    var yMin = -.3, yMax = .5;
+    var W = 720, H = 340, L = 56, R = 16, T = 16, B = 44, maxE = 1, maxI = 1, yMin = -.3, yMax = .5;
+    ext.forEach(function (r) { maxE = Math.max(maxE, r._e); maxI = Math.max(maxI, r.ing); });
     function X(v) { return L + (W - L - R) * v / maxE; } function Y(v) { return T + (H - T - B) * (yMax - v) / (yMax - yMin); }
     var svg = s("svg", { "class": "chart", viewBox: "0 0 " + W + " " + H, role: "group", "aria-label": "Matriz de priorización por RSA" });
     [-.2, 0, .15, .3, .45].forEach(function (v) { svg.appendChild(s("line", { "class": v === 0 || v === .15 ? "axis-line" : "grid-line", x1: L, x2: W - R, y1: Y(v), y2: Y(v) })); svg.appendChild(s("text", { x: L - 6, y: Y(v) + 4, "text-anchor": "end" }, [pct(v)])); });
@@ -382,17 +388,14 @@
     svg.appendChild(s("text", { "class": "quad", x: W - R - 4, y: H - B - 6, "text-anchor": "end" }, ["Volumen alto · revisar tarifa"]));
     svg.appendChild(s("text", { "class": "quad", x: L + 6, y: T + 12 }, ["Volumen bajo · rentable"]));
     svg.appendChild(s("text", { x: (L + W) / 2, y: H - 8, "text-anchor": "middle" }, ["Envíos (canal: " + c + ")"]));
-    ext.slice().sort(function (a, b) { return b.ing - a.ing; }).forEach(function (r) {
-      var cls = r.rent >= .15 ? "dot-ok" : r.rent >= 0 ? "dot-warn" : "dot-err";
-      var cir = s("circle", { "class": "dot " + cls, cx: X(r._e), cy: Y(Math.max(yMin, Math.min(yMax, r.rent))), r: 5 + 20 * Math.sqrt(r.ing / maxI) });
+    l.forEach(function (r) {
+      var cir = s("circle", { "class": "dot " + (r.rent >= .15 ? "dot-ok" : r.rent >= 0 ? "dot-warn" : "dot-err"), cx: X(r._e), cy: Y(Math.max(yMin, Math.min(yMax, r.rent))), r: 5 + 20 * Math.sqrt(r.ing / maxI) });
       tip(cir, r.n + " · RSA " + r.id + " · " + env(r._e) + " envíos · ingreso " + ars(r.ing) + " · rentabilidad " + nivel(r.rent)[1] + " " + pct(r.rent));
       svg.appendChild(cir);
     });
     var cp = $("ch-prio"); cp.innerHTML = ""; cp.appendChild(svg);
-    cp.appendChild(el("ul", { "class": "legend", "aria-label": "Referencias" }, [["--c-color-fill-success", "Alta (≥ 15 %)"], ["--c-color-surface-warning", "Media (0–15 %)"], ["--c-color-fill-primary", "Negativa (< 0)"]].map(function (l) { return el("li", null, [el("span", { "class": "sw", style: "background:var(" + l[0] + ")", "aria-hidden": "true" }), l[1]]); })));
-    cp.appendChild(el("details", { "class": "details-data" }, [el("summary", { text: "Ver datos en tabla" }), tabla([["RSA"], ["Envíos", 1], ["Ingreso", 1], ["Rentabilidad"]], ext.map(function (r) { return [r.n, env(r._e), ars(r.ing), rentBadge(r.rent)]; }), "Datos de la matriz de priorización")]));
+    cp.appendChild(el("ul", { "class": "legend", "aria-label": "Referencias" }, [["--c-color-fill-success", "Alta (≥ 15 %)"], ["--c-color-surface-warning", "Media (0–15 %)"], ["--c-color-fill-primary", "Negativa (< 0)"]].map(function (x) { return el("li", null, [el("span", { "class": "sw", style: "background:var(" + x[0] + ")", "aria-hidden": "true" }), x[1]]); })));
     /* Evolución mensual */
-    var ing = 0, res = 0; ext.forEach(function (r) { ing += r.ing; res += r.res; });
     var sI = ESTAC.reduce(function (a, b) { return a + b; }, 0), sR = ESTRES.reduce(function (a, b) { return a + b; }, 0);
     var data = MESES.map(function (m, i) { return { m: m, i: ing * ESTAC[i] / sI, r: res * ESTRES[i] / sR }; });
     var W2 = 760, H2 = 280, L2 = 64, R2 = 56, T2 = 16, B2 = 36, mx = Math.max.apply(null, data.map(function (d) { return d.i; }).concat([1])), bw = (W2 - L2 - R2) / data.length;
@@ -409,24 +412,18 @@
     });
     sv.appendChild(s("polyline", { "class": "linea", points: pts.map(function (p) { return p[0] + "," + p[1]; }).join(" ") }));
     pts.forEach(function (p) { sv.appendChild(s("circle", { "class": "punto", cx: p[0], cy: p[1], r: 3.5 })); });
-    sv.appendChild(s("text", { x: W2 - R2 + 6, y: pts[pts.length - 1][1] + 4 }, [pct(pts[pts.length - 1][2])]));
     var ce = $("ch-evo"); ce.innerHTML = ""; ce.appendChild(sv);
     ce.appendChild(el("ul", { "class": "legend", "aria-label": "Referencias" }, [el("li", null, [el("span", { "class": "sw", style: "background:var(--c-color-fill-info)", "aria-hidden": "true" }), "Ingreso"]), el("li", null, [el("span", { "class": "sw", style: "background:var(--c-color-fill-success)", "aria-hidden": "true" }), "Resultado"]), el("li", null, [el("span", { "class": "sw", style: "background:var(--c-color-text-strong);height:3px", "aria-hidden": "true" }), "Rentabilidad del mes"])]));
     ce.appendChild(el("details", { "class": "details-data" }, [el("summary", { text: "Ver datos en tabla" }), tabla([["Mes"], ["Ingreso", 1], ["Resultado", 1], ["Rentabilidad"]], data.map(function (d) { return [d.m + "-26", ars(d.i), ars(d.r), rentBadge(d.i ? d.r / d.i : 0)]; }), "Ingreso y resultado por mes")]));
     /* Calidad del vínculo */
     var todas = todasRS(), envT = 0, envU = 0; todas.forEach(function (x) { envT += x.b2c + x.b2b; if (x.rsa) envU += x.b2c + x.b2b; });
-    var amb = DUDAS.filter(function (d) { return d.tipo === "Ambiguo"; }), sin = DUDAS.filter(function (d) { return d.tipo === "Sin RSA"; });
+    var amb = DUDAS.filter(function (d) { return d.tipo === "Ambiguo"; }).length, sin = DUDAS.length - amb;
     var q = $("calidad"); q.innerHTML = "";
-    [["ok", todas.length - DUDAS.length, "Razones sociales con RSA único", pct(envU / envT) + " de los envíos"],
-      ["warning", amb.length, "Con más de un RSA posible", "Elegir a mano abajo"],
-      ["error", sin.length, "Sin RSA", "No aparecen en la base RSA"],
-      ["info", 0, "Vínculos manuales", "Elegidos por un editor"],
-      ["info", RSA.filter(function (r) { return r.interno; }).length, "RSA internos", "Fuera de rankings y montos"],
-      ["ok", 0, "RSA sin rentabilidad", "RSA vinculado sin datos de ingreso"]
-    ].forEach(function (x) {
-      var m = { ok: ["success", "OK"], warning: ["warning", "Revisar"], error: ["error", "Error"], info: ["info", "Info"] }[x[1] === 0 && x[0] !== "info" ? "ok" : x[0]];
-      q.appendChild(el("li", null, [el("div", { "class": "quality__top" }, [el("span", { "class": "quality__n num", text: n(x[1]) }), el("span", { "class": "badge badge--" + m[0], text: m[1] })]), el("span", { "class": "quality__t", text: x[2] }), el("span", { "class": "quality__x", text: x[3] })]));
-    });
+    [["success", "OK", todas.length - DUDAS.length, "Razones sociales con RSA único", pct(envU / envT) + " de los envíos"],
+      ["warning", "Revisar", amb, "Con más de un RSA posible", "Elegir a mano abajo"],
+      ["error", "Error", sin, "Sin RSA", "No aparecen en la base RSA"],
+      ["info", "Info", 0, "Vínculos manuales", "Elegidos por un editor"]
+    ].forEach(function (x) { q.appendChild(el("li", null, [el("div", { "class": "quality__top" }, [el("span", { "class": "quality__n num", text: n(x[2]) }), el("span", { "class": "badge badge--" + x[0], text: x[1] })]), el("span", { "class": "quality__t", text: x[3] }), el("span", { "class": "quality__x", text: x[4] })])); });
     var rv = $("resolver"); rv.innerHTML = "";
     rv.appendChild(tabla([["Razón social"], ["Envíos", 1], ["Situación"], ["RSA a asignar"], ["Acción"]], DUDAS.map(function (d) {
       var opts = [el("option", { value: "", text: d.cand.length ? "Elegí un RSA…" : "Buscar RSA por código o nombre…" })].concat(d.cand.map(function (o) { return el("option", { text: o }); })).concat([el("option", { text: "Es interno (excluir)" })]);
@@ -434,47 +431,32 @@
         el("select", { "class": "input input--select select-sm", "aria-label": "RSA para " + d.n }, opts),
         el("button", { type: "button", "class": "btn btn--secondary btn--small", onclick: function () { toast("Maqueta: el vínculo de " + d.n + " se guardaría como manual y se enviaría a GitHub con el resto de los cambios."); } }, ["Guardar vínculo"])];
     }), "Vínculos a resolver"));
-    /* Detalle */
-    var rs = rsFilt().sort(function (a, b) { return envDe(b, c) - envDe(a, c); });
-    var dt = $("detalle"); dt.innerHTML = "";
-    dt.appendChild(tabla([["Segmento"], ["Razón social"], ["ID RSA"], ["RSA"], ["Envíos", 1], ["Ingreso RSA", 1], ["Resultado RSA", 1], ["Rentabilidad RSA"]], rs.map(function (x) {
-      var r = x.rsa, ok = r && !r.interno;
-      return [x.seg, x.n, r ? r.id : "—", r ? r.n : el("span", { "class": "rsa rsa--no", text: "Sin RSA" }), env(envDe(x, c)), ok ? ars(r.ing) : "—", ok ? ars(r.res) : "—", ok ? rentBadge(r.rent) : "—"];
-    }), "Detalle por razón social con RSA"));
   }
 
-  /* ---------- Migración (solo B2C) ---------- */
+  /* ---------- Análisis ---------- */
+  function renderAnalisis() {
+    var c = canalAct(), filas = [];
+    rsFilt().forEach(function (x) { if (c !== "B2B" && x.b2c) filas.push([x.seg, x.n, "B2C", env(x.b2c)]); if (c !== "B2C" && x.b2b) filas.push([x.seg, x.n, "B2B", env(x.b2b)]); });
+    var d = $("detalle"); d.innerHTML = "";
+    d.appendChild(tabla([["Segmento"], ["Razón social"], ["Canal"], ["Envíos", 1]], filas.slice(0, 12), "Detalle con canal"));
+  }
+
+  /* ---------- Migración (como hoy, solo B2C) ---------- */
   function renderMigracion() {
-    var rs = rsFilt(), ext = externos(rsaFilt());
-    var e = 0, em = 0; rs.forEach(function (x) { e += x.b2c; em += x.b2c * x.mig; });
-    var ing = 0, ingM = 0, res = 0, resM = 0, comp = 0, parc = 0;
-    ext.forEach(function (r) {
-      var b = 0, bm = 0; r.rs.forEach(function (x) { b += x.b2c; bm += x.b2c * x.mig; }); r._b2c = b; r._mig = b ? bm / b : 0;
-      if (!b) return;
-      ing += r.ing; res += r.res;
-      if (r._mig >= 1) { comp++; ingM += r.ing; resM += r.res; } else if (r._mig > 0) parc++;
-    });
-    var l = ext.filter(function (r) { return r._b2c; });
+    var rs = rsFilt(), e = 0, em = 0, comp = 0, parc = 0;
+    rs.forEach(function (x) { e += x.b2c; em += x.b2c * x.mig; if (x.mig >= 1) comp++; else if (x.mig > 0) parc++; });
     var k = $("kpis-mig"); k.innerHTML = "";
-    k.appendChild(kpi("Envíos B2C migrados", pct(e ? em / e : 0), env(em) + " de " + env(e) + " · igual que hoy", progreso(em, e, "Envíos migrados")));
-    k.appendChild(kpi("Ingreso de RSA migrados", pct(ing ? ingM / ing : 0), ars(ingM) + " de " + ars(ing) + " (RSA con su B2C 100 % migrado)", progreso(ingM, ing, "Ingreso migrado"), "kpi--fin"));
-    k.appendChild(kpi("Resultado de RSA migrados", pct(res ? resM / res : 0), ars(resM) + " de " + ars(res), progreso(resM, res, "Resultado migrado"), "kpi--fin"));
-    k.appendChild(kpi("RSA migrados", n(comp) + " / " + n(l.length), n(parc) + " con migración parcial", null, "kpi--fin"));
-    var ord = { ing: function (a, b) { return b.ing - a.ing; }, res: function (a, b) { return b.res - a.res; }, env: function (a, b) { return b._b2c - a._b2c; }, pend: function (a, b) { return a._mig - b._mig || b.ing - a.ing; } }[ui.orden];
-    l.sort(ord);
-    function estado(r) { return r._mig >= 1 ? el("span", { "class": "badge badge--success", text: "✓ Migrado" }) : r._mig > 0 ? el("span", { "class": "badge badge--warning", text: "◐ Parcial · " + pct(r._mig) }) : el("span", { "class": "badge badge--neutral", text: "○ Pendiente" }); }
-    var mp = $("mig-prio"); mp.innerHTML = "";
-    mp.appendChild(tabla([["#"], ["RSA"], ["Envíos B2C", 1], ["Ingreso", 1], ["Rentabilidad"], ["Estado"], ["Envíos migrados", 1]], l.map(function (r, i) {
-      return [i + 1, el("span", null, [r.n, el("br"), el("span", { "class": "nota", text: "ID " + r.id })]), env(r._b2c), ars(r.ing), rentBadge(r.rent), estado(r), progreso(r._b2c * r._mig, r._b2c, "Envíos migrados de " + r.n)];
-    }), "Prioridad de migración por RSA"));
+    k.appendChild(kpi("Envíos migrados", pct(e ? em / e : 0), env(em) + " de " + env(e) + " envíos B2C", progreso(em, e, "Envíos migrados")));
+    k.appendChild(kpi("Volumen Sep-26", pct(e ? em / e : 0), "Último mes completo · igual que hoy"));
+    k.appendChild(kpi("Contratos migrados", n(comp * 3) + " / " + n(rs.length * 3), n(parc * 3) + " con algunos servicios migrados"));
+    k.appendChild(kpi("Clientes migrados", n(comp) + " / " + n(rs.length), n(parc) + " con migración parcial"));
     renderArbol("mig-arbol", rs, "B2C", true);
   }
 
   function render() {
     renderVistas(); renderBarra();
-    if (ui.vista === "resumen") renderResumen(); else if (ui.vista === "analisis") renderAnalisis(); else renderMigracion();
+    ({ resumen: renderResumen, ingreso: renderIngreso, analisis: renderAnalisis, migracion: renderMigracion })[ui.vista]();
   }
-  $("orden").addEventListener("change", function (e) { ui.orden = e.target.value; render(); $("orden").focus(); });
   render();
   window.__MAQUETA__ = { ui: ui, render: render };
 })();
