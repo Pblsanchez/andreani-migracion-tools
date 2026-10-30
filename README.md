@@ -6,9 +6,9 @@ Portal de soluciones del equipo de migración **Integra (B2C) → DMS (B2B+B2C)*
 
 ## Herramientas
 
-| Herramienta | Link | Datos |
-|---|---|---|
-| Matriz de Envíos · universo B2C a migrar | https://pblsanchez.github.io/andreani-migracion-tools/matriz-envios/ | Rama `datos` → `matriz-envios/datos/` |
+| Herramienta | Link | Guía | Datos |
+|---|---|---|---|
+| Matriz de Envíos · universo B2C a migrar | https://pblsanchez.github.io/andreani-migracion-tools/matriz-envios/ | [guia.html](https://pblsanchez.github.io/andreani-migracion-tools/matriz-envios/guia.html) (ícono del librito en el encabezado) | Rama `datos` → `matriz-envios/datos/` |
 
 ## Estructura
 
@@ -16,7 +16,7 @@ Portal de soluciones del equipo de migración **Integra (B2C) → DMS (B2B+B2C)*
 andreani-migracion-tools/
 ├── index.html          ← portada con el catálogo de herramientas
 ├── .nojekyll           ← publica los archivos tal cual (sin Jekyll)
-├── matriz-envios/      ← dashboard de la Matriz de Envíos (código)
+├── matriz-envios/      ← dashboard de la Matriz de Envíos (código + guía de usuario)
 ├── pruebas/            ← pruebas visuales con datos sintéticos
 └── <herramienta>/
     └── index.html
@@ -29,6 +29,11 @@ Rama **`datos`** (no se publica en Pages): `matriz-envios/datos/base.json` (matr
 - **Datos reales.** Por regla general no se suben al repo (es público) y las herramientas procesan los archivos en el navegador. **Excepción aprobada por Pablo Sánchez (29/10/2026):** la Matriz de Envíos guarda su base y el avance de la migración en la rama `datos`, para que cualquiera vea la información al día.
 - **Sin dependencias externas.** CSS y JS propios, sin CDN.
 - **Design System Cartesian de Andreani.** Tokens `--c-*`, tipografía Rubik/Roboto, WCAG 2.1 AA.
+- **Guías al día.** Si una herramienta tiene guía de usuario, todo cambio de botones, textos, columnas o flujos actualiza la guía en el mismo commit.
+
+## Decisiones y tareas
+
+Los códigos **D-0XX** (decisiones) y **T-0XX** (tareas) que aparecen en el código y en los commits están registrados en la memoria del equipo, en un repositorio privado. Este repo no tiene copia propia, para que haya una sola fuente.
 
 ## Publicar una herramienta nueva
 
