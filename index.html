@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Portal de herramientas para la migración de datos Integra (B2C) a DMS (B2B+B2C) - Andreani">
 <title>Herramientas de migración Integra → DMS · Andreani</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <style>
 /* ===== Design System Cartesian (Andreani) - tokens ===== */
 :root {
@@ -30,6 +31,7 @@
   --c-color-fill-primary-hover: var(--c-red-700);
   --c-color-fill-primary-pressed: var(--c-red-800);
   --c-color-fill-primary-subtle: var(--c-red-50);
+  --c-color-fill-neutral: var(--c-gray-100);
 
   /* Semánticos - texto */
   --c-color-text-strong: var(--c-gray-800);
@@ -146,6 +148,7 @@ h2 {
   color: var(--c-color-text-strong);
   margin: 0 0 var(--c-spacing-4);
 }
+.section-sub { margin: calc(-1 * var(--c-spacing-3)) 0 var(--c-spacing-4); font-size: 14px; line-height: 20px; max-width: 760px; }
 
 /* ===== Alert inline (info) - icono + texto ===== */
 .alert {
@@ -187,6 +190,7 @@ h2 {
 }
 .card p { margin: 0; font-size: 14px; line-height: 20px; flex: 1; }
 .card__meta { display: flex; flex-wrap: wrap; gap: var(--c-spacing-2); }
+.card__acciones { display: flex; flex-wrap: wrap; gap: var(--c-spacing-2); align-items: center; }
 
 /* Badge de estado (pill): siempre icono + texto, nunca solo color */
 .badge {
@@ -210,15 +214,19 @@ h2 {
   font-size: 16px; line-height: 24px; /* labelmedium */
   font-weight: var(--c-font-weight-medium);
   text-decoration: none; cursor: pointer;
+  border: var(--c-border-width-regular) solid transparent;
   transition: background-color .15s ease, color .15s ease, border-color .15s ease;
   align-self: flex-start;
 }
 .btn--secondary {
   background: transparent; color: var(--c-color-text-primary);
-  border: var(--c-border-width-regular) solid var(--c-color-fill-primary);
+  border-color: var(--c-color-fill-primary);
 }
 .btn--secondary:hover { color: var(--c-color-fill-primary-hover); border-color: var(--c-color-fill-primary-hover); background: var(--c-color-fill-primary-subtle); }
 .btn--secondary:active { color: var(--c-color-fill-primary-pressed); border-color: var(--c-color-fill-primary-pressed); }
+.btn--ghost { background: transparent; color: var(--c-color-text-strong); }
+.btn--ghost:hover { background: var(--c-color-fill-neutral); }
+.btn svg { flex: 0 0 auto; }
 
 /* Estado vacío */
 .empty {
@@ -266,6 +274,7 @@ h2 {
   .header__inner { padding: var(--c-spacing-3) var(--c-spacing-4); }
   .header__divider, .header__title { display: none; }
   .btn { min-height: 48px; width: 90%; align-self: center; }
+  .card__acciones { flex-direction: column; }
   .footer__inner { padding: var(--c-spacing-2) var(--c-spacing-4); }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -300,7 +309,8 @@ h2 {
   </section>
 
   <section aria-labelledby="titulo-relacionados">
-    <h2 id="titulo-relacionados">Repositorios relacionados</h2>
+    <h2 id="titulo-relacionados">Otras herramientas del equipo</h2>
+    <p class="section-sub">Se publican en su propio repositorio. «Abrir» las usa en una pestaña nueva; «Ver repositorio» muestra el código.</p>
     <ul class="grid" id="lista-relacionados"></ul>
   </section>
 </main>
@@ -308,13 +318,13 @@ h2 {
 <footer class="footer">
   <div class="footer__inner">
     <span>Andreani · Equipo de migración Integra → DMS</span>
-    <span>Última actualización del portal: <time datetime="2026-10-29">29/10/2026</time></span>
+    <span>Última actualización del portal: <time datetime="2026-10-30">30/10/2026</time></span>
   </div>
 </footer>
 
 <script>
 /*
- * Catálogo de herramientas.
+ * Catálogo de herramientas de este repositorio (D-008).
  * Para publicar una nueva: crear la carpeta /<id>/index.html y agregar un objeto acá.
  * estado: "estable" | "beta"
  */
@@ -322,15 +332,18 @@ var HERRAMIENTAS = [
   { id: "matriz-envios", nombre: "Matriz de Envíos · universo B2C a migrar", descripcion: "Envíos por segmento, razón social, tipo de servicio, servicio y contrato, con el avance de la migración a DMS. Datos vivos: lo que se marca o se carga se guarda en GitHub y lo ve cualquiera.", estado: "beta" }
 ];
 
+/* Herramientas publicadas en otros repositorios de Pblsanchez (T-004): app = GitHub Pages, url = código */
 var RELACIONADOS = [
   {
     nombre: "DMS Contract Normalizer",
     descripcion: "Normaliza archivos .xlsx de alta de contratos DMS: valida campos, convierte fórmulas a valores y limpia direcciones vacías.",
+    app: "https://pblsanchez.github.io/dms-contract-normalizer/",
     url: "https://github.com/Pblsanchez/dms-contract-normalizer"
   },
   {
     nombre: "Configurador de contratos DMS",
     descripcion: "Formulario web que valida en tiempo real y genera el Excel normalizado de contratos para DMS.",
+    app: "https://pblsanchez.github.io/configurador-contratos-dms/",
     url: "https://github.com/Pblsanchez/configurador-contratos-dms"
   }
 ];
@@ -339,6 +352,7 @@ var ICONOS = {
   ok: "M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2Z",
   beta: "M1 21h22L12 2 1 21Zm12-3h-2v-2h2v2Zm0-4h-2v-4h2v4Z",
   repo: "M4 4a2 2 0 0 1 2-2h12v16H6a1 1 0 0 0 0 2h12v2H6a3 3 0 0 1-3-3V4h1Zm4 1v2h8V5H8Z",
+  externo: "M14 3v2h3.6l-9.8 9.8 1.4 1.4L19 6.4V10h2V3h-7ZM5 5h6v2H5v12h12v-6h2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z",
   vacio: "M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Zm-6 14h-2v-4H7v-2h4V7h2v4h4v2h-4v4Z"
 };
 
@@ -374,7 +388,8 @@ function badge(clase, path, texto) {
   return b;
 }
 
-function tarjeta(titulo, badgeEl, descripcion, href, textoBoton, ariaLabel, externo) {
+/* acciones: [{ texto, href, aria, externo, clase }] */
+function tarjeta(titulo, badgeEl, descripcion, acciones) {
   var li = el("li");
   var card = el("article", { "class": "card" });
   card.appendChild(el("h3", null, titulo));
@@ -382,9 +397,16 @@ function tarjeta(titulo, badgeEl, descripcion, href, textoBoton, ariaLabel, exte
   meta.appendChild(badgeEl);
   card.appendChild(meta);
   card.appendChild(el("p", null, descripcion));
-  var attrs = { "class": "btn btn--secondary", href: href, "aria-label": ariaLabel };
-  if (externo) { attrs.target = "_blank"; attrs.rel = "noopener noreferrer"; }
-  card.appendChild(el("a", attrs, textoBoton));
+  var box = el("div", { "class": "card__acciones" });
+  acciones.forEach(function (a) {
+    var attrs = { "class": "btn " + (a.clase || "btn--secondary"), href: a.href, "aria-label": a.aria };
+    if (a.externo) { attrs.target = "_blank"; attrs.rel = "noopener noreferrer"; }
+    var link = el("a", attrs);
+    if (a.externo) { link.appendChild(icono(ICONOS.externo, 16)); }
+    link.appendChild(document.createTextNode(a.texto));
+    box.appendChild(link);
+  });
+  card.appendChild(box);
   li.appendChild(card);
   return li;
 }
@@ -402,10 +424,9 @@ function renderHerramientas() {
   var ul = el("ul", { "class": "grid" });
   HERRAMIENTAS.forEach(function (h) {
     var est = ESTADOS[h.estado] || ESTADOS.beta;
-    ul.appendChild(tarjeta(
-      h.nombre, badge(est.clase, est.icono, est.texto), h.descripcion,
-      "./" + encodeURIComponent(h.id) + "/", "Abrir", "Abrir " + h.nombre, false
-    ));
+    ul.appendChild(tarjeta(h.nombre, badge(est.clase, est.icono, est.texto), h.descripcion, [
+      { texto: "Abrir", href: "./" + encodeURIComponent(h.id) + "/", aria: "Abrir " + h.nombre }
+    ]));
   });
   cont.appendChild(ul);
 }
@@ -413,10 +434,10 @@ function renderHerramientas() {
 function renderRelacionados() {
   var ul = document.getElementById("lista-relacionados");
   RELACIONADOS.forEach(function (r) {
-    ul.appendChild(tarjeta(
-      r.nombre, badge("badge--repo", ICONOS.repo, "Repositorio GitHub"), r.descripcion,
-      r.url, "Ver repositorio", "Ver repositorio " + r.nombre + " (se abre en una pestaña nueva)", true
-    ));
+    var acciones = [];
+    if (r.app) { acciones.push({ texto: "Abrir", href: r.app, aria: "Abrir " + r.nombre + " (se abre en una pestaña nueva)", externo: true }); }
+    acciones.push({ texto: "Ver repositorio", href: r.url, aria: "Ver repositorio de " + r.nombre + " (se abre en una pestaña nueva)", externo: true, clase: "btn--ghost" });
+    ul.appendChild(tarjeta(r.nombre, badge("badge--repo", ICONOS.repo, "Otro repositorio"), r.descripcion, acciones));
   });
 }
 
