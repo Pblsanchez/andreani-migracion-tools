@@ -12,8 +12,8 @@
   var gh = { cliente: null, usuario: null, puede: false, sha: null, pendientes: [], baseCambiada: false, cargando: true, enviando: false, error: null, errorEnvio: null, demorado: false, ultimaCarga: 0, migSola: null, baseRemotaAct: null, recuperados: false };
   function leerLS(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   gh.cliente = new S.Cliente(leerLS(LS_TOKEN));
-  /* Un filtro por cada nivel de M.NIVELES (D-029: incluye «Servicio agrupado») + período y texto */
-  function filtrosVacios() { var o = { meses: [], texto: "" }; M.NIVELES.forEach(function (N) { o[N.id] = []; }); return o; }
+  /* Canal (D-030; fijo en B2C en Migración) + un filtro por cada nivel de M.NIVELES (D-029) + período y texto */
+  function filtrosVacios() { var o = { canales: [], canalFijo: "", meses: [], texto: "" }; M.NIVELES.forEach(function (N) { o[N.id] = []; }); return o; }
   function agrTxt(r) { return M.agrDe ? M.agrDe(r) : (r.agrupado || "(Agrupado no informado)"); }
   f = filtrosVacios();
   try { var h = (window.location && window.location.hash || "").replace("#", ""); if (VISTAS.some(function (v) { return v.id === h; })) ui.vista = h; } catch (e) { /* sin location */ }
@@ -157,7 +157,7 @@
     est.appendChild(badge("ok", "Datos vivos · GitHub"));
     var ab = $("about-meta"); ab.innerHTML = "";
     [["Origen", "Matriz de Envíos · Power BI"], ["Período", periodoTxt()],
-      ["Filtros del export", base.filtros || "—"], ["Clave de registro", "N° contrato + tipo de servicio + servicio"], ["Matriz actualizada", fecha(base.actualizado)],
+      ["Filtros del export", base.filtros || "—"], ["Clave de registro", "N° contrato + tipo de servicio + servicio (en B2B, + servicio agrupado)"], ["Canal", "B2B = contratos 350/351 · B2C = el resto"], ["Matriz actualizada", fecha(base.actualizado)],
       ["Migración actualizada", mg.actualizado ? fecha(mg.actualizado) + (mg.usuario ? " por " + mg.usuario : "") : "Sin cambios todavía"]
     ].forEach(function (x) { ab.appendChild(el("dt", { text: x[0] })); ab.appendChild(el("dd", { text: x[1] })); });
     ab.appendChild(el("dt", { text: "Historial" }));
@@ -200,6 +200,7 @@
   function toggle(arr, v) { var i = arr.indexOf(v); if (i >= 0) arr.splice(i, 1); else arr.push(v); }
   function renderBarra() {
     var c = $("barra"); c.innerHTML = "";
+    V.barraCanal(c);
     M.NIVELES.forEach(function (N, i) {
       c.appendChild(U.multiSelect({ id: N.id, num: i + 1, etiqueta: N.nombre, seleccion: f[N.id], onCambio: cambio,
         opciones: function () { return M.opciones(base, f, i, mesesSel()); } }));
@@ -210,14 +211,15 @@
         var regs = M.filtrar(base, f);
         return base.meses.map(function (m) { var t = 0; regs.forEach(function (r) { t += r.v[m] || 0; }); return { valor: m, texto: M.mesTxt(m) + (m === base.mesParcial ? " (parcial)" : ""), envios: t }; });
       } }));
-    var hay = M.NIVELES.some(function (N) { return f[N.id].length; }) || f.meses.length;
-    c.appendChild(el("button", { type: "button", "class": "btn btn--ghost btn--small barra__limpiar", disabled: !hay, onclick: function () { f = filtrosVacios(); U.cerrarLista(false); cambio(); toast("Se limpiaron los filtros."); } }, [svgIcon("close", 16), "Limpiar"]));
+    var hay = M.NIVELES.some(function (N) { return f[N.id].length; }) || f.meses.length || (!f.canalFijo && f.canales.length);
+    c.appendChild(el("button", { type: "button", "class": "btn btn--ghost btn--small barra__limpiar", disabled: !hay, onclick: function () { var cf = f.canalFijo; f = filtrosVacios(); f.canalFijo = cf; U.cerrarLista(false); cambio(); toast("Se limpiaron los filtros."); } }, [svgIcon("close", 16), "Limpiar"]));
     renderActivos();
   }
   function renderActivos() {
     var c = $("filtros-activos"); c.innerHTML = "";
     var tags = [];
     function tag(txt, quitar) { tags.push(el("span", { "class": "tag" }, [txt, el("button", { type: "button", "aria-label": "Quitar filtro " + txt, onclick: function () { quitar(); cambio(); } }, [svgIcon("close", 14)])])); }
+    if (!f.canalFijo) f.canales.forEach(function (v) { tag("Canal: " + v, function () { toggle(f.canales, v); }); });
     M.NIVELES.forEach(function (N) { f[N.id].forEach(function (v) { tag(N.nombre + ": " + v, function () { toggle(f[N.id], v); }); }); });
     f.meses.forEach(function (m) { tag("Período: " + M.mesTxt(m), function () { toggle(f.meses, m); }); });
     c.hidden = !tags.length;
@@ -232,28 +234,13 @@
     if (U.hayAbierto()) U.reabrir(); else U.enfocar(fid);
   }
 
-  /* ---------- KPIs ---------- */
-  function kpiCard(icono, titulo, valor, sub, extra) {
-    return el("li", { "class": "kpi" }, [el("span", { "class": "kpi__label" }, [svgIcon(icono, 20), titulo]), el("span", { "class": "kpi__value" }, [valor]), extra || null, el("span", { "class": "kpi__sub" }, [sub])]);
-  }
-  function renderKpis(k) {
-    var c = $("kpis"); c.innerHTML = "";
-    var varEl = "—";
-    if (k.variacion != null) { var up = k.variacion >= 0; varEl = el("span", { "class": "trend trend--" + (up ? "up" : "down") }, [svgIcon(up ? "up" : "down", 20), (up ? "Sube " : "Baja ") + pct(Math.abs(k.variacion))]); }
-    [["box", "Envíos", n(k.envios), k.meses.length + (k.meses.length === 1 ? " mes" : " meses") + (base.mesParcial && k.meses.indexOf(base.mesParcial) >= 0 ? " · incluye " + M.mesTxt(base.mesParcial) + " parcial" : "")],
-      ["user", "Clientes", n(k.clientes), "Razones sociales con envíos"],
-      ["doc", "Contratos", n(k.contratos), k.mesUltimo ? n(k.contratosActivos) + " activos en " + M.mesTxt(k.mesUltimo) : ""],
-      ["cal", "Promedio mensual", n(k.promedioMensual), n(k.enviosPorContrato) + " envíos por contrato"],
-      ["trend", "Variación mensual", varEl, k.mesUltimo && k.mesPrevio ? M.mesTxt(k.mesUltimo) + " vs " + M.mesTxt(k.mesPrevio) + " (meses completos)" : "Se necesitan 2 meses completos"],
-      ["pie", "Concentración top 10", pct(k.concentracionTop10), "Sin clientes internos"],
-      ["star", "Clientes nuevos", n(k.clientesNuevos), "Primer envío después de " + M.mesTxt(base.meses[0])],
-      ["grid", "Servicios", n(k.servicios), (k.agrupados != null ? n(k.agrupados) + " agrupados · " : "") + n(k.segmentos) + " segmentos"]
-    ].forEach(function (it) { c.appendChild(kpiCard(it[0], it[1], it[2], it[3])); });
-  }
-
-  /* ---------- Gráficos, rankings y calidad: matriz-vistas.js ---------- */
+  /* ---------- KPIs, filtro Canal, gráficos, rankings y calidad: matriz-vistas.js ---------- */
   var V = MATRIZ_VISTAS({ base: function () { return base; }, f: function () { return f; }, ui: ui, cambio: function () { cambio(); } });
-  var chartEvolucion = V.chartEvolucion, chartMix = V.chartMix, chartBarras = V.chartBarras, renderRankings = V.renderRankings, renderTabs = V.renderTabs, renderCalidad = V.renderCalidad, linkCliente = V.linkCliente;
+  var chartEvolucion = V.chartEvolucion, chartMix = V.chartMix, chartBarras = V.chartBarras, renderRankings = V.renderRankings, renderTabs = V.renderTabs, renderCalidad = V.renderCalidad, linkCliente = V.linkCliente, kpiCard = V.kpiCard, renderKpis = V.renderKpis;
+  /* Detalle, exportaciones, importación de contratos y resumen de carga: matriz-detalle.js */
+  var D = MATRIZ_DETALLE({ base: function () { return base; }, f: function () { return f; }, ui: ui, linkCliente: function (x) { return linkCliente(x); }, hoyISO: function () { return hoyISO(); },
+    aplicarMarca: function (a, b, c, d) { return aplicarMarca(a, b, c, d); }, renderTodo: function () { return renderTodo(); } });
+  var renderDetalle = D.renderDetalle, exportarCSV = D.exportarCSV, exportarMigracion = D.exportarMigracion, importarContratos = D.importarContratos;
 
   /* ---------- Árbol jerárquico (Resumen y Migración) ----------
      SEGMENTO > RAZÓN SOCIAL > TIPO > SERVICIO AGRUPADO > SERVICIO > N° CONTRATO (D-029). cfg.mig = true agrega casillas de migración (D-020). */
@@ -392,7 +379,7 @@
   function marcarFiltrado(valor) {
     var regs = M.filtrar(base, f);
     ui.migAviso = null;
-    if (!hayFiltros() && valor && !confirm("No hay filtros: se va a marcar TODO el universo (" + n(regs.length) + " registros) como migrado. ¿Continuar?")) return;
+    if (!hayFiltros() && valor && !confirm("No hay filtros: se va a marcar TODO el universo B2C (" + n(regs.length) + " registros) como migrado. ¿Continuar?")) return;
     aplicarMarca(regs, valor, descFiltros(), valor ? "mig-marcar-btn" : "mig-desmarcar-btn");
   }
   function deshacer() {
@@ -402,72 +389,6 @@
     toast("Se deshizo: " + ui.deshacer.desc + " (" + n(ui.deshacer.cambios.length) + " registros).");
     ui.deshacer = null; renderTodo(); $("mig-deshacer").focus();
   }
-  function exportarMigracion() {
-    var mk = M.migracion(base).marcas, regs = M.filtrar(base, f).slice().sort(M.compararJer);
-    function q(v) { v = String(v == null ? "" : v); return /[";\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
-    var lines = [["Segmento", "Razón Social", "Tipo de Servicio", "Servicio Agrupado", "Servicio", "N° Contrato", "Migrado a DMS", "Fecha de marca"].map(q).join(";")];
-    regs.forEach(function (r) { var m = mk[M.clave(r)]; lines.push([r.segmento, r.cliente, r.tipo, r.agrupado || "", r.servicio, r.contrato, m ? "SI" : "NO", m || ""].map(q).join(";")); });
-    descargar("\uFEFF" + lines.join("\r\n"), "migracion-dms-estado-" + hoyISO() + ".csv", "text/csv;charset=utf-8");
-    toast("Se exportó el estado de " + n(regs.length) + " registros.");
-  }
-  function importarContratos(file) {
-    var esCSV = /\.(csv|txt)$/i.test(file.name);
-    (esCSV ? file.text().then(M.parseCSV) : file.arrayBuffer().then(M.leerXLSX)).then(function (rows) {
-      var lista = M.contratosDesdeFilas(rows);
-      if (!lista.length) throw new Error("No encontré números de contrato (columna «Contrato» o números de 6 a 12 dígitos).");
-      var set = {}; lista.forEach(function (c) { set[c] = 1; });
-      var regs = base.registros.filter(function (r) { return set[r.contrato]; });
-      var encontrados = {}; regs.forEach(function (r) { encontrados[r.contrato] = 1; });
-      var faltan = lista.filter(function (c) { return !encontrados[c]; });
-      ui.migAviso = { nivel: faltan.length ? "warning" : "ok", contenido: [el("strong", { text: file.name + ": " }), n(lista.length) + " contratos en el archivo, " + n(Object.keys(encontrados).length) + " encontrados en la base" + (faltan.length ? ", " + n(faltan.length) + " no están en la base (ej.: " + faltan.slice(0, 5).join(", ") + ")." : ".")] };
-      if (regs.length) aplicarMarca(regs, true, "importación " + file.name, "mig-importar-btn"); else renderTodo();
-    }).catch(function (e) {
-      ui.migAviso = { nivel: "error", contenido: [el("strong", { text: "No pude leer el archivo. " }), e && e.message ? e.message : String(e)] };
-      renderTodo();
-    });
-  }
-
-  /* ---------- Detalle ---------- */
-  var ultimoDetalle = null;
-  function renderDetalle(regs, k) {
-    var meses = k.meses, filas = regs.map(function (r) { return { r: r, total: M.sumaMeses(r, meses) }; });
-    var key = ui.sortKey, dir = ui.sortDir;
-    function val(o) { if (key === "total") return o.total; if (key.indexOf("m:") === 0) return o.r.v[key.slice(2)] || 0; if (key === "cliente") return M.cliDe(o.r); if (key === "segmento") return M.segDe(o.r); if (key === "agrupado") return agrTxt(o.r); return o.r[key]; }
-    if (key === "jer") filas.sort(function (a, b) { return M.compararJer(a.r, b.r) * dir; });
-    else filas.sort(function (a, b) { var x = val(a), y = val(b); return (typeof x === "number" ? x - y : String(x).localeCompare(String(y), "es")) * dir || M.compararJer(a.r, b.r); });
-    var pages = Math.max(1, Math.ceil(filas.length / ui.pageSize)); if (ui.page >= pages) ui.page = pages - 1;
-    var vis = filas.slice(ui.page * ui.pageSize, (ui.page + 1) * ui.pageSize);
-    var cols = [{ t: "Segmento", key: "segmento", f: function (o) { return M.segDe(o.r); } }, { t: "Razón social", key: "cliente", f: function (o) { return linkCliente(M.cliDe(o.r)); } },
-      { t: "Tipo de servicio", key: "tipo", f: function (o) { return o.r.tipo; } }, { t: "Servicio agrupado", key: "agrupado", f: function (o) { return agrTxt(o.r); } }, { t: "Servicio", key: "servicio", f: function (o) { return o.r.servicio; } }, { t: "N° contrato", key: "contrato", f: function (o) { return o.r.contrato; }, cls: "num" }]
-      .concat(meses.map(function (m) { return { t: M.mesTxt(m) + (m === base.mesParcial ? "*" : ""), key: "m:" + m, n: 1, f: function (o) { return o.r.v[m] ? n(o.r.v[m]) : "—"; } }; }))
-      .concat([{ t: "Total", key: "total", n: 1, f: function (o) { return n(o.total); } }]);
-    var c = $("detalle"); c.innerHTML = "";
-    c.appendChild(tabla(cols, vis, { caption: "Detalle por contrato y servicio", sort: { key: key, dir: dir }, onSort: function (kk) { if (ui.sortKey === kk) ui.sortDir = -ui.sortDir; else { ui.sortKey = kk; ui.sortDir = kk === "total" || kk.indexOf("m:") === 0 ? -1 : 1; } renderDetalle(regs, k); c.querySelector("th[aria-sort]:not([aria-sort='none']) button").focus(); } }));
-    $("detalle-sub").textContent = n(filas.length) + " registros (contrato + tipo + servicio)" + (base.mesParcial && meses.indexOf(base.mesParcial) >= 0 ? " · * mes parcial" : "");
-    var pg = $("pager"); pg.innerHTML = "";
-    pg.appendChild(el("span", { text: filas.length ? "Registros " + n(ui.page * ui.pageSize + 1) + "–" + n(Math.min(filas.length, (ui.page + 1) * ui.pageSize)) + " de " + n(filas.length) + " · página " + (ui.page + 1) + " de " + pages : "" }));
-    pg.appendChild(el("div", { "class": "pager__btns" }, [
-      ui.sortKey !== "jer" ? el("button", { type: "button", "class": "btn btn--ghost btn--small", onclick: function () { ui.sortKey = "jer"; ui.sortDir = 1; ui.page = 0; renderDetalle(regs, k); } }, ["Volver al orden jerárquico"]) : null,
-      el("button", { type: "button", "class": "btn btn--ghost btn--small", disabled: ui.page === 0, onclick: function () { ui.page--; renderDetalle(regs, k); } }, ["Anterior"]),
-      el("button", { type: "button", "class": "btn btn--ghost btn--small", disabled: ui.page >= pages - 1, onclick: function () { ui.page++; renderDetalle(regs, k); } }, ["Siguiente"])
-    ]));
-    ultimoDetalle = { filas: filas, meses: meses };
-  }
-  function exportarCSV() {
-    if (!ultimoDetalle) return;
-    var meses = ultimoDetalle.meses, mk = M.migracion(base).marcas;
-    function q(v) { v = String(v == null ? "" : v); return /[";\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
-    var lines = [["Segmento", "Razón Social", "Tipo de Servicio", "Servicio Agrupado", "Servicio", "N° Contrato"].concat(meses.map(M.mesTxt), ["Total", "Migrado a DMS"]).map(q).join(";")];
-    ultimoDetalle.filas.forEach(function (o) { lines.push([o.r.segmento, o.r.cliente, o.r.tipo, o.r.agrupado || "", o.r.servicio, o.r.contrato].concat(meses.map(function (m) { return o.r.v[m] || 0; }), [o.total, mk[M.clave(o.r)] ? "SI" : "NO"]).map(q).join(";")); });
-    descargar("\uFEFF" + lines.join("\r\n"), "matriz-envios-filtrado-" + hoyISO() + ".csv", "text/csv;charset=utf-8");
-    toast("Se exportaron " + n(ultimoDetalle.filas.length) + " registros a CSV.");
-  }
-  function descargar(contenido, nombre, tipo) {
-    var blob = new Blob([contenido], { type: tipo }), url = URL.createObjectURL(blob);
-    var a = el("a", { href: url, download: nombre }); document.body.appendChild(a); a.click();
-    setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 1000);
-  }
-
   /* ---------- Diálogos (modales) ---------- */
   var modalPrev = null, pendiente = null, abiertoId = null;
   function abrirDialogo(id, foco) {
@@ -569,7 +490,7 @@
     c.appendChild(el("h2", { text: "Todavía no hay datos de la matriz de envíos" }));
     if (!editor()) { c.appendChild(el("p", { text: "Cuando se cargue la primera descarga de Power BI la vas a ver acá. Si sos quien la carga, conectá tu cuenta de GitHub." }));
       c.appendChild(el("button", { type: "button", "class": "btn btn--secondary", onclick: abrirGh }, ["Conectar GitHub"])); return; }
-    c.appendChild(el("p", { text: "Cargá el Excel de la Matriz de Envíos (formato oficial: data (25).xlsx, con «Servicio Agrupado») y después tocá «Enviar a GitHub»." }));
+    c.appendChild(el("p", { text: "Cargá el Excel de la Matriz de Envíos (formato oficial: data (27).xlsx, B2B + B2C con «Servicio Agrupado») y después tocá «Enviar a GitHub»." }));
     var acc = el("div", { "class": "vacio__acciones" }, [el("button", { type: "button", "class": "btn btn--primary", id: "vacio-cargar", onclick: abrirModal }, [svgIcon("upload", 16), "Cargar Excel de Power BI"])]);
     var vieja = null; try { vieja = JSON.parse(leerLS(LS_VIEJA) || "null"); } catch (e) { vieja = null; }
     if (vieja && vieja.registros && vieja.fuente !== "demo") {
@@ -600,58 +521,11 @@
     (esCSV ? file.text().then(M.parseCSV) : file.arrayBuffer().then(M.leerXLSX)).then(function (rows) {
       var parsed = M.desdeFilas(rows);
       if (!parsed.registros.length) throw new Error("El archivo no tiene filas de detalle.");
-      mostrarResumen(parsed, file.name);
+      pendiente = D.mostrarResumen(parsed, file.name);
     }).catch(function (e) {
       res.innerHTML = "";
       res.appendChild(alerta("error", [el("strong", { text: "No pude leer el archivo. " }), e && e.message ? e.message : String(e)]));
     });
-  }
-  function mostrarResumen(parsed, nombre) {
-    var res = $("modal-resultado"); res.innerHTML = "";
-    var esDemo = !base;
-    var d = base ? M.diferencias(base, parsed) : { nuevos: [], cambios: [], mesesNuevos: [], ausentes: 0, duplicados: 0, filtrosDistintos: false, registrosDescarga: parsed.registros.length, tiposDeducidos: 0 };
-    var suma = parsed.control.sumaDetalle;
-    res.appendChild(el("h3", { text: "Resumen de la descarga" }));
-    var items = esDemo
-      ? [[parsed.registros.length, "registros en la descarga"], [parsed.meses.length, "meses (" + M.mesTxt(parsed.meses[0]) + " a " + M.mesTxt(parsed.meses[parsed.meses.length - 1]) + ")"], [suma, "envíos en total"]]
-      : [[d.nuevos.length, "registros nuevos"], [d.mesesNuevos.length, "meses nuevos" + (d.mesesNuevos.length ? " (" + d.mesesNuevos.map(M.mesTxt).join(", ") + ")" : "")], [d.cambios.length, "valores que cambian"],
-         [d.registrosDescarga, "registros en la descarga"], [d.ausentes, "registros de la base que no vienen (se conservan)"], [suma, "envíos en la descarga"]];
-    res.appendChild(el("ul", { "class": "summary" }, items.map(function (x) { return el("li", null, [el("b", { text: n(x[0]) }), el("span", { text: x[1] })]); })));
-    var c = parsed.control;
-    if (c.cuadra === true) res.appendChild(alerta("ok", [el("strong", { text: "Los totales cuadran. " }), "La suma del detalle (" + n(c.sumaDetalle) + ") coincide con el total general del archivo."]));
-    else if (c.cuadra === false) res.appendChild(alerta("error", [el("strong", { text: "Los totales no cuadran. " }), "Suma del detalle: " + n(c.sumaDetalle) + " · total general del archivo: " + n(c.totalGeneral) + ". Revisá la descarga antes de seguir."]));
-    else res.appendChild(alerta("warning", ["No encontré la fila de total general para controlar la suma (" + n(c.sumaDetalle) + " envíos en el detalle)."]));
-    if (d.filtrosDistintos) res.appendChild(alerta("warning", [el("strong", { text: "Los filtros de la descarga no coinciden con los de la base. " }), "Base: " + base.filtros + " · Descarga: " + parsed.filtros]));
-    else if (parsed.filtros) res.appendChild(el("p", { "class": "panel__sub", text: "Filtros de la descarga: " + parsed.filtros }));
-    if (d.duplicados) res.appendChild(alerta("warning", [n(d.duplicados) + " registros repetidos en la descarga (misma clave): se toma el primero."]));
-    if (parsed.fillDown) res.appendChild(alerta("info", ["Las etiquetas venían en blanco en las filas repetidas: se completaron hacia abajo."]));
-    if (parsed.sinTipo) res.appendChild(alerta("info", [el("strong", { text: "La descarga no trae la columna «Tipo de Servicio». " }),
-      esDemo ? "Los registros quedan como «" + M.NO_INF + "». Si una descarga posterior la trae, se completa sola sin duplicar registros."
-        : n(d.tiposDeducidos) + " de " + n(parsed.registros.length) + " registros toman el tipo de la base (mismo contrato y servicio); el resto queda como «" + M.NO_INF + "»."]));
-    if (parsed.sinAgrupado) res.appendChild(alerta("info", [el("strong", { text: "La descarga no trae la columna «Servicio Agrupado». " }),
-      esDemo ? "Los registros quedan como «(Agrupado no informado)». Si una descarga posterior la trae, se completa sola."
-        : n(d.agrupadosDeducidos || 0) + " de " + n(parsed.registros.length) + " registros toman el servicio agrupado de la base (mismo tipo y servicio); el resto queda como «(Agrupado no informado)»."]));
-    else if (!esDemo && d.agrupadosCompletados) res.appendChild(alerta("info", [el("strong", { text: "Servicio agrupado: " }), n(d.agrupadosCompletados) + " registros de la base que no lo tenían lo toman de esta descarga (por tipo y servicio). Las marcas de migración no cambian."]));
-    var sinCon = parsed.registros.filter(function (r) { return r.contrato === M.SIN_CON; });
-    if (sinCon.length) res.appendChild(alerta("warning", [n(sinCon.length) + " filas tienen servicio y envíos pero no tienen segmento, razón social ni contrato (" + n(sinCon.reduce(function (a, r) { return a + r.valores.reduce(function (x, y) { return x + y; }, 0); }, 0)) + " envíos). Se incluyen como «" + M.SIN_CON + "» para que el total cuadre."]));
-    if (!esDemo && d.cambios.length) {
-      res.appendChild(el("details", { "class": "details-data" }, [el("summary", { text: "Ver valores que cambian (" + n(d.cambios.length) + ")" }),
-        el("div", { "class": "table-wrap", style: "margin-top:8px;max-height:240px" }, [tabla([{ t: "Contrato", f: function (x) { return x.contrato; } }, { t: "Servicio", f: function (x) { return x.servicio; } }, { t: "Mes", f: function (x) { return M.mesTxt(x.mes); } }, { t: "Antes", n: 1, f: function (x) { return n(x.antes); } }, { t: "Después", n: 1, f: function (x) { return n(x.despues); } }], d.cambios.slice(0, 200))])]));
-    }
-    if (esDemo) {
-      res.appendChild(alerta("info", ["Todavía no hay matriz en GitHub: esta descarga va a ser la ", el("strong", { text: "base inicial" }), ". Después tocá «Enviar a GitHub» para que la vean todos."]));
-      pendiente = { parsed: parsed, nombre: nombre, modo: "reemplazar" };
-    } else {
-      var nMarcas = Object.keys(M.migracion(base).marcas).length;
-      var grupo = el("fieldset", { "class": "choice", style: "border:0;padding:0;margin:0" }, [el("legend", { "class": "sr-only", text: "Cómo aplicar la descarga" }),
-        el("label", null, [el("input", { type: "radio", name: "modo", value: "agregar", checked: !d.filtrosDistintos }), el("span", null, [el("strong", { text: "Agregar a la base" + (d.filtrosDistintos ? ". " : " (recomendado). ") }), "Suma lo nuevo, reemplaza los meses que ya estaban y conserva lo que no viene. Conserva las marcas de migración."])]),
-        el("label", null, [el("input", { type: "radio", name: "modo", value: "reemplazar", checked: d.filtrosDistintos }), el("span", null, [el("strong", { text: "Reemplazar la base completa" + (d.filtrosDistintos ? " (recomendado: los filtros son distintos). " : ". ") }), "Descarta la base actual y usa solo esta descarga." + (nMarcas ? " Las " + n(nMarcas) + " marcas de migración se conservan." : "")])])]);
-      grupo.addEventListener("change", function (ev) { pendiente.modo = ev.target.value; $("modal-aplicar").textContent = ev.target.value === "agregar" ? "Agregar a la base" : "Reemplazar base"; });
-      res.appendChild(grupo);
-      pendiente = { parsed: parsed, nombre: nombre, modo: d.filtrosDistintos ? "reemplazar" : "agregar" };
-    }
-    $("modal-aplicar").textContent = pendiente.modo === "agregar" ? "Agregar a la base" : (esDemo ? "Usar como base" : "Reemplazar base");
-    $("modal-aplicar").disabled = false;
   }
   function aplicar() {
     if (!pendiente) return;
@@ -690,12 +564,14 @@
       $("estado-base").innerHTML = ""; $("footer-base").textContent = "";
       renderVacio(); return;
     }
+    f.canalFijo = ui.vista === "migracion" ? "B2C" : ""; /* D-030: Migración a DMS = solo B2C */
     renderBase(); renderBarra(); renderVistas();
     var regs = M.filtrar(base, f), k = M.kpis(base, regs, f.meses);
     if (ui.vista === "resumen") {
       renderKpis(k);
       renderArbol("arbol", regs, k, { caption: "Universo de envíos por segmento, razón social, tipo de servicio, servicio agrupado, servicio y contrato. Usá los botones para expandir cada nivel." });
       $("btn-contraer").disabled = !Object.keys(ui.abiertos).length;
+      chartBarras("ch-canal", M.agrupar(regs, M.canalDe, k.meses).filter(function (x) { return x.envios > 0; }).sort(function (a, b) { return b.envios - a.envios; }), f.canales, function (v) { toggle(f.canales, v); cambio(); }, "Envíos por canal");
       var seg = M.agrupar(regs, M.segDe, k.meses).filter(function (x) { return x.envios > 0; }).sort(function (a, b) { return b.envios - a.envios; }).slice(0, 12);
       chartBarras("ch-segmentos", seg, f.segmentos, function (v) { toggle(f.segmentos, v); cambio(); }, "Envíos por segmento");
       var sv = M.agrupar(regs, function (r) { return r.servicio; }, k.meses).filter(function (x) { return x.envios > 0; }).sort(function (a, b) { return b.envios - a.envios; }).slice(0, 12);
