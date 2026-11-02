@@ -80,12 +80,14 @@
         <h2 id="h-para-que"><span class="guia__num" aria-hidden="true">1</span>Para qué sirve</h2>
         <p>La Matriz de Envíos reúne los envíos de todos los contratos y clientes de Grupo Logístico Andreani, canales <strong>B2B</strong> y <strong>B2C</strong>. Del total, lo que se migra del sistema operativo <strong>Integra</strong> al nuevo sistema operativo <strong>DMS</strong> es el <strong>canal B2C</strong>. Sirve para dimensionar el negocio y el universo a migrar, priorizar clientes y servicios, y seguir el avance de la migración.</p>
         <ul class="tarjetas">
-          <li><b><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3 5h18l-7 8v6l-4 2v-8L3 5Z"/></svg>Consultar</b><span>Ver envíos, clientes, contratos y servicios por canal, con filtros y rankings. No hace falta cuenta.</span></li>
+          <li><b><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3 5h18l-7 8v6l-4 2v-8L3 5Z"/></svg>Consultar</b><span>Ver envíos, clientes, contratos y servicios por canal, con filtros y rankings. Los datos son privados: hace falta conectar GitHub (<a href="#ed-conectar">ver pasos</a>).</span></li>
           <li><b><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2Z"/></svg>Seguir la migración</b><span>Ver qué contratos, servicios y segmentos B2C ya están migrados a DMS.</span></li>
           <li><b><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M5 20h14v-2H5v2Zm7-17-6 6 1.4 1.4L11 6.8V17h2V6.8l3.6 3.6L18 9l-6-6Z"/></svg>Editar</b><span>Marcar lo migrado y cargar descargas nuevas de Power BI. Requiere conectar GitHub (<a href="#editores">sección 4</a>).</span></li>
         </ul>
         <h3>De dónde salen los datos</h3>
-        <p>La fuente es el reporte de la Matriz de Envíos en <strong>Power BI</strong>, exportado con <em>canal es B2B o B2C</em>. Un editor descarga el Excel, lo carga en el dashboard y lo envía a GitHub; desde ese momento todos ven la misma información. Los filtros con los que se exportó la descarga, la fecha de actualización y la cantidad de registros se ven en <span class="ui">Acerca de los datos</span>, junto al título.</p>
+        <p>La fuente es el reporte de la Matriz de Envíos en <strong>Power BI</strong>, exportado con <em>canal es B2B o B2C</em>. Un editor descarga el Excel, lo carga en el dashboard y lo envía a GitHub; desde ese momento todos los usuarios habilitados ven la misma información. Los filtros con los que se exportó la descarga, la fecha de actualización y la cantidad de registros se ven en <span class="ui">Acerca de los datos</span>, junto al título.</p>
+        <h3>Quién puede ver los datos</h3>
+        <p>Los datos (matriz de envíos, avance de la migración e ingreso y resultado por cliente) se guardan en un <strong>repositorio privado</strong> de GitHub (Pblsanchez/andreani-migracion-datos). La página es pública, pero <strong>sin conectar una clave no muestra ningún dato</strong>: solo el aviso «Los datos son privados». Para verlos hace falta estar invitado al repositorio y conectar una clave personal (<a href="#ed-conectar">ver pasos</a>).</p>
         <h3>Canal B2B y B2C</h3>
         <p>La descarga de Power BI no trae el canal como columna. El dashboard lo deduce del <strong>N° de contrato</strong>:</p>
         <div class="table-wrap">
@@ -192,7 +194,8 @@
             <caption class="sr-only">Estados de la sincronización</caption>
             <thead><tr><th scope="col">Estado</th><th scope="col">Significado</th></tr></thead>
             <tbody>
-              <tr><td><span class="badge badge--success">Datos al día</span></td><td>Estás viendo la última versión guardada en GitHub.</td></tr>
+              <tr><td><span class="badge badge--info">Datos privados: conectá GitHub</span></td><td>No hay clave conectada en este navegador: no se muestra ningún dato.</td></tr>
+              <tr><td><span class="badge badge--success">Datos al día</span></td><td>Estás viendo la última versión guardada en GitHub. Si tu clave es de lectura, dice «solo lectura».</td></tr>
               <tr><td><span class="badge badge--info">Cargando datos…</span></td><td>Se están leyendo los datos.</td></tr>
               <tr><td><span class="badge badge--warning">Sin enviar: …</span></td><td>Hay cambios hechos en este navegador que todavía no ve nadie más (solo editores).</td></tr>
               <tr><td><span class="badge badge--error">Sin conexión con GitHub</span></td><td>No se pudieron leer los datos. Usá <span class="ui">Reintentar</span>.</td></tr>
@@ -206,7 +209,7 @@
       <!-- ============ 3. Seguimiento de la migración ============ -->
       <section id="migracion" aria-labelledby="h-migracion">
         <h2 id="h-migracion"><span class="guia__num" aria-hidden="true">3</span>Seguimiento de la migración</h2>
-        <p>La pestaña <strong>Migración a DMS</strong> muestra cuánto del universo <strong>B2C</strong> ya se migró. El B2B no se migra y no aparece en esta pestaña: indicadores, tabla, avance por segmento, marcas, importación y exportación usan solo registros B2C. Cualquiera puede verla; sin GitHub conectado es de <strong>solo lectura</strong> y muestra quién hizo el último cambio y cuándo.</p>
+        <p>La pestaña <strong>Migración a DMS</strong> muestra cuánto del universo <strong>B2C</strong> ya se migró. El B2B no se migra y no aparece en esta pestaña: indicadores, tabla, avance por segmento, marcas, importación y exportación usan solo registros B2C. Con una clave de lectura es de <strong>solo lectura</strong> y muestra quién hizo el último cambio y cuándo.</p>
         <h3>Indicadores de avance</h3>
         <ul>
           <li><strong>Envíos migrados:</strong> porcentaje de envíos B2C del período que corresponden a registros migrados.</li>
@@ -243,18 +246,19 @@
         </div>
 
         <h3 id="ed-conectar">Conectar GitHub (una sola vez por navegador)</h3>
-        <p>Para editar hace falta una clave personal de GitHub (token) con permiso de escritura en el repositorio. Tocá <span class="ui">Conectar GitHub</span> en el encabezado y seguí estos pasos:</p>
+        <p>Para <strong>ver</strong> los datos hace falta estar invitado al repositorio privado <strong>Pblsanchez/andreani-migracion-datos</strong> y una clave personal de GitHub (token) con permiso de lectura; para <strong>editar</strong>, con permiso de escritura. Tocá <span class="ui">Conectar GitHub</span> en el encabezado y seguí estos pasos:</p>
         <ol class="pasos">
           <li>Entrá a <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer">GitHub › Fine-grained tokens › Generate new token (se abre en otra pestaña)</a>.</li>
           <li>Nombre: «Dashboard matriz de envíos». Vencimiento: el que prefieras (por ejemplo, 90 días).</li>
-          <li>Repository access: «Only select repositories» › <strong>Pblsanchez/andreani-migracion-tools</strong>.</li>
-          <li>Permissions › Repository permissions › <strong>Contents: Read and write</strong>.</li>
+          <li>Resource owner: <strong>Pblsanchez</strong>. Repository access: «Only select repositories» › <strong>Pblsanchez/andreani-migracion-datos</strong>.</li>
+          <li>Permissions › Repository permissions › <strong>Contents: Read-only</strong> para ver, o <strong>Read and write</strong> para editar.</li>
           <li>Tocá «Generate token», copiá la clave, pegala en el campo <span class="ui">Clave de GitHub (token)</span> y tocá <span class="ui">Conectar</span>.</li>
         </ol>
-        <p>Al conectar, en el encabezado aparece tu usuario de GitHub y los botones <span class="ui">Cargar descarga de Power BI</span> y <span class="ui">Enviar a GitHub</span>.</p>
+        <p>Al conectar se leen los datos y en el encabezado aparece tu usuario de GitHub. Con permiso de escritura aparecen además <span class="ui">Cargar descarga de Power BI</span> y <span class="ui">Enviar a GitHub</span>.</p>
+        <p>Si ya tenías una clave de la versión anterior (sobre Pblsanchez/andreani-migracion-tools), editala en GitHub y sumale el repositorio <strong>Pblsanchez/andreani-migracion-datos</strong>, o generá una nueva.</p>
         <div class="alert alert--error" role="note">
           <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 1 3 5v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V5l-9-4Zm0 6a3 3 0 0 1 1 5.8V16h-2v-3.2A3 3 0 0 1 12 7Z"/></svg>
-          <div class="alert__body"><strong>La clave es personal: no la compartas.</strong> Queda guardada solo en ese navegador. Para quitarla, tocá tu usuario en el encabezado y luego <span class="ui">Desconectar este navegador</span>.</div>
+          <div class="alert__body"><strong>La clave es personal: no la compartas.</strong> Queda guardada solo en ese navegador. Para quitarla, tocá tu usuario en el encabezado y luego <span class="ui">Desconectar este navegador</span>: los datos dejan de mostrarse. Los cambios sin enviar quedan guardados en el navegador (IndexedDB) hasta que conectes de nuevo y los envíes.</div>
         </div>
 
         <h3 id="ed-marcar">Marcar lo migrado</h3>
@@ -321,8 +325,8 @@
         <h2 id="h-problemas"><span class="guia__num" aria-hidden="true">5</span>Problemas frecuentes</h2>
         <div class="faq">
           <details>
-            <summary>Dice que los datos pueden tener hasta 5 minutos de demora</summary>
-            <div class="faq__body"><p>GitHub limita las consultas desde una misma red. Mientras tanto, el dashboard lee una copia que puede tener hasta 5 minutos de demora. Esperá unos minutos y tocá <span class="ui">Recargar</span>.</p></div>
+            <summary>«Los datos son privados» / «La clave no tiene acceso a Pblsanchez/andreani-migracion-datos»</summary>
+            <div class="faq__body"><p>Los datos solo se ven con una clave conectada. Si ya conectaste y aparece «no tiene acceso», pedí que te inviten al repositorio privado y revisá que la clave lo incluya en <em>Repository access</em> con <strong>Contents</strong> (<a href="#ed-conectar">ver pasos</a>).</p></div>
           </details>
           <details>
             <summary>«La clave de GitHub no es válida o venció»</summary>
@@ -330,7 +334,7 @@
           </details>
           <details>
             <summary>«GitHub rechazó la operación» al enviar</summary>
-            <div class="faq__body"><p>La clave no tiene el permiso <strong>Contents: Read and write</strong> sobre Pblsanchez/andreani-migracion-tools. Generá una clave nueva con ese permiso.</p></div>
+            <div class="faq__body"><p>La clave no tiene el permiso <strong>Contents: Read and write</strong> sobre Pblsanchez/andreani-migracion-datos. Editá la clave en GitHub o generá una nueva con ese permiso.</p></div>
           </details>
           <details>
             <summary>«Faltan columnas» o «No encontré la fila de encabezados» al cargar el Excel</summary>
@@ -342,7 +346,7 @@
           </details>
           <details>
             <summary>No veo los botones para marcar ni para cargar descargas</summary>
-            <div class="faq__body"><p>Estás en modo solo lectura. Conectá tu cuenta con <span class="ui">Conectar GitHub</span> (<a href="#ed-conectar">ver pasos</a>).</p></div>
+            <div class="faq__body"><p>Tu clave es de solo lectura. Para editar hace falta una clave con <strong>Contents: Read and write</strong> sobre Pblsanchez/andreani-migracion-datos (<a href="#ed-conectar">ver pasos</a>).</p></div>
           </details>
           <details>
             <summary>Filtré B2B y en Migración a DMS no veo nada</summary>
@@ -375,7 +379,7 @@
           <dt>Migrado</dt><dd>Todos los registros del nivel están marcados como migrados a DMS.</dd>
           <dt>Parcial (migración)</dt><dd>Algunos registros del nivel están marcados.</dd>
           <dt>Pendiente</dt><dd>Ningún registro del nivel está marcado.</dd>
-          <dt>Clave (token)</dt><dd>Clave personal de GitHub que habilita a editar. Se guarda solo en tu navegador.</dd>
+          <dt>Clave (token)</dt><dd>Clave personal de GitHub que habilita a ver (lectura) o a editar (escritura) los datos del repositorio privado. Se guarda solo en tu navegador.</dd>
           <dt>Editor</dt><dd>Persona con GitHub conectado: puede marcar la migración, cargar descargas y enviarlas.</dd>
           <dt>Cambios sin enviar</dt><dd>Cambios guardados solo en tu navegador hasta que tocás «Enviar a GitHub».</dd>
         </dl>
