@@ -57,7 +57,7 @@
     <article class="guia__contenido" aria-labelledby="titulo-guia">
       <div class="page-head" style="display:block">
         <h1 id="titulo-guia">Guía de usuario · Matriz de Envíos</h1>
-        <p class="guia__lead">Cómo usar el dashboard del universo de envíos B2C que se migra de Integra a DMS: qué muestra, cómo filtrarlo y cómo registrar el avance de la migración.</p>
+        <p class="guia__lead">Cómo usar el dashboard del universo de envíos B2B + B2C y seguir la migración del canal B2C de Integra a DMS: qué muestra, cómo filtrarlo y cómo registrar el avance de la migración.</p>
       </div>
 
       <details class="guia__indice-movil">
@@ -78,16 +78,29 @@
       <!-- ============ 1. Para qué sirve ============ -->
       <section id="para-que" aria-labelledby="h-para-que">
         <h2 id="h-para-que"><span class="guia__num" aria-hidden="true">1</span>Para qué sirve</h2>
-        <p>La Matriz de Envíos reúne los envíos de los contratos y clientes de Grupo Logístico Andreani del <strong>canal B2C</strong> que se migran del sistema operativo <strong>Integra</strong> al nuevo sistema operativo <strong>DMS</strong>. Sirve para dimensionar el universo a migrar, priorizar clientes y servicios, y seguir el avance de la migración.</p>
+        <p>La Matriz de Envíos reúne los envíos de todos los contratos y clientes de Grupo Logístico Andreani, canales <strong>B2B</strong> y <strong>B2C</strong>. Del total, lo que se migra del sistema operativo <strong>Integra</strong> al nuevo sistema operativo <strong>DMS</strong> es el <strong>canal B2C</strong>. Sirve para dimensionar el negocio y el universo a migrar, priorizar clientes y servicios, y seguir el avance de la migración.</p>
         <ul class="tarjetas">
-          <li><b><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3 5h18l-7 8v6l-4 2v-8L3 5Z"/></svg>Consultar</b><span>Ver envíos, clientes, contratos y servicios con filtros y rankings. No hace falta cuenta.</span></li>
-          <li><b><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2Z"/></svg>Seguir la migración</b><span>Ver qué contratos, servicios y segmentos ya están migrados a DMS.</span></li>
+          <li><b><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3 5h18l-7 8v6l-4 2v-8L3 5Z"/></svg>Consultar</b><span>Ver envíos, clientes, contratos y servicios por canal, con filtros y rankings. No hace falta cuenta.</span></li>
+          <li><b><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2Z"/></svg>Seguir la migración</b><span>Ver qué contratos, servicios y segmentos B2C ya están migrados a DMS.</span></li>
           <li><b><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M5 20h14v-2H5v2Zm7-17-6 6 1.4 1.4L11 6.8V17h2V6.8l3.6 3.6L18 9l-6-6Z"/></svg>Editar</b><span>Marcar lo migrado y cargar descargas nuevas de Power BI. Requiere conectar GitHub (<a href="#editores">sección 4</a>).</span></li>
         </ul>
         <h3>De dónde salen los datos</h3>
-        <p>La fuente es el reporte de la Matriz de Envíos en <strong>Power BI</strong>. Un editor descarga el Excel, lo carga en el dashboard y lo envía a GitHub; desde ese momento todos ven la misma información. Los filtros con los que se exportó la descarga, la fecha de actualización y la cantidad de registros se ven en <span class="ui">Acerca de los datos</span>, junto al título.</p>
+        <p>La fuente es el reporte de la Matriz de Envíos en <strong>Power BI</strong>, exportado con <em>canal es B2B o B2C</em>. Un editor descarga el Excel, lo carga en el dashboard y lo envía a GitHub; desde ese momento todos ven la misma información. Los filtros con los que se exportó la descarga, la fecha de actualización y la cantidad de registros se ven en <span class="ui">Acerca de los datos</span>, junto al título.</p>
+        <h3>Canal B2B y B2C</h3>
+        <p>La descarga de Power BI no trae el canal como columna. El dashboard lo deduce del <strong>N° de contrato</strong>:</p>
+        <div class="table-wrap">
+          <table>
+            <caption class="sr-only">Regla de canal</caption>
+            <thead><tr><th scope="col">Canal</th><th scope="col">Contratos</th><th scope="col">¿Se migra a DMS?</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">B2B</th><td>Empiezan con <strong>350</strong> o <strong>351</strong></td><td>No</td></tr>
+              <tr><th scope="row">B2C</th><td>Todos los demás (por ejemplo, 400…, 300…, 100… y los de 8 dígitos)</td><td>Sí</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Si algún día la descarga trae una columna «Canal», se usa esa columna en lugar de la regla.</p>
         <h3>Cómo está organizada la información</h3>
-        <p>Todo el dashboard respeta esta jerarquía, de lo general a lo particular:</p>
+        <p>Todo el dashboard respeta esta jerarquía, de lo general a lo particular. El canal es un filtro aparte, por encima de la jerarquía:</p>
         <ol class="jerarquia" aria-label="Jerarquía de la información">
           <li><span class="badge badge--neutral">1 · Segmento</span></li>
           <li><span class="badge badge--neutral">2 · Razón social</span></li>
@@ -96,8 +109,8 @@
           <li><span class="badge badge--neutral">5 · Servicio</span></li>
           <li><span class="badge badge--neutral">6 · N° contrato</span></li>
         </ol>
-        <p>El <strong>servicio agrupado</strong> reúne servicios parecidos dentro de un tipo de servicio (por ejemplo, «(2.1) Entre 00 a 10 kg» dentro de «(2) PAQUETERIA»). Cada servicio pertenece a un solo servicio agrupado.</p>
-        <p>Cada fila de la base es un <strong>registro</strong>: la combinación de <strong>N° contrato + tipo de servicio + servicio</strong>. Un mismo contrato puede tener varios registros si usa más de un servicio. El servicio agrupado no forma parte de la clave: se deduce del tipo y el servicio.</p>
+        <p>El <strong>servicio agrupado</strong> reúne servicios parecidos dentro de un tipo de servicio (por ejemplo, «(2.1) Entre 00 a 10 kg» dentro de «(2) PAQUETERIA»). En B2C cada servicio pertenece a un solo servicio agrupado. En B2B el servicio agrupado indica la <strong>banda de peso</strong>, así que un mismo servicio B2B puede aparecer en varios agrupados (por ejemplo, «(2.2) Entre 11 a 50 kg» o «(2.4) Mayor a 350 Kg»).</p>
+        <p>Cada fila de la base es un <strong>registro</strong>: la combinación de <strong>N° contrato + tipo de servicio + servicio</strong> y, en B2B, también el <strong>servicio agrupado</strong>. Un mismo contrato puede tener varios registros si usa más de un servicio o, en B2B, más de una banda de peso.</p>
         <a class="arriba" href="#contenido">↑ Volver arriba</a>
       </section>
 
@@ -108,21 +121,22 @@
         <div class="table-wrap">
           <table>
             <caption class="sr-only">Pestañas del dashboard</caption>
-            <thead><tr><th scope="col">Pestaña</th><th scope="col">Para qué usarla</th></tr></thead>
+            <thead><tr><th scope="col">Pestaña</th><th scope="col">Para qué usarla</th><th scope="col">Canal</th></tr></thead>
             <tbody>
-              <tr><th scope="row">Resumen</th><td>Indicadores principales, universo por jerarquía, envíos por segmento, servicios con más envíos y top 10 de clientes.</td></tr>
-              <tr><th scope="row">Análisis</th><td>Evolución mensual, participación por tipo, más rankings, calidad de datos, historial de actualizaciones y detalle exportable.</td></tr>
-              <tr><th scope="row">Migración a DMS</th><td>Avance de la migración y, para editores, las herramientas para marcar lo migrado (<a href="#migracion">sección 3</a>).</td></tr>
+              <tr><th scope="row">Resumen</th><td>Indicadores principales, universo por jerarquía, envíos por canal, envíos por segmento, servicios con más envíos y top 10 de clientes.</td><td>Filtro: Todos, B2B o B2C</td></tr>
+              <tr><th scope="row">Análisis</th><td>Evolución mensual, participación por tipo, más rankings, calidad de datos, historial de actualizaciones y detalle exportable.</td><td>Filtro: Todos, B2B o B2C</td></tr>
+              <tr><th scope="row">Migración a DMS</th><td>Avance de la migración y, para editores, las herramientas para marcar lo migrado (<a href="#migracion">sección 3</a>).</td><td>Siempre B2C (fijo)</td></tr>
             </tbody>
           </table>
         </div>
 
         <h3 id="leer-filtros">Filtros y período</h3>
         <ul>
-          <li>Hay un filtro por cada nivel de la jerarquía (<strong>Segmento › Razón social › Tipo de servicio › Servicio agrupado › Servicio › N° contrato</strong>) y uno de <strong>Período</strong> (meses).</li>
-          <li><strong>Son en cascada:</strong> cada filtro muestra solo los valores compatibles con lo elegido en los niveles de arriba, ordenados por cantidad de envíos. Si cambiás un nivel superior, se quitan solas las selecciones de abajo que ya no corresponden.</li>
+          <li>El primer filtro es <strong>Canal</strong> (B2B y B2C). Sin elegir nada muestra <strong>Todos</strong>. En la pestaña Migración a DMS se reemplaza por la etiqueta <span class="ui">Canal: B2C (fijo)</span>; lo que hayas elegido en Resumen o Análisis se conserva al volver.</li>
+          <li>Después hay un filtro por cada nivel de la jerarquía (<strong>Segmento › Razón social › Tipo de servicio › Servicio agrupado › Servicio › N° contrato</strong>) y uno de <strong>Período</strong> (meses).</li>
+          <li><strong>Son en cascada:</strong> cada filtro muestra solo los valores compatibles con el canal y con lo elegido en los niveles de arriba, ordenados por cantidad de envíos. Si cambiás un nivel superior, se quitan solas las selecciones de abajo que ya no corresponden.</li>
           <li>Cada filtro admite varios valores y tiene buscador. Los filtros activos se muestran debajo de la barra; <span class="ui">Limpiar</span> los quita todos.</li>
-          <li>También podés filtrar haciendo clic en una barra de los gráficos <em>Envíos por segmento</em> y <em>Servicios con más envíos</em>, o en el nombre de un cliente en cualquier ranking.</li>
+          <li>También podés filtrar haciendo clic en una barra de los gráficos <em>Envíos por canal</em>, <em>Envíos por segmento</em> y <em>Servicios con más envíos</em>, o en el nombre de un cliente en cualquier ranking.</li>
         </ul>
         <div class="alert alert--info" role="note">
           <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 15h-2v-6h2v6Zm0-8h-2V7h2v2Z"/></svg>
@@ -136,6 +150,7 @@
             <thead><tr><th scope="col">Indicador</th><th scope="col">Qué muestra</th></tr></thead>
             <tbody>
               <tr><th scope="row">Envíos</th><td>Total de envíos del período filtrado. Aclara si incluye el mes parcial.</td></tr>
+              <tr><th scope="row">Participación B2C</th><td>Porcentaje de los envíos filtrados que son B2C, con los envíos B2C y B2B.</td></tr>
               <tr><th scope="row">Clientes</th><td>Razones sociales con envíos.</td></tr>
               <tr><th scope="row">Contratos</th><td>Contratos con envíos y cuántos estuvieron activos en el último mes completo.</td></tr>
               <tr><th scope="row">Promedio mensual</th><td>Promedio de envíos de los meses completos y envíos por contrato.</td></tr>
@@ -147,9 +162,10 @@
           </table>
         </div>
         <p><strong>Universo por jerarquía:</strong> tabla expandible. Tocá un nivel para ver el siguiente; se muestran 25 filas por nivel y el botón <span class="ui">Mostrar … más</span> carga las siguientes. <span class="ui">Contraer todo</span> cierra todo.</p>
+        <p><strong>Envíos por canal:</strong> barras de B2C y B2B con los envíos del período. Clic en una barra para filtrar por ese canal.</p>
         <div class="alert alert--info" role="note">
           <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 15h-2v-6h2v6Zm0-8h-2V7h2v2Z"/></svg>
-          <div class="alert__body"><strong>Clientes internos.</strong> CORREO ANDREANI S.A. y ANDREANI ONLINE no aparecen en los rankings ni en la concentración top 10, pero sí suman en los totales de envíos.</div>
+          <div class="alert__body"><strong>Clientes internos.</strong> CORREO ANDREANI S.A., ANDREANI ONLINE y el segmento Andreani no aparecen en los rankings ni en la concentración top 10, pero sí suman en los totales de envíos.</div>
         </div>
 
         <h3 id="leer-analisis">Pestaña Análisis</h3>
@@ -164,9 +180,9 @@
             </ul>
             Se muestran 15 filas; <span class="ui">Ver todos (hasta 500)</span> amplía la lista.
           </li>
-          <li><strong>Calidad de datos:</strong> controles sobre toda la base, sin filtros. Contratos sin segmento o razón social, con «Sin servicio asignado», en más de un servicio (no es error), con formato distinto a 9 dígitos, filas sin contrato, duplicados y valores negativos. También muestra registros sin servicio agrupado y combinaciones de tipo + servicio que figuran en más de un servicio agrupado (debería ser 0).</li>
+          <li><strong>Calidad de datos:</strong> controles sobre toda la base (B2B + B2C), sin filtros. Contratos sin segmento o razón social, con «Sin servicio asignado», en más de un servicio (no es error), contratos B2B (informativo: no se migran), con formato distinto a 9 dígitos, filas sin contrato, duplicados y valores negativos. También muestra registros sin servicio agrupado y combinaciones B2C de tipo + servicio que figuran en más de un servicio agrupado (debería ser 0).</li>
           <li><strong>Base de datos</strong> e <strong>Historial de actualizaciones</strong>: qué descargas se cargaron, cuándo, y cuántos registros nuevos y cambios trajo cada una.</li>
-          <li><strong>Detalle:</strong> un registro por fila (segmento, razón social, tipo de servicio, servicio agrupado, servicio y contrato) con los envíos de cada mes, 25 por página, ordenable por columna. <span class="ui">Exportar CSV</span> descarga lo filtrado con las mismas columnas.</li>
+          <li><strong>Detalle:</strong> un registro por fila (canal, segmento, razón social, tipo de servicio, servicio agrupado, servicio y contrato) con los envíos de cada mes, 25 por página, ordenable por columna. <span class="ui">Exportar CSV</span> descarga lo filtrado con las mismas columnas.</li>
         </ul>
 
         <h3 id="leer-estado">Estado de los datos</h3>
@@ -190,10 +206,10 @@
       <!-- ============ 3. Seguimiento de la migración ============ -->
       <section id="migracion" aria-labelledby="h-migracion">
         <h2 id="h-migracion"><span class="guia__num" aria-hidden="true">3</span>Seguimiento de la migración</h2>
-        <p>La pestaña <strong>Migración a DMS</strong> muestra cuánto del universo ya se migró. Cualquiera puede verla; sin GitHub conectado es de <strong>solo lectura</strong> y muestra quién hizo el último cambio y cuándo.</p>
+        <p>La pestaña <strong>Migración a DMS</strong> muestra cuánto del universo <strong>B2C</strong> ya se migró. El B2B no se migra y no aparece en esta pestaña: indicadores, tabla, avance por segmento, marcas, importación y exportación usan solo registros B2C. Cualquiera puede verla; sin GitHub conectado es de <strong>solo lectura</strong> y muestra quién hizo el último cambio y cuándo.</p>
         <h3>Indicadores de avance</h3>
         <ul>
-          <li><strong>Envíos migrados:</strong> porcentaje de envíos del período que corresponden a registros migrados.</li>
+          <li><strong>Envíos migrados:</strong> porcentaje de envíos B2C del período que corresponden a registros migrados.</li>
           <li><strong>Volumen del último mes completo:</strong> lo mismo, solo para el último mes completo.</li>
           <li><strong>Contratos migrados</strong> y <strong>Clientes migrados:</strong> completos sobre el total, y cuántos están a medias.</li>
         </ul>
@@ -213,7 +229,7 @@
           <li>La tabla <strong>Marcar lo migrado a DMS</strong> usa la misma jerarquía que el resumen, con la fecha en que se marcó cada nivel.</li>
           <li><span class="ui">Mostrar</span> permite ver <em>Todo</em>, <em>Solo pendientes</em> o <em>Solo migrado</em>.</li>
           <li><strong>Avance por segmento</strong> resume el estado de cada segmento y <strong>Últimos cambios</strong> lista las 8 marcas más recientes.</li>
-          <li><span class="ui">Exportar estado (CSV)</span> descarga lo filtrado con las columnas Segmento, Razón Social, Tipo de Servicio, Servicio Agrupado, Servicio, N° Contrato, Migrado a DMS (SI/NO) y Fecha de marca.</li>
+          <li><span class="ui">Exportar estado (CSV)</span> descarga lo filtrado con las columnas Canal, Segmento, Razón Social, Tipo de Servicio, Servicio Agrupado, Servicio, N° Contrato, Migrado a DMS (SI/NO) y Fecha de marca.</li>
         </ul>
         <a class="arriba" href="#contenido">↑ Volver arriba</a>
       </section>
@@ -242,20 +258,20 @@
         </div>
 
         <h3 id="ed-marcar">Marcar lo migrado</h3>
-        <p>En la pestaña <strong>Migración a DMS</strong> hay tres formas de marcar. Las tres marcan con la fecha del día.</p>
+        <p>En la pestaña <strong>Migración a DMS</strong> hay tres formas de marcar. Las tres marcan con la fecha del día y solo registros <strong>B2C</strong>.</p>
         <ol class="pasos">
           <li><strong>Casilla de la tabla:</strong> marcá un contrato, servicio, servicio agrupado, tipo, razón social o segmento completo. Marcar un nivel marca todos los registros que tiene adentro.</li>
-          <li><strong>Marcar lo filtrado:</strong> filtrá con la barra de arriba (por ejemplo, un servicio en todos los clientes) y tocá <span class="ui">Marcar lo filtrado</span>. El botón indica cuántos registros va a marcar. Sin filtros, pide confirmación antes de marcar todo el universo. <span class="ui">Desmarcar lo filtrado</span> hace lo contrario.</li>
-          <li><strong>Importar lista de contratos:</strong> <span class="ui">Importar lista de contratos</span> acepta un Excel (.xlsx) o CSV. Toma la columna que contenga «Contrato» o, si no hay, cualquier número de 6 a 12 dígitos, y marca todos los registros de esos contratos. Al final informa cuántos encontró y cuáles no están en la base.</li>
+          <li><strong>Marcar lo filtrado:</strong> filtrá con la barra de arriba (por ejemplo, un servicio en todos los clientes) y tocá <span class="ui">Marcar lo filtrado</span>. El botón indica cuántos registros va a marcar. Sin filtros, pide confirmación antes de marcar todo el universo B2C. <span class="ui">Desmarcar lo filtrado</span> hace lo contrario.</li>
+          <li><strong>Importar lista de contratos:</strong> <span class="ui">Importar lista de contratos</span> acepta un Excel (.xlsx) o CSV. Toma la columna que contenga «Contrato» o, si no hay, cualquier número de 6 a 12 dígitos, y marca todos los registros B2C de esos contratos. Al final informa cuántos encontró, cuántos son B2B (no se marcan) y cuáles no están en la base.</li>
         </ol>
         <p>¿Te equivocaste? <span class="ui">Deshacer</span> revierte la última acción de marcado.</p>
         <p>Las marcas se ven al instante en tu pantalla, pero <strong>las demás personas no las ven hasta que toques <span class="ui">Enviar a GitHub</span></strong>.</p>
 
         <h3 id="ed-cargar">Cargar una descarga de Power BI</h3>
         <ol class="pasos">
-          <li>Exportá la Matriz de Envíos desde Power BI en Excel (.xlsx). También se aceptan .csv y .txt. El orden de las columnas no importa: se reconocen por su nombre.</li>
+          <li>Exportá la Matriz de Envíos desde Power BI en Excel (.xlsx), con <em>canal es B2B o B2C</em> y la matriz expandida hasta N° Contrato (no colapsada en Segmento). También se aceptan .csv y .txt. El orden de las columnas no importa: se reconocen por su nombre.</li>
           <li>Tocá <span class="ui">Cargar descarga de Power BI</span> y arrastrá el archivo o usá <span class="ui">Elegir archivo</span>.</li>
-          <li>Revisá el resumen: registros nuevos, valores que cambian, meses nuevos, registros de la base que no vienen y avisos (por ejemplo, si el total del archivo no cuadra o si los filtros de Power BI son distintos a los de la base).</li>
+          <li>Revisá el resumen: registros nuevos, valores que cambian, meses nuevos, registros de la base que no vienen, registros por canal y avisos (por ejemplo, si el total del archivo no cuadra o si los filtros de Power BI son distintos a los de la base).</li>
           <li>Elegí cómo aplicarla y confirmá. Después tocá <span class="ui">Enviar a GitHub</span>.</li>
         </ol>
         <p><strong>Columnas que reconoce</strong> (busca la fila de encabezados en las primeras 30 filas):</p>
@@ -264,12 +280,13 @@
             <caption class="sr-only">Columnas reconocidas en la descarga</caption>
             <thead><tr><th scope="col">Columna</th><th scope="col">¿Obligatoria?</th><th scope="col">Nota</th></tr></thead>
             <tbody>
-              <tr><td>N° Contrato</td><td><span class="badge badge--info">Sí</span></td><td>Sin esta columna no se encuentra la fila de encabezados.</td></tr>
+              <tr><td>N° Contrato</td><td><span class="badge badge--info">Sí</span></td><td>Sin esta columna no se encuentra la fila de encabezados. Define el canal si no viene la columna «Canal».</td></tr>
               <tr><td>Segmento</td><td><span class="badge badge--info">Sí</span></td><td></td></tr>
               <tr><td>Razón Social (o Cliente)</td><td><span class="badge badge--info">Sí</span></td><td></td></tr>
               <tr><td>Servicio</td><td><span class="badge badge--info">Sí</span></td><td></td></tr>
               <tr><td>Tipo de Servicio</td><td><span class="badge badge--neutral">No</span></td><td>Si falta, se completa con la base (mismo contrato y servicio). Si una descarga posterior la trae, se completa sola sin duplicar registros.</td></tr>
-              <tr><td>Servicio Agrupado</td><td><span class="badge badge--neutral">No</span></td><td>Si falta, se completa con la base (mismo tipo y servicio); si no hay dato, queda «(Agrupado no informado)». Cuando una descarga lo trae, completa también los registros de la base que no lo tenían, sin tocar las marcas de migración.</td></tr>
+              <tr><td>Servicio Agrupado</td><td><span class="badge badge--neutral">No</span></td><td>Si falta, en B2C se completa con la base (mismo tipo y servicio); en B2B no se puede deducir porque depende del peso. Si no hay dato, queda «(Agrupado no informado)».</td></tr>
+              <tr><td>Canal</td><td><span class="badge badge--neutral">No</span></td><td>Valores B2B o B2C. Si viene, manda sobre la regla del N° de contrato.</td></tr>
               <tr><td>Meses</td><td><span class="badge badge--info">Sí</span></td><td>Una columna por mes, con formatos como «Ene.-26», «Enero 2026» o «2026-01».</td></tr>
             </tbody>
           </table>
@@ -281,7 +298,7 @@
             <thead><tr><th scope="col">Opción</th><th scope="col">Qué hace</th><th scope="col">Cuándo usarla</th></tr></thead>
             <tbody>
               <tr><th scope="row">Agregar a la base</th><td>Suma los registros nuevos, reemplaza los meses que ya estaban y conserva lo que no viene en la descarga. Conserva las marcas de migración.</td><td>Actualización de rutina (opción recomendada).</td></tr>
-              <tr><th scope="row">Reemplazar la base completa</th><td>Descarta la base actual y usa solo esta descarga.</td><td>Cuando los filtros de Power BI cambiaron; el dashboard la sugiere en ese caso. Los «Parámetro_…» del export no cuentan como filtros.</td></tr>
+              <tr><th scope="row">Reemplazar la base completa</th><td>Descarta la base actual y usa solo esta descarga. Las marcas de migración se conservan.</td><td>Cuando los filtros de Power BI cambiaron (por ejemplo, al pasar de <em>canal es B2C</em> a <em>canal es B2B o B2C</em>); el dashboard la sugiere en ese caso. Los «Parámetro_…» del export no cuentan como filtros.</td></tr>
             </tbody>
           </table>
         </div>
@@ -317,7 +334,7 @@
           </details>
           <details>
             <summary>«Faltan columnas» o «No encontré la fila de encabezados» al cargar el Excel</summary>
-            <div class="faq__body"><p>La descarga no trae alguna columna obligatoria (ver <a href="#ed-cargar">Columnas que reconoce</a>). Revisá en Power BI que la tabla incluya Segmento, Razón Social, Servicio, N° Contrato y los meses, y volvé a exportar.</p></div>
+            <div class="faq__body"><p>La descarga no trae alguna columna obligatoria (ver <a href="#ed-cargar">Columnas que reconoce</a>). Suele pasar cuando la matriz de Power BI se exporta colapsada (solo Segmento). Expandí la matriz hasta N° Contrato y volvé a exportar con Segmento, Razón Social, Servicio, N° Contrato y los meses.</p></div>
           </details>
           <details>
             <summary>«Tu navegador no soporta descompresión nativa»</summary>
@@ -326,6 +343,10 @@
           <details>
             <summary>No veo los botones para marcar ni para cargar descargas</summary>
             <div class="faq__body"><p>Estás en modo solo lectura. Conectá tu cuenta con <span class="ui">Conectar GitHub</span> (<a href="#ed-conectar">ver pasos</a>).</p></div>
+          </details>
+          <details>
+            <summary>Filtré B2B y en Migración a DMS no veo nada</summary>
+            <div class="faq__body"><p>La pestaña Migración a DMS muestra solo B2C. Si elegiste en otro filtro valores que solo existen en B2B (por ejemplo, «(2.2) Entre 11 a 50 kg»), no hay registros B2C que mostrar. Tocá <span class="ui">Limpiar</span> o quitá esos filtros.</p></div>
           </details>
           <details>
             <summary>Marqué contratos pero mis compañeros no los ven</summary>
@@ -343,13 +364,14 @@
       <section id="glosario" aria-labelledby="h-glosario">
         <h2 id="h-glosario"><span class="guia__num" aria-hidden="true">6</span>Glosario</h2>
         <dl class="glosario">
-          <dt>Registro</dt><dd>Combinación de N° contrato + tipo de servicio + servicio. Es la unidad mínima de la base y de la migración.</dd>
-          <dt>Servicio agrupado</dt><dd>Grupo de servicios dentro de un tipo de servicio (por ejemplo, «(1.1) Envío Geolocalizado»). Viene en la descarga de Power BI. No cambia la clave del registro.</dd>
+          <dt>Canal</dt><dd>B2B (contratos que empiezan con 350 o 351) o B2C (el resto). Solo el B2C se migra a DMS.</dd>
+          <dt>Registro</dt><dd>Combinación de N° contrato + tipo de servicio + servicio (en B2B, también el servicio agrupado). Es la unidad mínima de la base y de la migración.</dd>
+          <dt>Servicio agrupado</dt><dd>Grupo de servicios dentro de un tipo de servicio (por ejemplo, «(1.1) Envío Geolocalizado»). Viene en la descarga de Power BI. En B2B indica la banda de peso.</dd>
           <dt>Base</dt><dd>Todos los registros con sus envíos por mes, guardados en GitHub.</dd>
           <dt>Descarga</dt><dd>Archivo exportado de Power BI que actualiza la base.</dd>
           <dt>Mes parcial</dt><dd>Mes en curso: sus envíos todavía no están completos y no cuentan para variaciones ni promedios.</dd>
           <dt>Mes completo</dt><dd>Mes ya cerrado.</dd>
-          <dt>Clientes internos</dt><dd>CORREO ANDREANI S.A. y ANDREANI ONLINE. Se excluyen de rankings y de la concentración top 10.</dd>
+          <dt>Clientes internos</dt><dd>CORREO ANDREANI S.A., ANDREANI ONLINE y el segmento Andreani. Se excluyen de rankings y de la concentración top 10.</dd>
           <dt>Migrado</dt><dd>Todos los registros del nivel están marcados como migrados a DMS.</dd>
           <dt>Parcial (migración)</dt><dd>Algunos registros del nivel están marcados.</dd>
           <dt>Pendiente</dt><dd>Ningún registro del nivel está marcado.</dd>
