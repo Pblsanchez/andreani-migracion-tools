@@ -16,7 +16,7 @@
   <div class="header__inner">
     <a class="brand" href="../" aria-label="Andreani, ir al portal de herramientas">Andreani</a>
     <span class="header__divider" aria-hidden="true"></span>
-    <p class="header__title">Migración Integra → DMS · Canal B2C</p>
+    <p class="header__title">Migración Integra → DMS · B2B + B2C</p>
     <div class="header__actions">
       <a class="icon-btn icon-btn--guia" id="btn-guia" href="guia.html" target="_blank" rel="noopener" aria-label="Guía de usuario (se abre en una pestaña nueva)" title="Guía de usuario">
         <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M21 5c-1.1-.35-2.3-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1Zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5Z"/></svg>
@@ -32,7 +32,7 @@
 
 <main id="contenido" tabindex="-1">
   <div class="page-head">
-    <h1>Universo de envíos B2C a migrar</h1>
+    <h1>Universo de envíos B2B + B2C</h1>
     <span id="estado-base"></span>
     <p class="page-head__meta" id="subtitulo">Cargando…</p>
     <details class="about">
@@ -41,8 +41,9 @@
         Acerca de los datos
       </summary>
       <div class="about__body">
-        <p>Envíos de los contratos y clientes de Grupo Logístico Andreani del canal B2C que se migran del sistema operativo <strong>Integra</strong> al nuevo sistema operativo <strong>DMS</strong>.</p>
-        <p>Estructura: Segmento › Razón social › Tipo de servicio › Servicio agrupado › Servicio › N° contrato.</p>
+        <p>Envíos de todos los contratos y clientes de Grupo Logístico Andreani, canales <strong>B2B</strong> y <strong>B2C</strong>. Lo que se migra del sistema operativo <strong>Integra</strong> al nuevo sistema operativo <strong>DMS</strong> es el canal <strong>B2C</strong>: la pestaña «Migración a DMS» muestra solo B2C.</p>
+        <p>Canal: si la descarga no trae la columna «Canal», los contratos que empiezan con 350 o 351 son B2B y el resto, B2C.</p>
+        <p>Estructura: Segmento › Razón social › Tipo de servicio › Servicio agrupado › Servicio › N° contrato. El canal es un filtro aparte.</p>
         <dl class="meta-list" id="about-meta"></dl>
       </div>
     </details>
@@ -74,6 +75,12 @@
           <button type="button" class="btn btn--ghost btn--small" id="btn-contraer">Contraer todo</button>
         </div>
         <div id="arbol"></div>
+      </div>
+    </section>
+    <section aria-labelledby="t-canal" class="sec">
+      <div class="panel">
+        <div class="panel__head"><div><h2 id="t-canal">Envíos por canal</h2><p class="panel__sub">B2B = contratos que empiezan con 350 o 351 · B2C = el resto. Clic en una barra para filtrar</p></div></div>
+        <div id="ch-canal"></div>
       </div>
     </section>
     <section aria-labelledby="t-seg" class="sec">
@@ -127,7 +134,7 @@
     <section aria-labelledby="t-calidad" class="sec">
       <div class="grid-3-1">
         <div class="panel">
-          <div class="panel__head"><div><h2 id="t-calidad">Calidad de datos</h2><p class="panel__sub">Sobre toda la base, sin filtros</p></div></div>
+          <div class="panel__head"><div><h2 id="t-calidad">Calidad de datos</h2><p class="panel__sub">Sobre toda la base (B2B + B2C), sin filtros</p></div></div>
           <ul class="quality" id="calidad"></ul>
         </div>
         <div class="panel">
@@ -153,18 +160,18 @@
     </section>
   </div>
 
-  <!-- ============ Pestaña 3: Migración a DMS ============ -->
+  <!-- ============ Pestaña 3: Migración a DMS (solo B2C, D-030) ============ -->
   <div id="vista-migracion" role="tabpanel" aria-labelledby="vtab-migracion" tabindex="-1" hidden>
     <div id="mig-aviso" aria-live="polite" class="sec--first"></div>
     <section aria-labelledby="t-mig-kpis" class="sec sec--first">
-      <h2 id="t-mig-kpis" class="sr-only">Avance de la migración</h2>
+      <h2 id="t-mig-kpis" class="sr-only">Avance de la migración (canal B2C)</h2>
       <ul class="kpis" id="mig-kpis"></ul>
     </section>
     <section aria-labelledby="t-mig-arbol" class="sec">
       <div class="panel">
         <div class="panel__head">
           <div><h2 id="t-mig-arbol" tabindex="-1">Marcar lo migrado a DMS</h2>
-            <p class="panel__sub">Marcá la casilla de un contrato, servicio, servicio agrupado, tipo, razón social o segmento completo. Para marcar un servicio en todos los clientes, filtralo arriba y usá «Marcar lo filtrado».</p></div>
+            <p class="panel__sub">Solo canal B2C, que es lo migrable. Marcá la casilla de un contrato, servicio, servicio agrupado, tipo, razón social o segmento completo. Para marcar un servicio en todos los clientes, filtralo arriba y usá «Marcar lo filtrado».</p></div>
         </div>
         <div class="toolbar" role="group" aria-label="Acciones de migración">
           <button type="button" class="btn btn--secondary btn--small" id="mig-marcar" data-fid="mig-marcar-btn">Marcar lo filtrado</button>
@@ -195,7 +202,7 @@
     <section aria-labelledby="t-mig-seg" class="sec">
       <div class="grid-3-1">
         <div class="panel">
-          <div class="panel__head"><div><h2 id="t-mig-seg">Avance por segmento</h2><p class="panel__sub">Respeta los filtros</p></div></div>
+          <div class="panel__head"><div><h2 id="t-mig-seg">Avance por segmento</h2><p class="panel__sub">Canal B2C · respeta los filtros</p></div></div>
           <div id="mig-segmentos"></div>
         </div>
         <div class="panel">
@@ -223,7 +230,7 @@
       </button>
     </div>
     <div class="modal__body" id="modal-body">
-      <p id="modal-desc" style="margin:0;font-size:14px;line-height:20px">Elegí el Excel (.xlsx) o CSV exportado de Power BI. Antes de cambiar nada vas a ver un resumen. Al confirmar, la base nueva queda lista para «Enviar a GitHub»; las marcas de migración no se pierden.</p>
+      <p id="modal-desc" style="margin:0;font-size:14px;line-height:20px">Elegí el Excel (.xlsx) o CSV exportado de Power BI (B2B + B2C). Antes de cambiar nada vas a ver un resumen. Al confirmar, la base nueva queda lista para «Enviar a GitHub»; las marcas de migración no se pierden.</p>
       <div class="drop" id="drop">
         <svg width="32" height="32" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Zm4 18H6V4h7v5h5v11ZM8 15h8v2H8v-2Zm0-4h8v2H8v-2Z"/></svg>
         <p><strong>Arrastrá el archivo acá</strong> o</p>
@@ -255,11 +262,12 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="chart-tip" id="tip" aria-hidden="true"></div>
 
-<!-- Los datos se leen de la rama "datos" del repo (matriz-envios/datos/*.json) — D-022 -->
+<!-- Los datos se leen de la rama "datos" del repo (matriz-envios/datos/*.json) — D-022. v1.7: B2B + B2C (D-030, D-032, D-033, D-034) -->
 <script src="matriz-lib.js"></script>
 <script src="matriz-ui.js"></script>
 <script src="matriz-sync.js"></script>
 <script src="matriz-vistas.js"></script>
+<script src="matriz-detalle.js"></script>
 <script src="matriz-app.js"></script>
 </body>
 </html>
