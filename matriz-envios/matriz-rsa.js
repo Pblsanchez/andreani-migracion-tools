@@ -129,8 +129,8 @@ function MATRIZ_RSA_VISTA(ctx) {
     porEnvio: { t: "ingreso por envío", v: function (o) { return o.envios ? o.ingreso / o.envios : null; } }
   };
   ui.rsaSort = ui.rsaSort || { key: "ingreso", dir: -1 };
-  function ordenar(lista) {
-    var s = ui.rsaSort, d = ORDEN[s.key] || ORDEN.ingreso;
+  function ordenar(lista, st) {
+    var s = st || ui.rsaSort, d = ORDEN[s.key] || ORDEN.ingreso;
     return lista.slice().sort(function (a, b) {
       var x = d.v(a), y = d.v(b);
       if (x == null || x === "") return y == null || y === "" ? 0 : 1;
@@ -176,29 +176,108 @@ function MATRIZ_RSA_VISTA(ctx) {
     a.href = URL.createObjectURL(blob); a.download = "ingreso-resultado-por-rsa.csv"; document.body.appendChild(a); a.click(); a.remove();
     toast("Se descargó el CSV con " + n(rows.length) + " RSA.");
   }
-  /* Matriz de priorización: envíos (x, raíz) contra rentabilidad (y); tamaño = ingreso. Top 60 por ingreso */
+  /* Matriz de priorización (top 60 por ingreso) en dos vistas del mismo panel: Gráfico y Lista.
+     Mucho/poco volumen = envíos por encima/debajo de la mediana de esos 60 RSA (línea punteada del gráfico). */
+  ui.prioVista = ui.prioVista || "grafico"; ui.prioSort = ui.prioSort || { key: "ingreso", dir: -1 }; ui.prioSel = ui.prioSel || null;
+  var GRUPOS = [["alta", "success", "Alta", "rentabilidad 15 % o más"], ["media", "warning", "Media", "rentabilidad entre 0 y 15 %"], ["negativa", "error", "Negativa", "resultado negativo"]];
+  function topPrio(C) {
+    var l = C.lista.filter(function (o) { return o.envios > 0 && o.ingreso > 0; }).slice(0, 60);
+    var e = l.map(function (o) { return o.envios; }).sort(function (a, b) { return a - b; }), k = e.length;
+    var med = !k ? 0 : k % 2 ? e[(k - 1) / 2] : (e[k / 2 - 1] + e[k / 2]) / 2;
+    l.forEach(function (o) {
+      o.nivel = R.nivel(o.rent); o.mucho = o.envios >= med;
+      o.ubic = !o.mucho ? "Poco volumen: candidato a piloto" : o.nivel === "alta" ? "Mucho volumen y rentable: migrar con cuidado" : "Mucho volumen, rentabilidad baja o negativa: revisar tarifas";
+    });
+    return { l: l, med: med };
+  }
   function renderPrio(C) {
     var c = $("rsa-prio"); c.innerHTML = "";
-    var l = C.lista.filter(function (o) { return o.envios > 0 && o.ingreso > 0; }).slice(0, 60);
+    var P = topPrio(C), l = P.l;
     if (!l.length) { c.appendChild(el("p", { "class": "panel__sub", text: "Sin RSA con envíos e ingreso para graficar." })); return; }
+    var bar = el("div", { "class": "rsa-vistas", role: "group", "aria-label": "Ver la matriz como" });
+    [["grafico", "Gráfico", "pie"], ["lista", "Lista", "grid"]].forEach(function (v) {
+      bar.appendChild(el("button", { type: "button", "class": "btn btn--small rsa-vistas__btn", id: "prio-ver-" + v[0], "aria-pressed": ui.prioVista === v[0] ? "true" : "false",
+        onclick: function () { ui.prioVista = v[0]; ui.prioSel = null; ctx.renderTodo(); $("prio-ver-" + v[0]).focus(); } }, [svgIcon(v[2], 16), v[1]]));
+    });
+    c.appendChild(bar);
+    c.appendChild(el("p", { "class": "panel__sub rsa-vistas__nota", text: n(l.length) + " RSA · mucho volumen = " + n(Math.ceil(P.med)) + " envíos o más (mediana de estos RSA)." }));
+    if (ui.prioVista === "lista") renderPrioLista(c, l); else renderPrioGrafico(c, l, P.med);
+  }
+  function irALista(id) {
+    ui.prioVista = "lista"; ui.prioSel = id; ctx.renderTodo();
+    var f = document.querySelector("[data-fid='prio-fila-" + id + "']"); if (f) { f.focus(); if (f.scrollIntoView) f.scrollIntoView({ block: "center" }); }
+  }
+  function renderPrioGrafico(c, l, med) {
     var W = 760, H = 380, L = 64, Rr = 24, T = 16, B = 44, maxE = 0, maxI = 0, yMin = -0.3, yMax = 0.6;
     l.forEach(function (o) { maxE = Math.max(maxE, o.envios); maxI = Math.max(maxI, o.ingreso); });
     function X(v) { return L + (W - L - Rr) * Math.sqrt(v / maxE); }
     function Y(v) { v = Math.max(yMin, Math.min(yMax, v)); return T + (H - T - B) * (yMax - v) / (yMax - yMin); }
-    var svg = s("svg", { "class": "chart", viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": "Matriz de priorización de los " + l.length + " RSA con más ingreso: envíos contra rentabilidad. El detalle está en la tabla de arriba." });
+    var svg = s("svg", { "class": "chart", viewBox: "0 0 " + W + " " + H, role: "group", "aria-label": "Matriz de priorización de los " + l.length + " RSA con más ingreso: envíos contra rentabilidad. Cada círculo abre su fila en la vista Lista." });
     [-0.2, 0, 0.15, 0.3, 0.45, 0.6].forEach(function (v) { svg.appendChild(s("line", { "class": v === 0 || v === 0.15 ? "axis-line" : "grid-line", x1: L, x2: W - Rr, y1: Y(v), y2: Y(v) })); svg.appendChild(s("text", { x: L - 6, y: Y(v) + 4, "text-anchor": "end" }, [pct(v)])); });
     [0, 0.25, 0.5, 1].forEach(function (p) { var v = maxE * p * p; svg.appendChild(s("text", { x: X(v), y: H - B + 18, "text-anchor": "middle" }, [U.corto(v)])); });
+    svg.appendChild(s("line", { "class": "grid-line rsa-mediana", x1: X(med), x2: X(med), y1: T, y2: H - B }));
+    svg.appendChild(s("text", { x: X(med) + 4, y: T + 12 }, ["Mediana de envíos"]));
     svg.appendChild(s("text", { x: (L + W - Rr) / 2, y: H - 6, "text-anchor": "middle" }, ["Envíos del período (escala raíz cuadrada)"]));
     l.slice().reverse().forEach(function (o) {
-      var cls = { alta: "dot-ok", media: "dot-warn", negativa: "dot-err", sin: "dot-warn" }[R.nivel(o.rent)];
-      var g = s("g", { tabindex: "0", role: "img", "aria-label": o.id + " " + o.nombre + ": " + n(o.envios) + " envíos, ingreso " + ars(o.ingreso) + ", rentabilidad " + pct(o.rent) });
-      g.appendChild(s("title", null, [o.id + " · " + o.nombre + " — " + n(o.envios) + " envíos · " + ars(o.ingreso) + " · " + pct(o.rent)]));
+      var cls = { alta: "dot-ok", media: "dot-warn", negativa: "dot-err", sin: "dot-warn" }[o.nivel];
+      var g = s("g", { tabindex: "0", role: "button", "class": "rsa-punto", "data-fid": "prio-punto-" + o.id, "aria-label": o.id + " " + o.nombre + ": " + n(o.envios) + " envíos, ingreso " + ars(o.ingreso) + ", rentabilidad " + pct(o.rent) + ". Ver en la lista" });
+      g.appendChild(s("title", null, [o.id + " · " + o.nombre + " — " + n(o.envios) + " envíos · " + ars(o.ingreso) + " · " + pct(o.rent) + " (clic: ver en la lista)"]));
       g.appendChild(s("circle", { "class": "dot " + cls, cx: X(o.envios).toFixed(1), cy: Y(o.rent).toFixed(1), r: (4 + 18 * Math.sqrt(o.ingreso / maxI)).toFixed(1) }));
+      g.addEventListener("click", function () { irALista(o.id); });
+      g.addEventListener("keydown", function (ev) { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); irALista(o.id); } });
       svg.appendChild(g);
     });
     c.appendChild(svg);
     c.appendChild(el("ul", { "class": "legend", "aria-label": "Referencias" }, [["dot-ok", "Alta (≥ 15 %)"], ["dot-warn", "Media (0–15 %)"], ["dot-err", "Negativa (< 0)"]].map(function (x) {
       return el("li", null, [el("span", { "class": "sw sw--" + x[0], "aria-hidden": "true" }), x[1]]); })));
+  }
+  function renderPrioLista(c, l) {
+    var tot = 0; l.forEach(function (o) { tot += o.ingreso; });
+    c.appendChild(el("div", { "class": "rsa-lista__acc" }, [el("button", { type: "button", "class": "btn btn--secondary btn--small", id: "prio-csv", onclick: function () { exportarPrio(l); } }, [svgIcon("download", 16), "Exportar lista (CSV)"])]));
+    GRUPOS.forEach(function (G) {
+      var gl = ordenar(l.filter(function (o) { return o.nivel === G[0]; }), ui.prioSort);
+      var t = { ing: 0, res: 0, raz: 0 }; gl.forEach(function (o) { t.ing += o.ingreso; t.res += o.resultado; t.raz += o.razones.length; });
+      var hid = "prio-grupo-" + G[0];
+      var sec = el("section", { "class": "rsa-grupo", "aria-labelledby": hid });
+      sec.appendChild(el("h3", { id: hid, "class": "rsa-grupo__titulo" }, [U.badge(G[1], G[2]), " " + n(gl.length) + " RSA · " + n(t.raz) + " razones sociales · " + ars(t.ing) + " (" + pct(tot ? t.ing / tot : 0) + " del ingreso de la lista)" + (gl.length ? " · Rentabilidad del grupo " + pct(R.rentab(t.ing, t.res)) : "")]));
+      sec.appendChild(el("p", { "class": "panel__sub", text: "Grupo " + G[2] + ": " + G[3] + "." }));
+      if (!gl.length) { sec.appendChild(el("p", { "class": "panel__sub", text: "Ningún RSA de la lista está en este grupo." })); c.appendChild(sec); return; }
+      var tb = U.tabla([
+        { t: "RSA", key: "nombre", f: function (o) { return o.id + " · " + o.nombre; } },
+        { t: "Razones sociales", key: "razones", f: function (o) { return el("ul", { "class": "rsa-razones" }, o.razones.map(function (r) { return el("li", { text: r }); })); } },
+        { t: "Tipo de cuenta", key: "tipo", f: function (o) { return o.tipo || "—"; } },
+        { t: "Envíos", key: "envios", n: 1, f: function (o) { return n(o.envios); } }, { t: "Ingreso", key: "ingreso", n: 1, f: function (o) { return ars(o.ingreso); } },
+        { t: "Resultado", key: "resultado", n: 1, f: function (o) { return ars(o.resultado); } }, { t: "Rentabilidad", key: "rent", n: 1, f: function (o) { return pct(o.rent); } },
+        { t: "Ubicación en la matriz", f: function (o) { return o.ubic; } }
+      ], gl, { caption: "Grupo " + G[2] + " de la matriz de priorización: " + gl.length + " RSA.", sort: ui.prioSort, onSort: function (k) { cambiarOrdenPrio(k, G[0]); } });
+      var keys = ["nombre", "razones", "tipo", "envios", "ingreso", "resultado", "rent"];
+      Array.prototype.forEach.call(tb.querySelectorAll(".th-sort"), function (b, i) { b.setAttribute("data-fid", "prio-orden-" + G[0] + "-" + keys[i]); });
+      var tbody = tb.querySelectorAll("tbody")[0];
+      Array.prototype.forEach.call(tbody ? tbody.children : [], function (tr, i) {
+        var o = gl[i]; if (!o) return;
+        tr.setAttribute("data-fid", "prio-fila-" + o.id); tr.setAttribute("tabindex", "-1");
+        if (o.id === ui.prioSel) tr.classList.add("rsa-fila--sel");
+      });
+      sec.appendChild(el("div", { "class": "table-wrap" }, [tb]));
+      c.appendChild(sec);
+    });
+  }
+  function cambiarOrdenPrio(key, grupo) {
+    var s = ui.prioSort;
+    if (s.key === key) s.dir = -s.dir; else { s.key = key; s.dir = ORDEN[key].txt ? 1 : -1; }
+    ctx.renderTodo();
+    var b = document.querySelector("[data-fid='prio-orden-" + grupo + "-" + key + "']"); if (b) b.focus();
+  }
+  function exportarPrio(l) {
+    var cab = ["Grupo", "ID RSA", "RSA", "Razones sociales", "Tipo de cuenta", "Envíos", "Ingreso", "Costos", "Resultado", "Rentabilidad", "Volumen", "Ubicación en la matriz"], rows = [];
+    GRUPOS.forEach(function (G) {
+      ordenar(l.filter(function (o) { return o.nivel === G[0]; }), ui.prioSort).forEach(function (o) {
+        rows.push([G[2], o.id, o.nombre, o.razones.join(" | "), o.tipo, o.envios, Math.round(o.ingreso), Math.round(o.costos), Math.round(o.resultado), (o.rent * 100).toFixed(2).replace(".", ",") + " %", o.mucho ? "Mucho" : "Poco", o.ubic]);
+      });
+    });
+    var blob = new Blob(["\uFEFF" + R.aCSV(cab, rows)], { type: "text/csv;charset=utf-8" }), a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "matriz-priorizacion-rsa.csv"; document.body.appendChild(a); a.click(); a.remove();
+    toast("Se descargó la lista con " + n(rows.length) + " RSA.");
   }
   function renderEvo(C) {
     var c = $("rsa-evo"); c.innerHTML = "";

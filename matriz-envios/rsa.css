@@ -23,4 +23,18 @@
 .sw--dot-warn { background: var(--c-color-surface-warning); }
 .sw--dot-err, .sw--bar-neg { background: var(--c-color-fill-primary); }
 .sw--bar-ing { background: var(--c-color-fill-info); }
+/* Matriz de priorización: Gráfico / Lista (v1.8.2) */
+.rsa-vistas { display: inline-flex; gap: var(--c-spacing-1); padding: 2px; border: 1px solid var(--c-color-border-strong); border-radius: var(--c-border-radius-xlarge); margin-bottom: var(--c-spacing-2); }
+.rsa-vistas__btn { background: transparent; color: var(--c-color-text-strong); }
+.rsa-vistas__btn:hover { background: var(--c-color-fill-neutral); }
+.rsa-vistas__btn[aria-pressed="true"] { background: var(--c-color-fill-primary-subtle); color: var(--c-color-text-error-strong); }
+.rsa-vistas__nota { margin: 0 0 var(--c-spacing-3); }
+.rsa-lista__acc { display: flex; justify-content: flex-end; margin-bottom: var(--c-spacing-2); }
+.rsa-grupo { margin-top: var(--c-spacing-4); }
+.rsa-grupo__titulo { display: flex; flex-wrap: wrap; align-items: center; gap: var(--c-spacing-2); font-size: 14px; line-height: 20px; }
+.rsa-razones { margin: 0; padding: 0; list-style: none; }
+.rsa-fila--sel td { background: var(--c-color-surface-info-subtle); }
+tr[tabindex="-1"]:focus { outline: 2px solid transparent; box-shadow: inset 0 0 0 3px var(--c-blue-600); }
+.chart .rsa-punto { cursor: pointer; }
+.chart .rsa-mediana { stroke: var(--c-color-border-strong); }
 @media (max-width: 599px) { .rsa-bases li { flex-direction: column; align-items: flex-start; } .rsa-barra .input--select { max-width: none; width: 100%; } }
