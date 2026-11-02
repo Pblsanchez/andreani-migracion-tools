@@ -1,10 +1,41 @@
-/* ==VISTAS-START== Gráficos SVG, rankings y calidad de datos. Recibe el estado del dashboard (base, filtros, ui). */
+/* ==VISTAS-START== Gráficos SVG, KPIs, filtro Canal, rankings y calidad de datos. Recibe el estado del dashboard (base, filtros, ui). */
 var MATRIZ_VISTAS = function (ctx) {
   "use strict";
   var M = MATRIZ, U = MATRIZ_UI;
   var n = U.n, pct = U.pct, corto = U.corto, fecha = U.fecha, $ = U.$, el = U.el, svgIcon = U.svgIcon, badge = U.badge, alerta = U.alerta, toast = U.toast, share = U.share, tabla = U.tabla;
   var ui = ctx.ui, base = null, f = null;
   function cambio() { ctx.cambio(); }
+  /* ---------- Filtro Canal (D-030, D-032): primer filtro de la barra; en Migración a DMS queda fijo en B2C ---------- */
+  function barraCanal(c) {
+    if (f.canalFijo) {
+      c.appendChild(el("div", { "class": "ms", "data-ms": "canal-fijo" }, [el("span", { "class": "ms__btn ms__btn--activo", role: "note", title: "En Migración a DMS solo se muestra el canal B2C, que es lo migrable (D-030)",
+        "aria-label": "Canal: B2C fijo. En Migración a DMS solo se muestra el canal B2C, que es lo migrable." }, [el("span", { "class": "ms__lab" }, ["Canal"]), el("span", { "class": "ms__val" }, [f.canalFijo + " (fijo)"])])]));
+    } else {
+      c.appendChild(U.multiSelect({ id: "canales", etiqueta: "Canal", seleccion: f.canales, onCambio: cambio,
+        opciones: function () { return M.opcionesCanal(base, f.meses.length ? base.meses.filter(function (m) { return f.meses.indexOf(m) >= 0; }) : base.meses); } }));
+    }
+    c.appendChild(el("span", { "class": "barra__sep", "aria-hidden": "true" }, ["·"]));
+  }
+  /* ---------- KPIs ---------- */
+  function kpiCard(icono, titulo, valor, sub, extra) {
+    return el("li", { "class": "kpi" }, [el("span", { "class": "kpi__label" }, [svgIcon(icono, 20), titulo]), el("span", { "class": "kpi__value" }, [valor]), extra || null, el("span", { "class": "kpi__sub" }, [sub])]);
+  }
+  function renderKpis(k) {
+    var c = $("kpis"); c.innerHTML = "";
+    var varEl = "—";
+    if (k.variacion != null) { var up = k.variacion >= 0; varEl = el("span", { "class": "trend trend--" + (up ? "up" : "down") }, [svgIcon(up ? "up" : "down", 20), (up ? "Sube " : "Baja ") + pct(Math.abs(k.variacion))]); }
+    var pc = k.porCanal || { B2B: 0, B2C: 0 };
+    [["box", "Envíos", n(k.envios), k.meses.length + (k.meses.length === 1 ? " mes" : " meses") + (base.mesParcial && k.meses.indexOf(base.mesParcial) >= 0 ? " · incluye " + M.mesTxt(base.mesParcial) + " parcial" : "")],
+      ["half", "Participación B2C", pct(k.envios ? pc.B2C / k.envios : 0), n(pc.B2C) + " B2C · " + n(pc.B2B) + " B2B"],
+      ["user", "Clientes", n(k.clientes), "Razones sociales con envíos"],
+      ["doc", "Contratos", n(k.contratos), k.mesUltimo ? n(k.contratosActivos) + " activos en " + M.mesTxt(k.mesUltimo) : ""],
+      ["cal", "Promedio mensual", n(k.promedioMensual), n(k.enviosPorContrato) + " envíos por contrato"],
+      ["trend", "Variación mensual", varEl, k.mesUltimo && k.mesPrevio ? M.mesTxt(k.mesUltimo) + " vs " + M.mesTxt(k.mesPrevio) + " (meses completos)" : "Se necesitan 2 meses completos"],
+      ["pie", "Concentración top 10", pct(k.concentracionTop10), "Sin clientes internos"],
+      ["star", "Clientes nuevos", n(k.clientesNuevos), "Primer envío después de " + M.mesTxt(base.meses[0])],
+      ["grid", "Servicios", n(k.servicios), (k.agrupados != null ? n(k.agrupados) + " agrupados · " : "") + n(k.segmentos) + " segmentos"]
+    ].forEach(function (it) { c.appendChild(kpiCard(it[0], it[1], it[2], it[3])); });
+  }
   /* ---------- Gráficos SVG ---------- */
   var NS = "http://www.w3.org/2000/svg";
   function s(tag, attrs, kids) {
@@ -105,9 +136,10 @@ var MATRIZ_VISTAS = function (ctx) {
     if (nombre === M.SIN_RS) return el("span", { text: nombre });
     return el("button", { type: "button", "class": "linkbtn", title: "Filtrar por este cliente", onclick: function () { if (f.clientes.indexOf(nombre) < 0) { f.clientes.push(nombre); cambio(); toast("Filtro: Razón social = " + nombre); } } }, [nombre]);
   }
-  /* Rankings y pestañas: sin clientes internos (D-016) ni filas sin contrato */
-  function paraRanking(regs) { return regs.filter(function (r) { return r.cliente && !M.esInterno(r.cliente) && r.contrato !== M.SIN_CON; }); }
-  function notaInternos() { return el("p", { "class": "tab-note", style: "margin:var(--c-spacing-3) 0 0" }, ["No incluye clientes internos (" + M.INTERNOS.join(", ") + ") ni registros sin razón social."]); }
+  /* Rankings y pestañas: sin clientes ni segmentos internos (D-016, D-034) ni filas sin contrato */
+  function paraRanking(regs) { return regs.filter(function (r) { return r.cliente && !M.esInternoReg(r) && r.contrato !== M.SIN_CON; }); }
+  function txtInternos() { return "No incluye clientes internos (" + M.internosTxt() + ") ni registros sin razón social."; }
+  function notaInternos() { return el("p", { "class": "tab-note", style: "margin:var(--c-spacing-3) 0 0" }, [txtInternos()]); }
   function renderRankings(regs, k) {
     regs = paraRanking(regs);
     var porCli = M.agrupar(regs.filter(function (r) { return M.sumaMeses(r, k.meses) > 0; }), M.cliDe, k.meses);
@@ -153,7 +185,7 @@ var MATRIZ_VISTAS = function (ctx) {
         { t: "Variación", n: 1, f: function (r) { return r.pct == null ? "Nuevo" : pct(r.pct, true); } }];
     } else if (ui.tab === "contratos") {
       nota = "Envíos del período filtrado por contrato.";
-      var porC = {}; regs.forEach(function (r) { var g = porC[r.contrato] || (porC[r.contrato] = { contrato: r.contrato, cliente: M.cliDe(r), servicios: [], envios: 0 }); g.servicios.push(r.servicio); g.envios += M.sumaMeses(r, k.meses); });
+      var porC = {}; regs.forEach(function (r) { var g = porC[r.contrato] || (porC[r.contrato] = { contrato: r.contrato, cliente: M.cliDe(r), servicios: [], envios: 0 }); if (g.servicios.indexOf(r.servicio) < 0) g.servicios.push(r.servicio); g.envios += M.sumaMeses(r, k.meses); });
       filas = Object.keys(porC).map(function (x) { return porC[x]; }).filter(function (r) { return r.envios > 0; }).sort(function (a, b) { return b.envios - a.envios; });
       cols = [{ t: "Contrato", f: function (r) { return r.contrato; }, cls: "num" }, { t: "Cliente", f: function (r) { return linkCliente(r.cliente); } }, { t: "Servicios", f: function (r) { return r.servicios.join(", "); } },
         { t: "Envíos", n: 1, f: function (r) { return n(r.envios); } }, { t: "Participación", n: 1, f: function (r) { return share(r.envios, k.envios); } }];
@@ -177,7 +209,7 @@ var MATRIZ_VISTAS = function (ctx) {
       filas = M.clientesNuevos(base, regs);
       cols = [{ t: "Cliente", f: function (r) { return linkCliente(r.clave); } }, { t: "Primer mes", f: function (r) { return M.mesTxt(r.mes); } }, { t: "Envíos desde entonces", n: 1, f: function (r) { return n(r.envios); } }];
     }
-    p.appendChild(el("p", { "class": "tab-note" }, [nota + " " + n(filas.length) + " en total. No incluye clientes internos (" + M.INTERNOS.join(", ") + ") ni registros sin razón social."]));
+    p.appendChild(el("p", { "class": "tab-note" }, [nota + " " + n(filas.length) + " en total. " + txtInternos()]));
     p.appendChild(el("div", { "class": "table-wrap" }, [tabla(cols, filas.slice(0, LIM), { caption: TABS.filter(function (x) { return x.id === ui.tab; })[0].t })]));
     if (filas.length > 15) p.appendChild(el("div", { "class": "pager" }, [el("span", { text: "Mostrando " + n(Math.min(LIM, filas.length)) + " de " + n(filas.length) }),
       el("button", { type: "button", "class": "btn btn--ghost btn--small", onclick: function () { ui.verTodoTab = !ui.verTodoTab; renderTabs(regs, k); } }, [ui.verTodoTab ? "Ver menos" : "Ver todos (hasta 500)"])]));
@@ -196,6 +228,7 @@ var MATRIZ_VISTAS = function (ctx) {
 
   /* Cada llamada toma la base y los filtros actuales del dashboard */
   function con(fn) { return function () { base = ctx.base(); f = ctx.f(); return fn.apply(null, arguments); }; }
-  return { chartEvolucion: con(chartEvolucion), chartMix: con(chartMix), chartBarras: con(chartBarras), renderRankings: con(renderRankings), renderTabs: con(renderTabs), renderCalidad: con(renderCalidad), linkCliente: con(linkCliente) };
+  return { chartEvolucion: con(chartEvolucion), chartMix: con(chartMix), chartBarras: con(chartBarras), renderRankings: con(renderRankings), renderTabs: con(renderTabs), renderCalidad: con(renderCalidad), linkCliente: con(linkCliente),
+    barraCanal: con(barraCanal), renderKpis: con(renderKpis), kpiCard: kpiCard };
 };
 /* ==VISTAS-END== */
