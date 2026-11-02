@@ -429,4 +429,4 @@ function MATRIZ_RSA_VISTA(ctx) {
   return { render: render, datos: datos, recalcular: recalcular, calcular: calcular, razonesBase: razonesBase };
 }
 if (typeof module !== "undefined" && module.exports) module.exports = MATRIZ_RSA_VISTA;
-/* ==RSA-VISTA-END==
+/* ==RSA-VISTA-END== */
