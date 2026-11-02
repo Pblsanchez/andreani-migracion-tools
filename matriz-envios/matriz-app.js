@@ -1,19 +1,19 @@
-/* ==APP-START== Interfaz del dashboard: Resumen · Análisis · Migración a DMS */
+/* ==APP-START== Interfaz del dashboard: Resumen · Ingreso y resultado · Análisis · Migración a DMS */
 (function () {
   "use strict";
   var M = MATRIZ, U = MATRIZ_UI, S = MATRIZ_SYNC;
   var n = U.n, pct = U.pct, corto = U.corto, fecha = U.fecha, $ = U.$, el = U.el, svgIcon = U.svgIcon, badge = U.badge, alerta = U.alerta, toast = U.toast, share = U.share, tabla = U.tabla;
-  var LS_TOKEN = "andreani.matriz-envios.github.token", LS_PEND = "andreani.matriz-envios.pendientes.v2", LS_VIEJA = "andreani.matriz-envios.base.v1";
+  var LS_TOKEN = "andreani.matriz-envios.github.token", LS_PEND = "andreani.matriz-envios.pendientes.v2";
   /* Pendientes sin enviar: IndexedDB (D-035). LS_PEND solo se lee una vez para pasar lo que hubiera de la v1.7 */
   var ALM = new S.Almacen(), K_PEND = "pendientes.v3";
 
   /* ---------- Estado ---------- */
-  var VISTAS = [{ id: "resumen", t: "Resumen" }, { id: "analisis", t: "Análisis" }, { id: "migracion", t: "Migración a DMS" }];
+  var VISTAS = [{ id: "resumen", t: "Resumen" }, { id: "ingreso", t: "Ingreso y resultado" }, { id: "analisis", t: "Análisis" }, { id: "migracion", t: "Migración a DMS" }];
   var base = null, f, ui = { vista: "resumen", tab: "crec", sortKey: "jer", sortDir: 1, page: 0, pageSize: 25, verTodoTab: false, abiertos: {}, limites: {}, migAbiertos: {}, migLimites: {}, migVer: "todo", deshacer: null };
   /* Sincronización con GitHub (D-035): los datos viven en un repo PRIVADO; solo los ve quien conecta su clave, edita quien tiene permiso de escritura.
-     rsa = vínculos razón social → RSA y rentabilidad (pestaña «Ingreso y resultado», D-031); rsaCambiado = cuáles hay que enviar */
+     rsa = vínculos razón social → RSA y fuentes de ingreso {ruta: CSV} (pestaña «Ingreso y resultado», D-031, D-037); rsaCambiado = cuáles hay que enviar */
   var gh = { cliente: null, usuario: null, puede: false, sha: null, pendientes: [], baseCambiada: false, cargando: true, enviando: false, error: null, errorEnvio: null, ultimaCarga: 0, migSola: null, baseRemotaAct: null, recuperados: false,
-    rsa: { vinculos: null, rent: null }, rsaCambiado: {}, pendGuardado: null };
+    rsa: { vinculos: null, fuentes: null }, rsaCambiado: {}, pendGuardado: null };
   function leerLS(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   gh.cliente = new S.Cliente(leerLS(LS_TOKEN));
   /* Canal (D-030; fijo en B2C en Migración) + un filtro por cada nivel de M.NIVELES (D-029) + período y texto */
@@ -24,12 +24,12 @@
 
   function editor() { return gh.puede && !!gh.usuario; }
   function conClave() { return !!gh.cliente.token; }
-  function rsaPend() { return !!(gh.rsaCambiado.vinculos || gh.rsaCambiado.rent); }
+  function rsaPend() { return !!(gh.rsaCambiado.vinculos || gh.rsaCambiado.fuentes); }
   function hayPend() { return gh.pendientes.length > 0 || gh.baseCambiada || rsaPend(); }
   function migVacia() { return { marcas: {}, historial: [] }; }
   /* Carga los datos desde GitHub. silencioso = revisión automática (no reemplaza si no hubo cambios). Sin clave no se lee nada (repo privado). */
   function cargarRemoto(silencioso) {
-    if (!conClave()) { gh.cargando = false; gh.error = null; base = null; gh.rsa = { vinculos: null, rent: null }; renderTodo(); return Promise.resolve(false); }
+    if (!conClave()) { gh.cargando = false; gh.error = null; base = null; gh.rsa = { vinculos: null, fuentes: null }; renderTodo(); return Promise.resolve(false); }
     gh.cargando = !silencioso; if (!silencioso) renderTodo();
     return gh.cliente.cargar().then(function (d) {
       gh.cargando = false; gh.error = null; gh.ultimaCarga = Date.now();
@@ -37,7 +37,7 @@
       gh.sha = d.sha; gh.baseRemotaAct = d.base ? d.base.actualizado : null; gh.migSola = d.mig;
       base = d.base || null;
       if (base) base.migracion = d.mig || migVacia();
-      gh.rsa = { vinculos: d.vinculos || null, rent: d.rent || null };
+      gh.rsa = { vinculos: d.vinculos || null, fuentes: d.fuentes || null };
       restaurarPendientes();
       if (base) M.podar(base, f);
       renderTodo();
@@ -57,7 +57,7 @@
   /* Cambios sin enviar: se guardan en IndexedDB para no perderlos si se cierra la página */
   function guardarPendientes() {
     var p = hayPend() ? { ops: gh.pendientes, base: gh.baseCambiada ? sinMig(base) : null,
-      rsa: rsaPend() ? { vinculos: gh.rsaCambiado.vinculos ? gh.rsa.vinculos : null, rent: gh.rsaCambiado.rent ? gh.rsa.rent : null } : null } : null;
+      rsa: rsaPend() ? { vinculos: gh.rsaCambiado.vinculos ? gh.rsa.vinculos : null, fuentes: gh.rsaCambiado.fuentes ? gh.rsa.fuentes : null } : null } : null;
     gh.pendGuardado = p;
     (p ? ALM.set(K_PEND, p) : ALM.del(K_PEND)).catch(function () { toast("No se pudieron guardar los cambios pendientes en este navegador. Enviá a GitHub para no perderlos."); });
     renderSync();
@@ -69,7 +69,7 @@
     if (!p) return;
     if (p.base) { var mig = base ? base.migracion : (gh.migSola || migVacia()); base = p.base; base.migracion = mig; gh.baseCambiada = true; }
     if (p.ops && p.ops.length && base) { S.aplicarPendientes(base.migracion, p.ops); gh.pendientes = p.ops; }
-    if (p.rsa) ["vinculos", "rent"].forEach(function (t) { if (p.rsa[t]) { gh.rsa[t] = p.rsa[t]; gh.rsaCambiado[t] = true; } });
+    if (p.rsa) ["vinculos", "fuentes"].forEach(function (t) { if (p.rsa[t]) { gh.rsa[t] = p.rsa[t]; gh.rsaCambiado[t] = true; } });
     gh.recuperados = hayPend();
   }
   /* Pendientes guardados: IndexedDB; si no hay, lo que quedó en localStorage de la v1.7 (se pasa y se borra) */
@@ -117,7 +117,7 @@
         if (gh.pendientes.length || !d.mig) archivos[S.CFG.mig] = S.serializarMig(mig);
         if (gh.baseCambiada) archivos[S.CFG.base] = S.serializarBase(baseFinal);
         if (gh.rsaCambiado.vinculos && gh.rsa.vinculos) { archivos[S.CFG.vinculos] = S.serializarLista(gh.rsa.vinculos, "vinculos"); extras.push("Vínculos razón social → RSA: " + (gh.rsa.vinculos.vinculos || []).length + " razones sociales"); }
-        if (gh.rsaCambiado.rent && gh.rsa.rent) { archivos[S.CFG.rent] = S.serializarLista(gh.rsa.rent, "rsa"); extras.push("Rentabilidad por RSA: " + (gh.rsa.rent.rsa || []).length + " RSA" + (gh.rsa.rent.archivo ? " (" + gh.rsa.rent.archivo + ")" : "")); }
+        if (gh.rsaCambiado.fuentes && gh.rsa.fuentes) { Object.keys(gh.rsa.fuentes).forEach(function (r) { archivos[r] = gh.rsa.fuentes[r]; }); extras.push("Bases de ingreso (D-037): " + Object.keys(gh.rsa.fuentes).length + " archivos en " + S.CFG.fuentes + "/"); }
         return gh.cliente.escribir(archivos, S.mensajeCommit(gh.pendientes, gh.baseCambiada, baseFinal, extras), d.sha)
           .then(function (sha) { return { sha: sha, base: baseFinal, mig: mig }; });
       }).catch(function (e) { if (e.conflicto && intento < 3) return uno(); throw e; });
@@ -228,10 +228,11 @@
   function renderBarra() {
     var c = $("barra"); c.innerHTML = "";
     V.barraCanal(c);
-    M.NIVELES.forEach(function (N, i) {
+    var nv = ui.vista === "ingreso" ? 2 : M.NIVELES.length; /* D-031: tipo, agrupado, servicio y contrato no aplican a los montos */
+    M.NIVELES.slice(0, nv).forEach(function (N, i) {
       c.appendChild(U.multiSelect({ id: N.id, num: i + 1, etiqueta: N.nombre, seleccion: f[N.id], onCambio: cambio,
         opciones: function () { return M.opciones(base, f, i, mesesSel()); } }));
-      if (i < M.NIVELES.length - 1) c.appendChild(el("span", { "class": "barra__sep", "aria-hidden": "true" }, ["›"]));
+      if (i < nv - 1) c.appendChild(el("span", { "class": "barra__sep", "aria-hidden": "true" }, ["›"]));
     });
     c.appendChild(U.multiSelect({ id: "meses", etiqueta: "Período", seleccion: f.meses, formato: M.mesTxt, onCambio: cambio,
       opciones: function () {
@@ -267,6 +268,9 @@
   /* Detalle, exportaciones, importación de contratos y resumen de carga: matriz-detalle.js */
   var D = MATRIZ_DETALLE({ base: function () { return base; }, f: function () { return f; }, ui: ui, linkCliente: function (x) { return linkCliente(x); }, hoyISO: function () { return hoyISO(); },
     aplicarMarca: function (a, b, c, d) { return aplicarMarca(a, b, c, d); }, renderTodo: function () { return renderTodo(); } });
+  /* Pestaña «Ingreso y resultado»: matriz-rsa.js (D-031, D-037) */
+  var RV = MATRIZ_RSA_VISTA({ base: function () { return base; }, f: function () { return f; }, ui: ui, gh: gh, editor: function () { return editor(); },
+    cambiarRSA: function (t, o) { return cambiarRSA(t, o); }, cambio: function () { cambio(); }, renderTodo: function () { return renderTodo(); }, abrirGh: function () { return abrirGh(); } });
   var renderDetalle = D.renderDetalle, exportarCSV = D.exportarCSV, exportarMigracion = D.exportarMigracion, importarContratos = D.importarContratos;
 
   /* ---------- Árbol jerárquico (Resumen y Migración) ----------
@@ -453,7 +457,7 @@
   /* ---------- Conexión con GitHub: matriz-gh.js ---------- */
   var G = MATRIZ_GH({ gh: gh, LS_TOKEN: LS_TOKEN, editor: editor, hayPend: hayPend, pendTxt: pendTxt, abrirDialogo: abrirDialogo, cerrarDialogo: cerrarDialogo,
     cargarRemoto: function (x) { return cargarRemoto(x); }, renderTodo: function () { return renderTodo(); }, olvidarClave: olvidarClave,
-    limpiarDatos: function () { base = null; gh.rsa = { vinculos: null, rent: null }; gh.pendientes = []; gh.baseCambiada = false; gh.rsaCambiado = {}; } });
+    limpiarDatos: function () { base = null; gh.rsa = { vinculos: null, fuentes: null }; gh.pendientes = []; gh.baseCambiada = false; gh.rsaCambiado = {}; } });
   function abrirGh() { return G.abrirGh(); }
   function verificarGuardada() { return G.verificarGuardada(); }
 
@@ -472,25 +476,7 @@
     if (!editor()) { c.appendChild(el("p", { text: "Cuando se cargue la primera descarga de Power BI la vas a ver acá. Tu clave es de solo lectura: para cargarla hace falta «Contents: Read and write»." })); return; }
     c.appendChild(el("p", { text: "Cargá el Excel de la Matriz de Envíos (formato oficial: data (27).xlsx, B2B + B2C con «Servicio Agrupado») y después tocá «Enviar a GitHub»." }));
     var acc = el("div", { "class": "vacio__acciones" }, [el("button", { type: "button", "class": "btn btn--primary", id: "vacio-cargar", onclick: abrirModal }, [svgIcon("upload", 16), "Cargar Excel de Power BI"])]);
-    var vieja = null; try { vieja = JSON.parse(leerLS(LS_VIEJA) || "null"); } catch (e) { vieja = null; }
-    if (vieja && vieja.registros && vieja.fuente !== "demo") {
-      var nm = vieja.migracion && vieja.migracion.marcas ? Object.keys(vieja.migracion.marcas).length : 0;
-      acc.appendChild(el("button", { type: "button", "class": "btn btn--secondary", id: "vacio-vieja", onclick: function () { usarVieja(vieja); } },
-        ["Usar la base guardada en este navegador (" + n(vieja.registros.length) + " registros" + (nm ? ", " + n(nm) + " marcas de migración" : "") + ", " + fecha(vieja.actualizado) + ")"]));
-    }
     c.appendChild(acc);
-  }
-  function usarVieja(v) {
-    var marcas = v.migracion && v.migracion.marcas ? v.migracion.marcas : {};
-    base = v; base.migracion = migVacia(); gh.baseCambiada = true;
-    var cambios = Object.keys(marcas).map(function (k) { return { k: k, v: marcas[k] }; });
-    if (cambios.length) {
-      var hh = { fecha: new Date().toISOString(), accion: "Marcado como migrado", registros: cambios.length, desc: "marcas guardadas en el navegador", usuario: gh.usuario };
-      S.aplicarPendientes(base.migracion, [{ cambios: cambios, hist: hh }]);
-      gh.pendientes.push({ cambios: cambios, hist: hh });
-    }
-    guardarPendientes(); renderTodo();
-    toast("Se cargó la base guardada en este navegador. Tocá «Enviar a GitHub» para guardarla para todos.");
   }
   function leerArchivo(file) {
     var res = $("modal-resultado"); res.innerHTML = "";
@@ -546,7 +532,9 @@
     }
     f.canalFijo = ui.vista === "migracion" ? "B2C" : ""; /* D-030: Migración a DMS = solo B2C */
     renderBase(); renderBarra(); renderVistas();
-    var regs = M.filtrar(base, f), k = M.kpis(base, regs, f.meses);
+    var fe = f;
+    if (ui.vista === "ingreso") { fe = {}; Object.keys(f).forEach(function (x) { fe[x] = f[x]; }); M.NIVELES.slice(2).forEach(function (N) { fe[N.id] = []; }); }
+    var regs = M.filtrar(base, fe), k = M.kpis(base, regs, f.meses);
     if (ui.vista === "resumen") {
       renderKpis(k);
       renderArbol("arbol", regs, k, { caption: "Universo de envíos por segmento, razón social, tipo de servicio, servicio agrupado, servicio y contrato. Usá los botones para expandir cada nivel." });
@@ -557,6 +545,8 @@
       var sv = M.agrupar(regs, function (r) { return r.servicio; }, k.meses).filter(function (x) { return x.envios > 0; }).sort(function (a, b) { return b.envios - a.envios; }).slice(0, 12);
       chartBarras("ch-servicios", sv, f.servicios, function (v) { toggle(f.servicios, v); cambio(); }, "Servicios con más envíos");
       renderRankings(regs, k);
+    } else if (ui.vista === "ingreso") {
+      RV.render(regs, k);
     } else if (ui.vista === "analisis") {
       chartEvolucion(regs, k); chartMix(regs, k); renderTabs(regs, k); renderCalidad(); renderDetalle(regs, k);
     } else {
