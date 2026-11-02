@@ -8,6 +8,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="estilos.css">
 <link rel="stylesheet" href="guia.css">
+<link rel="stylesheet" href="rsa.css">
 </head>
 <body>
 <a class="skip-link" href="#contenido">Saltar al contenido</a>
@@ -44,6 +45,7 @@
         <p>Envíos de todos los contratos y clientes de Grupo Logístico Andreani, canales <strong>B2B</strong> y <strong>B2C</strong>. Lo que se migra del sistema operativo <strong>Integra</strong> al nuevo sistema operativo <strong>DMS</strong> es el canal <strong>B2C</strong>: la pestaña «Migración a DMS» muestra solo B2C.</p>
         <p>Canal: si la descarga no trae la columna «Canal», los contratos que empiezan con 350 o 351 son B2B y el resto, B2C.</p>
         <p>Estructura: Segmento › Razón social › Tipo de servicio › Servicio agrupado › Servicio › N° contrato. El canal es un filtro aparte.</p>
+        <p>Ingreso y resultado: salen de la base Rentabilidad clientes de Power BI, por RSA (Razón Social Agrupada). Cada razón social se vincula con su RSA.</p>
         <p>Privacidad: los datos se guardan en un repositorio privado de GitHub. Solo los ve quien está invitado y conecta su clave en este navegador.</p>
         <dl class="meta-list" id="about-meta"></dl>
       </div>
@@ -111,7 +113,72 @@
     </section>
   </div>
 
-  <!-- ============ Pestaña 2: Análisis ============ -->
+  <!-- ============ Pestaña 2: Ingreso y resultado (T-005, D-031, D-037) ============ -->
+  <div id="vista-ingreso" role="tabpanel" aria-labelledby="vtab-ingreso" tabindex="-1" hidden>
+    <div class="alert alert--info alert--compacta sec--first" role="note">
+      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 15h-2v-6h2v6Zm0-8h-2V7h2v2Z"/></svg>
+      <div class="alert__body"><span><strong>Montos por RSA (Razón Social Agrupada).</strong> Ingreso, costos y resultado son del RSA completo: no se separan por canal, servicio ni contrato. Canal, Segmento y Razón social eligen qué RSA se muestran y sus envíos. <span id="ing-periodo"></span></span></div>
+    </div>
+    <div class="rsa-barra" id="rsa-filtro"></div>
+    <div id="rsa-contenido"></div>
+    <div id="rsa-secciones">
+      <section aria-labelledby="t-rsa-kpis" class="sec sec--first">
+        <h2 id="t-rsa-kpis" class="sr-only">Indicadores de ingreso y resultado</h2>
+        <ul class="kpis" id="rsa-kpis"></ul>
+      </section>
+      <section aria-labelledby="t-rsa-tabla" class="sec">
+        <div class="panel">
+          <div class="panel__head">
+            <div><h2 id="t-rsa-tabla">Ingreso y resultado por RSA</h2><p class="panel__sub">Sin RSA internos (88881, 88882, 99999 y 01648 Contado). Ordenado por ingreso.</p></div>
+            <button type="button" class="btn btn--secondary btn--small" id="rsa-csv">
+              <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M5 20h14v-2H5v2Zm7-3 6-6-1.4-1.4-3.6 3.6V3h-2v10.2L7.4 9.6 6 11l6 6Z"/></svg>
+              Exportar CSV
+            </button>
+          </div>
+          <div id="rsa-tabla"></div>
+        </div>
+      </section>
+      <section aria-labelledby="t-rsa-prio" class="sec">
+        <div class="grid-3-1">
+          <div class="panel">
+            <div class="panel__head"><div><h2 id="t-rsa-prio">Matriz de priorización</h2><p class="panel__sub">Los 60 RSA con más ingreso: envíos (horizontal) contra rentabilidad (vertical). El tamaño del círculo es el ingreso.</p></div></div>
+            <div id="rsa-prio"></div>
+          </div>
+          <div class="panel">
+            <div class="panel__head"><div><h2 id="t-rsa-leer">Cómo leerla</h2></div></div>
+            <ul class="hist">
+              <li><strong>Arriba a la derecha:</strong> mucho volumen y rentables. Mayor impacto: migrar con cuidado.</li>
+              <li><strong>Abajo a la derecha:</strong> mucho volumen y rentabilidad baja o negativa. Revisar tarifas.</li>
+              <li><strong>Izquierda:</strong> poco volumen. Candidatos para pilotos en DMS.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+      <section aria-labelledby="t-rsa-evo" class="sec">
+        <div class="panel">
+          <div class="panel__head"><div><h2 id="t-rsa-evo">Evolución mensual de ingreso y resultado</h2><p class="panel__sub">RSA que se muestran arriba</p></div></div>
+          <div id="rsa-evo"></div>
+        </div>
+      </section>
+      <section aria-labelledby="t-rsa-cal" class="sec">
+        <div class="panel">
+          <div class="panel__head"><div><h2 id="t-rsa-cal">Calidad del vínculo razón social → RSA</h2><p class="panel__sub">Sobre toda la matriz, sin filtros. Ponderado por envíos.</p></div></div>
+          <ul class="quality" id="rsa-calidad"></ul>
+          <p class="rsa-vias" id="rsa-vias"></p>
+          <h3 style="margin-top:var(--c-spacing-5)">Resolver vínculos</h3>
+          <p class="panel__sub">Razones sociales con más de un RSA posible o sin RSA, ordenadas por envíos. Lo que elijas queda como vínculo manual y se conserva al recalcular.</p>
+          <div id="rsa-resolver" style="margin-top:var(--c-spacing-3)"></div>
+        </div>
+      </section>
+    </div>
+    <details class="panel rsa-carga" id="rsa-carga-panel" hidden>
+      <summary>Cargar bases de ingreso (solo editores)</summary>
+      <p class="panel__sub">Elegí las planillas de Power BI. Se leen en este navegador y, al tocar «Enviar a GitHub», se guardan normalizadas en el repositorio privado (carpeta <code>fuentes/</code>). La tabla FACTURACION no se guarda.</p>
+      <div id="rsa-carga"></div>
+    </details>
+  </div>
+
+  <!-- ============ Pestaña 3: Análisis ============ -->
   <div id="vista-analisis" role="tabpanel" aria-labelledby="vtab-analisis" tabindex="-1" hidden>
     <section aria-labelledby="t-evolucion" class="sec sec--first">
       <div class="grid-3-1">
@@ -161,7 +228,7 @@
     </section>
   </div>
 
-  <!-- ============ Pestaña 3: Migración a DMS (solo B2C, D-030) ============ -->
+  <!-- ============ Pestaña 4: Migración a DMS (solo B2C, D-030) ============ -->
   <div id="vista-migracion" role="tabpanel" aria-labelledby="vtab-migracion" tabindex="-1" hidden>
     <div id="mig-aviso" aria-live="polite" class="sec--first"></div>
     <section aria-labelledby="t-mig-kpis" class="sec sec--first">
@@ -270,6 +337,8 @@
 <script src="matriz-gh.js"></script>
 <script src="matriz-vistas.js"></script>
 <script src="matriz-detalle.js"></script>
+<script src="matriz-rsa-lib.js"></script>
+<script src="matriz-rsa.js"></script>
 <script src="matriz-app.js"></script>
 </body>
 </html>
