@@ -36,6 +36,7 @@
           <ol>
             <li><a href="#leer-filtros">Filtros y período</a></li>
             <li><a href="#leer-resumen">Pestaña Resumen</a></li>
+            <li><a href="#leer-ingreso">Pestaña Ingreso y resultado</a></li>
             <li><a href="#leer-analisis">Pestaña Análisis</a></li>
             <li><a href="#leer-estado">Estado de los datos</a></li>
           </ol>
@@ -46,6 +47,7 @@
             <li><a href="#ed-conectar">Conectar GitHub</a></li>
             <li><a href="#ed-marcar">Marcar lo migrado</a></li>
             <li><a href="#ed-cargar">Cargar una descarga de Power BI</a></li>
+            <li><a href="#ed-ingreso">Bases de ingreso y vínculos RSA</a></li>
             <li><a href="#ed-enviar">Enviar a GitHub</a></li>
           </ol>
         </li>
@@ -119,13 +121,14 @@
       <!-- ============ 2. Cómo leer el dashboard ============ -->
       <section id="leer" aria-labelledby="h-leer">
         <h2 id="h-leer"><span class="guia__num" aria-hidden="true">2</span>Cómo leer el dashboard</h2>
-        <p>El dashboard tiene tres pestañas. La barra de filtros queda fija arriba y aplica a las tres.</p>
+        <p>El dashboard tiene cuatro pestañas. La barra de filtros queda fija arriba y aplica a todas (en Ingreso y resultado, solo Canal, Segmento, Razón social y Período).</p>
         <div class="table-wrap">
           <table>
             <caption class="sr-only">Pestañas del dashboard</caption>
             <thead><tr><th scope="col">Pestaña</th><th scope="col">Para qué usarla</th><th scope="col">Canal</th></tr></thead>
             <tbody>
               <tr><th scope="row">Resumen</th><td>Indicadores principales, universo por jerarquía, envíos por canal, envíos por segmento, servicios con más envíos y top 10 de clientes.</td><td>Filtro: Todos, B2B o B2C</td></tr>
+              <tr><th scope="row">Ingreso y resultado</th><td>Ingreso, costos, resultado y rentabilidad por RSA; matriz de priorización, evolución mensual y calidad del vínculo razón social → RSA (<a href="#leer-ingreso">ver más</a>).</td><td>Filtro: Todos, B2B o B2C</td></tr>
               <tr><th scope="row">Análisis</th><td>Evolución mensual, participación por tipo, más rankings, calidad de datos, historial de actualizaciones y detalle exportable.</td><td>Filtro: Todos, B2B o B2C</td></tr>
               <tr><th scope="row">Migración a DMS</th><td>Avance de la migración y, para editores, las herramientas para marcar lo migrado (<a href="#migracion">sección 3</a>).</td><td>Siempre B2C (fijo)</td></tr>
             </tbody>
@@ -169,6 +172,17 @@
           <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 15h-2v-6h2v6Zm0-8h-2V7h2v2Z"/></svg>
           <div class="alert__body"><strong>Clientes internos.</strong> CORREO ANDREANI S.A., ANDREANI ONLINE y el segmento Andreani no aparecen en los rankings ni en la concentración top 10, pero sí suman en los totales de envíos.</div>
         </div>
+
+        <h3 id="leer-ingreso">Pestaña Ingreso y resultado</h3>
+        <ul>
+          <li>Los montos salen de la base <strong>Rentabilidad clientes</strong> de Power BI (única fuente del ingreso, D-036) y están por <strong>RSA</strong> (Razón Social Agrupada): no se separan por canal, servicio ni contrato.</li>
+          <li>Cada razón social de la matriz se vincula con su RSA. Canal, Segmento y Razón social eligen <strong>qué RSA</strong> se muestran; los filtros de servicio y contrato no aplican en esta pestaña. El <strong>Período</strong> filtra los meses de los montos y de los envíos.</li>
+          <li>Se excluyen los RSA internos: 88881, 88882, 99999 y 01648 (Contado).</li>
+          <li><strong>Rentabilidad</strong> = resultado ÷ ingreso del conjunto (no es un promedio de porcentajes). Semáforo: <span class="badge badge--success">Alta</span> 15 % o más, <span class="badge badge--warning">Media</span> entre 0 y 15 %, <span class="badge badge--error">Negativa</span> menos de 0.</li>
+          <li><strong>Tabla por RSA</strong>: envíos, ingreso, resultado, rentabilidad e ingreso por envío; se puede filtrar un RSA y exportar a CSV (el CSV suma los costos).</li>
+          <li><strong>Matriz de priorización</strong>: los 60 RSA con más ingreso, envíos contra rentabilidad. <strong>Evolución</strong>: ingreso y resultado por mes, con tabla de datos.</li>
+          <li><strong>Calidad del vínculo</strong>: porcentaje de envíos con al menos un RSA y con un RSA único. Solo las razones con RSA único (o resueltas a mano) suman montos.</li>
+        </ul>
 
         <h3 id="leer-analisis">Pestaña Análisis</h3>
         <ul>
@@ -308,6 +322,14 @@
         </div>
         <p>Si todavía no hay datos en GitHub, la primera descarga se usa como <strong>base inicial</strong>.</p>
 
+        <h3 id="ed-ingreso">Bases de ingreso y vínculos RSA</h3>
+        <ol class="pasos">
+          <li>En la pestaña <span class="ui">Ingreso y resultado</span>, abrí <span class="ui">Cargar bases de ingreso</span>.</li>
+          <li>Elegí las tres planillas de Power BI: <strong>Envíos y facturación</strong> (de ahí solo se usa la hoja que vincula razón social con solicitante), <strong>Base RSA Solicitantes</strong> y <strong>Rentabilidad clientes</strong>. Se leen en tu navegador; podés cargar solo la que cambió.</li>
+          <li>Tocá <span class="ui">Usar estas bases</span> y después <span class="ui">Enviar a GitHub</span>. Se guardan normalizadas en la carpeta <code>fuentes/</code> del repositorio privado (un archivo por mes de rentabilidad). La tabla FACTURACION no se guarda.</li>
+          <li>En <span class="ui">Resolver vínculos</span> aparecen las razones sociales con más de un RSA posible o sin RSA, ordenadas por envíos. Elegí el RSA (o <span class="ui">Es interno (excluir)</span>) y tocá <span class="ui">Guardar vínculo</span>. Si no tiene RSA, podés buscarlo por código o nombre. Queda como vínculo manual, con tu usuario y la fecha, y se conserva cuando se recalcula.</li>
+        </ol>
+
         <h3 id="ed-enviar">Enviar a GitHub</h3>
         <ul>
           <li>Mientras no envíes, tus cambios quedan guardados <strong>en este navegador</strong> y el encabezado muestra <span class="badge badge--warning">Sin enviar: …</span>. Si cerrás la pestaña, el navegador te avisa.</li>
@@ -353,6 +375,14 @@
             <div class="faq__body"><p>La pestaña Migración a DMS muestra solo B2C. Si elegiste en otro filtro valores que solo existen en B2B (por ejemplo, «(2.2) Entre 11 a 50 kg»), no hay registros B2C que mostrar. Tocá <span class="ui">Limpiar</span> o quitá esos filtros.</p></div>
           </details>
           <details>
+            <summary>«Todavía no hay bases de ingreso» en Ingreso y resultado</summary>
+            <div class="faq__body"><p>Nadie cargó todavía las planillas de ingreso. Un editor tiene que cargarlas en <span class="ui">Cargar bases de ingreso</span> y enviarlas (<a href="#ed-ingreso">ver pasos</a>).</p></div>
+          </details>
+          <details>
+            <summary>Una razón social no suma ingreso</summary>
+            <div class="faq__body"><p>Tiene más de un RSA posible o ninguno. Revisala en <span class="ui">Resolver vínculos</span>. También puede pasar que el período elegido no tenga montos en Rentabilidad.</p></div>
+          </details>
+          <details>
             <summary>Marqué contratos pero mis compañeros no los ven</summary>
             <div class="faq__body"><p>Faltan enviar. Tocá <span class="ui">Enviar a GitHub</span>; el estado tiene que pasar a <span class="badge badge--success">Datos al día</span>.</p></div>
           </details>
@@ -379,6 +409,9 @@
           <dt>Migrado</dt><dd>Todos los registros del nivel están marcados como migrados a DMS.</dd>
           <dt>Parcial (migración)</dt><dd>Algunos registros del nivel están marcados.</dd>
           <dt>Pendiente</dt><dd>Ningún registro del nivel está marcado.</dd>
+          <dt>RSA</dt><dd>Razón Social Agrupada: código de 5 dígitos que agrupa solicitantes de un mismo cliente. Los montos de ingreso y resultado están por RSA.</dd>
+          <dt>Vínculo razón social → RSA</dt><dd>Relación entre la razón social de la matriz y su RSA. Se calcula con el nombre (exacto o normalizado) contra los solicitantes y la Base RSA; si es ambiguo se resuelve a mano.</dd>
+          <dt>Resultado</dt><dd>Ingreso menos costos del RSA en el período.</dd>
           <dt>Clave (token)</dt><dd>Clave personal de GitHub que habilita a ver (lectura) o a editar (escritura) los datos del repositorio privado. Se guarda solo en tu navegador.</dd>
           <dt>Editor</dt><dd>Persona con GitHub conectado: puede marcar la migración, cargar descargas y enviarlas.</dd>
           <dt>Cambios sin enviar</dt><dd>Cambios guardados solo en tu navegador hasta que tocás «Enviar a GitHub».</dd>
