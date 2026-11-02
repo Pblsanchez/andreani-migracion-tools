@@ -9,11 +9,28 @@ var MATRIZ = (function () {
   var NO_INF = "(Tipo no informado)";
   var AGR_NO = "(Agrupado no informado)";
   var SIN_CON = "(Sin contrato)";
-  /* Clientes internos: no aparecen en rankings ni en la concentración top 10 (pedido de Pablo, D-016) */
+  /* Clientes internos: no aparecen en rankings ni en la concentración top 10 (D-016). Segmentos internos (D-034). */
   var INTERNOS = ["CORREO ANDREANI S.A.", "ANDREANI ONLINE"];
+  var SEG_INTERNOS = ["Andreani"];
   function esInterno(nombre) {
     var s = sinAcentos(nombre).replace(/[.\s]+/g, " ").trim();
     return INTERNOS.some(function (x) { var k = sinAcentos(x).replace(/[.\s]+/g, " ").trim(); return s === k || s.indexOf(k + " ") === 0; });
+  }
+  function esInternoReg(r) {
+    var sg = sinAcentos(r.segmento);
+    return esInterno(r.cliente) || SEG_INTERNOS.some(function (x) { return sinAcentos(x) === sg; });
+  }
+  function internosTxt() { return INTERNOS.join(", ") + " y el segmento " + SEG_INTERNOS.join(", "); }
+
+  /* ---------- Canal (D-030, D-032) ----------
+     Si la descarga trae una columna «Canal», manda. Si no: contrato que empieza con 350 o 351 = B2B; el resto = B2C. */
+  var B2B_PREFIJOS = ["350", "351"];
+  var CANALES = ["B2C", "B2B"];
+  function normCanal(v) { var s = sinAcentos(v); return /b2b/.test(s) ? "B2B" : /b2c/.test(s) ? "B2C" : ""; }
+  function canalDe(r) {
+    if (r.canal) return r.canal;
+    var c = String(r.contrato || "");
+    return B2B_PREFIJOS.some(function (p) { return c.indexOf(p) === 0; }) ? "B2B" : "B2C";
   }
 
   /* ---------- Utilidades ---------- */
@@ -43,8 +60,9 @@ var MATRIZ = (function () {
   }
   function mesTxt(k) { var p = k.split("-"); return MESES_TXT[+p[1]] + "-" + p[0].slice(2); }
   function mesActual(fecha) { var d = fecha || new Date(); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2); }
-  /* La clave NO incluye el servicio agrupado (D-011, D-029): las marcas de migración no cambian */
-  function clave(r) { return r.contrato + "|" + r.tipo + "|" + r.servicio; }
+  /* Clave (D-011, D-033): B2C = contrato + tipo + servicio (el agrupado sale de tipo + servicio, las marcas no cambian).
+     B2B = contrato + tipo + servicio agrupado + servicio (el agrupado depende del peso). */
+  function clave(r) { return canalDe(r) === "B2B" ? r.contrato + "|" + r.tipo + "|" + (r.agrupado || "") + "|" + r.servicio : r.contrato + "|" + r.tipo + "|" + r.servicio; }
 
   /* ---------- Matriz (filas de celdas) -> registros ---------- */
   function desdeFilas(rows) {
@@ -64,14 +82,15 @@ var MATRIZ = (function () {
     cols.rs = idx(/razon\s*social|^cliente/, []);
     cols.serv = idx(/^servicio$/, [cols.tipo, cols.agr]);
     if (cols.serv < 0) cols.serv = idx(/servicio/, [cols.tipo, cols.agr]);
+    cols.canal = idx(/^canal$/, []);
     var faltan = [];
     if (cols.seg < 0) faltan.push("Segmento");
     if (cols.rs < 0) faltan.push("Razón Social");
     if (cols.serv < 0) faltan.push("Servicio");
     if (faltan.length) throw new Error("Faltan columnas: " + faltan.join(", ") + ". Columnas encontradas: " + (rows[iHead] || []).filter(function (x) { return norm(x); }).join(", ") + ".");
-    /* "Tipo de Servicio" (D-017) y "Servicio Agrupado" (D-029) son opcionales: se completan con la base */
-    var sinTipo = cols.tipo < 0, sinAgr = cols.agr < 0;
-    var dimCols = [cols.seg, cols.rs, cols.tipo, cols.agr, cols.serv, cols.contrato].filter(function (c) { return c >= 0; });
+    /* "Tipo de Servicio" (D-017), "Servicio Agrupado" (D-029) y "Canal" (D-032) son opcionales */
+    var sinTipo = cols.tipo < 0, sinAgr = cols.agr < 0, conCanal = cols.canal >= 0;
+    var dimCols = [cols.canal, cols.seg, cols.rs, cols.tipo, cols.agr, cols.serv, cols.contrato].filter(function (c) { return c >= 0; });
 
     /* Meses: en la fila de encabezado o arriba (Power BI pone "Año, Mes" + meses en la fila 1) */
     var meses = [], colMes = [], maxCol = 0;
@@ -93,18 +112,18 @@ var MATRIZ = (function () {
       dataRows.push(row);
     }
     /* Si la exportación deja en blanco las etiquetas repetidas, se completan hacia abajo */
-    /* El tipo de servicio nunca viene vacío en una fila de dato: si falta en muchas, se completa hacia abajo */
     var colRef = sinTipo ? cols.serv : cols.tipo;
     var vaciosTipo = dataRows.filter(function (r) { return norm(r[colRef]) === ""; }).length;
     var fillDown = dataRows.length > 0 && vaciosTipo / dataRows.length > 0.2;
 
     var registros = [], totalGeneral = null, last = {};
-    var dims = ["seg", "rs"].concat(sinTipo ? [] : ["tipo"], sinAgr ? [] : ["agr"], ["serv", "contrato"]);
+    var dims = (conCanal ? ["canal"] : []).concat(["seg", "rs"], sinTipo ? [] : ["tipo"], sinAgr ? [] : ["agr"], ["serv", "contrato"]);
     dataRows.forEach(function (row) {
       var esSub = dims.some(function (d) { return esTotal(row[cols[d]]); }) || esTotal(row[0]);
       if (esSub) {
-        /* Total general: "Total" en la primera dimensión y el resto vacío */
-        var resto = dims.filter(function (d) { return d !== "seg"; }).every(function (d) { return norm(row[cols[d]]) === ""; });
+        /* Total general: "Total" en la primera columna y el resto de las dimensiones vacías */
+        var t0 = esTotal(row[0]);
+        var resto = dims.filter(function (d) { return t0 ? cols[d] !== 0 : d !== "seg"; }).every(function (d) { return norm(row[cols[d]]) === ""; });
         if ((esTotal(row[cols.seg]) || esTotal(row[0])) && resto) { var t = 0; colMes.forEach(function (c) { t += num(row[c]); }); totalGeneral = t; }
         return;
       }
@@ -117,13 +136,15 @@ var MATRIZ = (function () {
         v.contrato = SIN_CON;
       }
       dims.forEach(function (d) { last[d] = v[d]; });
-      registros.push({
+      var reg = {
         segmento: v.seg, cliente: v.rs, tipo: sinTipo ? NO_INF : v.tipo, agrupado: sinAgr ? "" : v.agr, servicio: v.serv, contrato: v.contrato.replace(/\.0+$/, ""),
         valores: colMes.map(function (c) { return num(row[c]); })
-      });
+      };
+      if (conCanal && normCanal(v.canal)) reg.canal = normCanal(v.canal);
+      registros.push(reg);
     });
     var suma = 0; registros.forEach(function (r) { r.valores.forEach(function (x) { suma += x; }); });
-    return { meses: meses, registros: registros, filtros: filtros, fillDown: fillDown, sinTipo: sinTipo, sinAgrupado: sinAgr,
+    return { meses: meses, registros: registros, filtros: filtros, fillDown: fillDown, sinTipo: sinTipo, sinAgrupado: sinAgr, conCanal: conCanal,
       control: { totalGeneral: totalGeneral, sumaDetalle: suma, cuadra: totalGeneral == null ? null : Math.round(totalGeneral) === Math.round(suma) } };
   }
 
@@ -218,27 +239,30 @@ var MATRIZ = (function () {
     return Promise.all([pShared, inflar(files[hoja])]).then(function (r) { return hojaAFilas(r[1], r[0]); });
   }
 
-  /* ---------- Servicio agrupado (D-029) ----------
-     Cada tipo + servicio pertenece a un solo servicio agrupado. Si una descarga o un registro viejo de la base no lo trae, se completa con ese mapa. */
+  /* ---------- Servicio agrupado (D-029, D-033) ----------
+     En B2C cada tipo + servicio pertenece a un solo servicio agrupado: si falta, se completa con ese mapa.
+     En B2B el agrupado depende del peso: no se deduce. */
   function ts(r) { return r.tipo + "|" + r.servicio; }
+  function deducible(r) { return canalDe(r) !== "B2B"; }
   function mapaAgrupado(listas) {
     var vistos = {};
-    listas.forEach(function (regs) { regs.forEach(function (r) { if (r.agrupado) (vistos[ts(r)] = vistos[ts(r)] || {})[r.agrupado] = 1; }); });
+    listas.forEach(function (regs) { regs.forEach(function (r) { if (r.agrupado && deducible(r)) (vistos[ts(r)] = vistos[ts(r)] || {})[r.agrupado] = 1; }); });
     var mapa = {};
     Object.keys(vistos).forEach(function (k) { var a = Object.keys(vistos[k]); if (a.length === 1) mapa[k] = a[0]; });
     return mapa;
   }
+  function agrMapa(mapa, r) { return deducible(r) ? mapa[ts(r)] : null; }
   /* Completa en el lugar los registros sin agrupado. Devuelve cuántos completó. */
   function rellenarAgrupado(regs, mapa) {
     var n = 0;
-    regs.forEach(function (r) { if (!r.agrupado && mapa[ts(r)]) { r.agrupado = mapa[ts(r)]; n++; } });
+    regs.forEach(function (r) { var a = !r.agrupado && agrMapa(mapa, r); if (a) { r.agrupado = a; n++; } });
     return n;
   }
-  /* Si la descarga no trae "Servicio Agrupado", se toma de la base (mismo tipo + servicio). Devuelve una copia de parsed. */
+  /* Si la descarga no trae "Servicio Agrupado", se toma de la base (mismo tipo + servicio, solo B2C). Devuelve una copia de parsed. */
   function completarAgrupado(base, parsed) {
     if (!parsed.sinAgrupado) return parsed;
     var mapa = mapaAgrupado([base.registros]), n = 0;
-    var regs = parsed.registros.map(function (r) { var c = Object.assign({}, r); if (!c.agrupado && mapa[ts(c)]) { c.agrupado = mapa[ts(c)]; n++; } return c; });
+    var regs = parsed.registros.map(function (r) { var c = Object.assign({}, r), a = !c.agrupado && agrMapa(mapa, c); if (a) { c.agrupado = a; n++; } return c; });
     return Object.assign({}, parsed, { registros: regs, agrupadosDeducidos: n });
   }
 
@@ -247,6 +271,7 @@ var MATRIZ = (function () {
   function regBase(r, v) {
     var o = { segmento: r.segmento, cliente: r.cliente, tipo: r.tipo, servicio: r.servicio, contrato: r.contrato, v: v || {} };
     if (r.agrupado) o.agrupado = r.agrupado;
+    if (r.canal) o.canal = r.canal;
     return o;
   }
   function nuevaBase(parsed, fuente, hoy, archivo) {
@@ -283,7 +308,7 @@ var MATRIZ = (function () {
   }
   function completar(base, parsed) { return completarAgrupado(base, completarTipo(base, parsed)); }
   /* Busca el registro de la base para r. Si la base tiene el registro sin tipo y la descarga sí lo trae, también lo encuentra. */
-  function buscar(idxBase, r) { return idxBase[clave(r)] || (r.tipo !== NO_INF ? idxBase[r.contrato + "|" + NO_INF + "|" + r.servicio] : null) || null; }
+  function buscar(idxBase, r) { return idxBase[clave(r)] || (r.tipo !== NO_INF ? idxBase[clave(Object.assign({}, r, { tipo: NO_INF }))] : null) || null; }
 
   /* Compara una descarga con la base (D-011). No modifica nada. */
   function diferencias(base, parsed) {
@@ -305,11 +330,13 @@ var MATRIZ = (function () {
     });
     /* Registros de la base sin servicio agrupado que lo reciben (por la descarga o por tipo + servicio) */
     var mapa = mapaAgrupado([parsed.registros, base.registros]);
-    base.registros.forEach(function (r) { if (!r.agrupado && mapa[ts(r)]) agrNuevo[clave(r)] = 1; });
+    base.registros.forEach(function (r) { if (!r.agrupado && agrMapa(mapa, r)) agrNuevo[clave(r)] = 1; });
     var ausentes = base.registros.filter(function (r) { return !vistos[clave(r)]; }).length;
     var filtrosDistintos = !!(base.filtros && parsed.filtros && normFiltros(base.filtros) !== normFiltros(parsed.filtros));
+    var porCanal = { B2B: 0, B2C: 0 };
+    parsed.registros.forEach(function (r) { porCanal[canalDe(r)] = (porCanal[canalDe(r)] || 0) + 1; });
     return { nuevos: nuevos, cambios: cambios, mesesNuevos: mesesNuevos, ausentes: ausentes, duplicados: dup, filtrosDistintos: filtrosDistintos, control: parsed.control,
-      registrosDescarga: parsed.registros.length, sinTipo: !!parsed.sinTipo, tiposDeducidos: parsed.tiposDeducidos || 0,
+      registrosDescarga: parsed.registros.length, sinTipo: !!parsed.sinTipo, tiposDeducidos: parsed.tiposDeducidos || 0, porCanal: porCanal,
       sinAgrupado: !!parsed.sinAgrupado, agrupadosDeducidos: parsed.agrupadosDeducidos || 0, agrupadosCompletados: Object.keys(agrNuevo).length };
   }
   /* Compara filtros ignorando el orden, los separadores y los «Parámetro_…» de Power BI (son de visualización, no filtran datos) */
@@ -324,7 +351,7 @@ var MATRIZ = (function () {
       var b = buscar(idx, r);
       if (!b) { b = regBase(r); idx[clave(b)] = b; base.registros.push(b); }
       else {
-        if (r.segmento) b.segmento = r.segmento; if (r.cliente) b.cliente = r.cliente; if (r.agrupado) b.agrupado = r.agrupado;
+        if (r.segmento) b.segmento = r.segmento; if (r.cliente) b.cliente = r.cliente; if (r.agrupado) b.agrupado = r.agrupado; if (r.canal) b.canal = r.canal;
         if (b.tipo === NO_INF && r.tipo !== NO_INF) {
           /* Cambia la clave: se mueve también la marca de migración */
           var viejo = clave(b), mk = migracion(base).marcas;
@@ -334,7 +361,7 @@ var MATRIZ = (function () {
       }
       parsed.meses.forEach(function (m, i) { var x = r.valores[i] || 0; if (x) b.v[m] = x; else delete b.v[m]; });
     });
-    /* Registros que no vinieron en la descarga: toman el agrupado por tipo + servicio */
+    /* Registros que no vinieron en la descarga: toman el agrupado por tipo + servicio (solo B2C) */
     rellenarAgrupado(base.registros, mapaAgrupado([base.registros]));
     d.mesesNuevos.forEach(function (m) { base.meses.push(m); });
     base.meses.sort();
@@ -364,12 +391,15 @@ var MATRIZ = (function () {
     { id: "contratos", nombre: "N° contrato", valor: function (r) { return r.contrato; } }
   ];
   function ok(arr, v) { return !arr || !arr.length || arr.indexOf(v) >= 0; }
-  /* Aplica los filtros de los niveles 0..hasta-1 (hasta = NIVELES.length aplica todos) */
+  /* Canal (D-030): filtro aparte, arriba de la jerarquía. f.canalFijo ("B2C" en Migración a DMS) manda sobre f.canales. */
+  function pasaCanal(r, f) { var c = canalDe(r); return f.canalFijo ? c === f.canalFijo : ok(f.canales, c); }
+  /* Aplica el canal y los filtros de los niveles 0..hasta-1 (hasta = NIVELES.length aplica todos) */
   function pasaNiveles(r, f, hasta) {
+    if (!pasaCanal(r, f)) return false;
     for (var i = 0; i < hasta; i++) if (!ok(f[NIVELES[i].id], NIVELES[i].valor(r))) return false;
     return true;
   }
-  /* f: { segmentos:[], clientes:[], tipos:[], agrupados:[], servicios:[], contratos:[], texto:"" } (vacío = todos). Los meses se aplican al sumar. */
+  /* f: { canales:[], canalFijo:"", segmentos:[], clientes:[], tipos:[], agrupados:[], servicios:[], contratos:[], texto:"" } (vacío = todos). Los meses se aplican al sumar. */
   function filtrar(base, f) {
     var txt = sinAcentos(f.texto || "");
     return base.registros.filter(function (r) {
@@ -378,7 +408,7 @@ var MATRIZ = (function () {
       return true;
     });
   }
-  /* Opciones de un nivel en cascada: solo valores compatibles con lo elegido en los niveles de arriba. Ordenadas por envíos. */
+  /* Opciones de un nivel en cascada: solo valores compatibles con el canal y lo elegido en los niveles de arriba. Ordenadas por envíos. */
   function opciones(base, f, nivel, meses) {
     var map = {}, N = NIVELES[nivel];
     base.registros.forEach(function (r) {
@@ -388,13 +418,20 @@ var MATRIZ = (function () {
     return Object.keys(map).map(function (k) { return { valor: k, envios: map[k] }; })
       .sort(function (a, b) { return b.envios - a.envios || a.valor.localeCompare(b.valor, "es"); });
   }
-  /* Quita selecciones de niveles inferiores que ya no son compatibles con los superiores. Devuelve cuántas quitó. */
+  /* Opciones del filtro Canal: es el primer filtro, no depende de los niveles */
+  function opcionesCanal(base, meses) {
+    var map = {}; CANALES.forEach(function (c) { map[c] = 0; });
+    base.registros.forEach(function (r) { var c = canalDe(r); map[c] = (map[c] || 0) + sumaMeses(r, meses); });
+    return Object.keys(map).map(function (k) { return { valor: k, envios: map[k] }; }).sort(function (a, b) { return b.envios - a.envios; });
+  }
+  /* Quita selecciones de niveles inferiores que ya no son compatibles con los superiores. Devuelve cuántas quitó.
+     No usa el canal fijo de Migración: lo elegido en Resumen/Análisis se conserva al volver. */
   function podar(base, f) {
-    var quitadas = 0;
+    var quitadas = 0, g = f.canalFijo ? Object.assign({}, f, { canalFijo: "" }) : f;
     for (var i = 1; i < NIVELES.length; i++) {
       var id = NIVELES[i].id; if (!f[id] || !f[id].length) continue;
-      var validos = {}; opciones(base, f, i, []).forEach(function (o) { validos[o.valor] = 1; });
-      var antes = f[id].length; f[id] = f[id].filter(function (v) { return validos[v]; }); quitadas += antes - f[id].length;
+      var validos = {}; opciones(base, g, i, []).forEach(function (o) { validos[o.valor] = 1; });
+      var antes = f[id].length; f[id] = g[id] = f[id].filter(function (v) { return validos[v]; }); quitadas += antes - f[id].length;
     }
     return quitadas;
   }
@@ -416,7 +453,7 @@ var MATRIZ = (function () {
   }
 
   /* ---------- Migración a DMS (D-020) ----------
-     Unidad mínima = registro (contrato + tipo + servicio). Marcar un nodo de la jerarquía marca todos sus registros.
+     Unidad mínima = registro (clave D-011/D-033). Marcar un nodo de la jerarquía marca todos sus registros. Universo: solo B2C (D-030).
      base.migracion = { marcas: { clave: "AAAA-MM-DD" }, historial: [...] } */
   function migracion(base) { return base.migracion || (base.migracion = { marcas: {}, historial: [] }); }
   function esMigrado(base, r) { return !!migracion(base).marcas[clave(r)]; }
@@ -481,22 +518,22 @@ var MATRIZ = (function () {
   function kpis(base, regs, mesesSel) {
     var meses = mesesSel && mesesSel.length ? base.meses.filter(function (m) { return mesesSel.indexOf(m) >= 0; }) : base.meses.slice();
     var comp = meses.filter(function (m) { return m !== base.mesParcial; });
-    var total = 0, porMes = {}, contratos = {}, clientes = {}, servicios = {}, segmentos = {}, agrupados = {};
+    var total = 0, porMes = {}, contratos = {}, clientes = {}, servicios = {}, segmentos = {}, agrupados = {}, porCanal = { B2B: 0, B2C: 0 };
     meses.forEach(function (m) { porMes[m] = 0; });
     regs.forEach(function (r) {
       var t = 0; meses.forEach(function (m) { var x = r.v[m] || 0; porMes[m] += x; t += x; });
-      total += t;
+      total += t; porCanal[canalDe(r)] = (porCanal[canalDe(r)] || 0) + t;
       if (t > 0) { if (r.contrato !== SIN_CON) contratos[r.contrato] = 1; if (r.cliente) clientes[r.cliente] = 1; servicios[r.servicio] = 1; segmentos[segDe(r)] = 1; agrupados[agrDe(r)] = 1; }
     });
     var ultimo = comp[comp.length - 1] || null, previo = comp[comp.length - 2] || null;
     var activos = {};
     if (ultimo) regs.forEach(function (r) { if ((r.v[ultimo] || 0) > 0 && r.contrato !== SIN_CON) activos[r.contrato] = 1; });
     var sumComp = 0; comp.forEach(function (m) { sumComp += porMes[m]; });
-    var porCli = agrupar(regs.filter(function (r) { return r.cliente && !esInterno(r.cliente); }), cliDe, meses).sort(function (a, b) { return b.envios - a.envios; });
+    var porCli = agrupar(regs.filter(function (r) { return r.cliente && !esInternoReg(r); }), cliDe, meses).sort(function (a, b) { return b.envios - a.envios; });
     var top10 = 0; porCli.slice(0, 10).forEach(function (c) { top10 += c.envios; });
     var nContratos = Object.keys(contratos).length;
     return {
-      meses: meses, completos: comp, porMes: porMes, envios: total,
+      meses: meses, completos: comp, porMes: porMes, envios: total, porCanal: porCanal,
       clientes: Object.keys(clientes).length, contratos: nContratos, contratosActivos: Object.keys(activos).length,
       promedioMensual: comp.length ? sumComp / comp.length : 0,
       enviosPorContrato: nContratos ? total / nContratos : 0,
@@ -558,12 +595,14 @@ var MATRIZ = (function () {
 
   function calidad(base) {
     var sinSeg = {}, sinSegEnv = 0, sinServ = {}, formato = {}, contratoServ = {}, negativos = 0, claves = {}, dup = 0, sinCon = 0, sinConEnv = 0, sinTipo = 0;
-    var sinAgr = 0, conAgr = 0, agrPorTS = {};
+    var sinAgr = 0, conAgr = 0, agrPorTS = {}, canalDistinto = {}, conCanal = 0, b2b = {};
     base.registros.forEach(function (r) {
       var t = 0; for (var m in r.v) { t += r.v[m]; if (r.v[m] < 0) negativos++; }
       if (r.tipo === NO_INF) sinTipo++;
-      if (r.agrupado) { conAgr++; (agrPorTS[ts(r)] = agrPorTS[ts(r)] || {})[r.agrupado] = 1; } else sinAgr++;
+      if (r.agrupado) { conAgr++; if (deducible(r)) (agrPorTS[ts(r)] = agrPorTS[ts(r)] || {})[r.agrupado] = 1; } else sinAgr++;
+      if (r.canal) { conCanal++; var sinCol = canalDe(Object.assign({}, r, { canal: "" })); if (sinCol !== r.canal) canalDistinto[r.contrato] = 1; }
       if (r.contrato === SIN_CON) { sinCon++; sinConEnv += t; return; }
+      if (canalDe(r) === "B2B") b2b[r.contrato] = 1;
       if (!r.segmento || !r.cliente) { sinSeg[r.contrato] = 1; sinSegEnv += t; }
       if (/sin servicio/i.test(r.tipo) || /sin servicio/i.test(r.servicio)) sinServ[r.contrato] = 1;
       if (!/^\d{9}$/.test(r.contrato)) formato[r.contrato] = 1;
@@ -575,14 +614,16 @@ var MATRIZ = (function () {
     return [
       { id: "sinseg", nivel: "error", titulo: "Contratos sin segmento o razón social", cantidad: Object.keys(sinSeg).length, extra: sinSegEnv, extraTxt: "envíos afectados", ejemplos: Object.keys(sinSeg).slice(0, 5) },
       { id: "sinserv", nivel: "warning", titulo: "Contratos con «Sin servicio asignado»", cantidad: Object.keys(sinServ).length, ejemplos: Object.keys(sinServ).slice(0, 5) },
-      { id: "multi", nivel: "info", titulo: "Contratos en más de un servicio", cantidad: multi.length, ejemplos: multi.slice(0, 5), nota: "No es un error: por eso la clave es contrato + tipo + servicio." },
+      { id: "multi", nivel: "info", titulo: "Contratos en más de un servicio", cantidad: multi.length, ejemplos: multi.slice(0, 5), nota: "No es un error: por eso la clave es contrato + tipo + servicio (en B2B, también el servicio agrupado)." },
+      { id: "b2b", nivel: "info", titulo: "Contratos B2B (empiezan con " + B2B_PREFIJOS.join(" o ") + ")", cantidad: Object.keys(b2b).length, nota: "No se migran a DMS: quedan fuera de la pestaña Migración a DMS." },
       { id: "formato", nivel: "warning", titulo: "Contratos con formato distinto a 9 dígitos", cantidad: Object.keys(formato).length, ejemplos: Object.keys(formato).slice(0, 5) },
       { id: "sincon", nivel: "error", titulo: "Filas sin contrato (solo servicio)", cantidad: sinCon, extra: sinConEnv, extraTxt: "envíos sin segmento, razón social ni contrato" },
       { id: "dup", nivel: "error", titulo: "Registros duplicados (misma clave)", cantidad: dup },
       { id: "neg", nivel: "error", titulo: "Valores negativos", cantidad: negativos }
-    ].concat(sinTipo ? [{ id: "sintipo", nivel: "info", titulo: "Registros sin tipo de servicio", cantidad: sinTipo, nota: "La descarga no trae la columna «Tipo de Servicio». Se completa sola si una descarga posterior la incluye." }] : [])
-      .concat(sinAgr ? [{ id: "sinagr", nivel: conAgr ? "warning" : "info", titulo: "Registros sin servicio agrupado", cantidad: sinAgr, nota: conAgr ? "Su tipo + servicio no figura en ninguna descarga con «Servicio Agrupado»." : "La base todavía no tiene «Servicio Agrupado». Se completa al cargar una descarga que lo incluya." }] : [])
-      .concat(conAgr ? [{ id: "agrconf", nivel: "warning", titulo: "Tipo + servicio en más de un servicio agrupado", cantidad: agrConflicto.length, ejemplos: agrConflicto.slice(0, 5).map(function (k) { return k.replace("|", " › "); }) }] : []);
+    ].concat(conCanal ? [{ id: "canaldif", nivel: "warning", titulo: "Contratos con canal distinto a la regla del N° de contrato", cantidad: Object.keys(canalDistinto).length, ejemplos: Object.keys(canalDistinto).slice(0, 5), nota: "Manda la columna «Canal» de la descarga." }] : [])
+      .concat(sinTipo ? [{ id: "sintipo", nivel: "info", titulo: "Registros sin tipo de servicio", cantidad: sinTipo, nota: "La descarga no trae la columna «Tipo de Servicio». Se completa sola si una descarga posterior la incluye." }] : [])
+      .concat(sinAgr ? [{ id: "sinagr", nivel: conAgr ? "warning" : "info", titulo: "Registros sin servicio agrupado", cantidad: sinAgr, nota: conAgr ? "Su tipo + servicio no figura en ninguna descarga con «Servicio Agrupado» (en B2B no se deduce)." : "La base todavía no tiene «Servicio Agrupado». Se completa al cargar una descarga que lo incluya." }] : [])
+      .concat(conAgr ? [{ id: "agrconf", nivel: "warning", titulo: "Tipo + servicio B2C en más de un servicio agrupado", cantidad: agrConflicto.length, ejemplos: agrConflicto.slice(0, 5).map(function (k) { return k.replace("|", " › "); }) }] : []);
   }
 
   /* ---------- Datos sintéticos (pruebas). Nombres y contratos inventados. ---------- */
@@ -632,11 +673,15 @@ var MATRIZ = (function () {
         }
       }
     }
+    /* B2B sintético (contratos 351…): mismo servicio en varias bandas de peso (D-033) */
+    ["(2.1) Entre 00 a 10 kg", "(2.2) Entre 11 a 50 kg", "(2.3) Entre 51 a 350 Kg"].forEach(function (ag, q) {
+      for (var b = 0; b < 4; b++) registros.push({ segmento: pick(segs), cliente: "DEMO B2B " + pref[b] + " S.A.", tipo: "(2) PAQUETERIA", agrupado: ag, servicio: "Entrega - Bulto/Paquete - SLA 1 - Estandar B2B", contrato: "35100" + (1000 + b), valores: meses.map(function () { return Math.round(rnd() * 900 / (q + 1)); }) });
+    });
     /* Casos de calidad para que el panel tenga contenido */
     for (var q = 0; q < 6; q++) registros.push({ segmento: "", cliente: "", tipo: "(2) PAQUETERIA", agrupado: agrDemo("(2) PAQUETERIA", "Estándar a domicilio"), servicio: "Estándar a domicilio", contrato: "40" + (5550000 + q * 11), valores: meses.map(function () { return Math.round(rnd() * 400); }) });
     registros.push({ segmento: registros[5].segmento, cliente: registros[5].cliente, tipo: "Sin servicio asignado", agrupado: "Sin servicio asignado", servicio: "Sin servicio asignado", contrato: "309990001", valores: meses.map(function () { return Math.round(rnd() * 90); }) });
     registros.push({ segmento: registros[8].segmento, cliente: registros[8].cliente, tipo: "(1) SOBRES", agrupado: agrDemo("(1) SOBRES", "Sobre simple"), servicio: "Sobre simple", contrato: "4012345", valores: meses.map(function () { return Math.round(rnd() * 150); }) });
-    var parsed = { meses: meses, registros: registros, filtros: "canal es B2C · monetizacion es Facturables · ANIO es 2026 (DATOS SINTÉTICOS)" };
+    var parsed = { meses: meses, registros: registros, filtros: "canal es B2B o B2C · monetizacion es Facturables · ANIO es 2026 (DATOS SINTÉTICOS)" };
     return nuevaBase(parsed, "demo", hoy || new Date(2026, 9, 29), "Datos sintéticos");
   }
 
@@ -645,7 +690,9 @@ var MATRIZ = (function () {
     desdeFilas: desdeFilas, nuevaBase: nuevaBase, diferencias: diferencias, fusionar: fusionar, totalBase: totalBase,
     filtrar: filtrar, agrupar: agrupar, kpis: kpis, tendencia: tendencia, sinActividad: sinActividad, clientesNuevos: clientesNuevos,
     calidad: calidad, completos: completos, sumaMeses: sumaMeses, segDe: segDe, cliDe: cliDe, agrDe: agrDe, clave: clave, sinAcentos: sinAcentos, demo: demo,
-    completarTipo: completarTipo, completarAgrupado: completarAgrupado, mapaAgrupado: mapaAgrupado, esInterno: esInterno, INTERNOS: INTERNOS,
+    completarTipo: completarTipo, completarAgrupado: completarAgrupado, mapaAgrupado: mapaAgrupado, esInterno: esInterno, esInternoReg: esInternoReg, internosTxt: internosTxt,
+    INTERNOS: INTERNOS, SEG_INTERNOS: SEG_INTERNOS,
+    canalDe: canalDe, CANALES: CANALES, B2B_PREFIJOS: B2B_PREFIJOS, opcionesCanal: opcionesCanal,
     NIVELES: NIVELES, opciones: opciones, podar: podar, grupoNivel: grupoNivel, compararJer: compararJer,
     migracion: migracion, esMigrado: esMigrado, marcarMigrado: marcarMigrado, deshacerMigrado: deshacerMigrado,
     resumenMigracion: resumenMigracion, contratosDesdeFilas: contratosDesdeFilas,
