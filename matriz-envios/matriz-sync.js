@@ -2,7 +2,7 @@
 var MATRIZ_SYNC = (function () {
   "use strict";
   var CFG = { owner: "Pblsanchez", repo: "andreani-migracion-datos", rama: "main",
-    base: "matriz/base.json", mig: "matriz/migracion.json", vinculos: "rsa/vinculos.json", rent: "rsa/rentabilidad.json" };
+    base: "matriz/base.json", mig: "matriz/migracion.json", vinculos: "rsa/vinculos.json", fuentes: "fuentes" };
   var API = "https://api.github.com/repos/" + CFG.owner + "/" + CFG.repo;
   var HISTORIAL = "https://github.com/" + CFG.owner + "/" + CFG.repo + "/commits/" + CFG.rama;
   var REPO_TXT = CFG.owner + "/" + CFG.repo;
@@ -46,19 +46,33 @@ var MATRIZ_SYNC = (function () {
     return this.api("GET", "/git/ref/heads/" + CFG.rama).then(function (j) { return j && j.object ? j.object.sha : null; },
       function (e) { if (e.status === 409) return null; throw e; });
   };
-  /* Lee un archivo JSON en un commit (null si no existe). Repo privado: por la API con clave; raw.githubusercontent no sirve desde el navegador. */
-  Cliente.prototype.leer = function (ref, ruta) {
-    var url = "/contents/" + ruta.split("/").map(encodeURIComponent).join("/") + "?ref=" + encodeURIComponent(ref);
-    return this.api("GET", url, null, true).then(function (t) { return t ? JSON.parse(t) : null; },
+  function urlRuta(ruta, ref) { return "/contents/" + ruta.split("/").map(encodeURIComponent).join("/") + "?ref=" + encodeURIComponent(ref); }
+  /* Texto de un archivo en un commit (null si no existe). Repo privado: por la API con clave; raw.githubusercontent no sirve desde el navegador. */
+  Cliente.prototype.leerTexto = function (ref, ruta) {
+    return this.api("GET", urlRuta(ruta, ref), null, true).then(function (t) { return t == null ? null : t; },
       function (e) { if (e.status === 404) return null; throw e; });
   };
-  /* Lee todo (matriz, migración, vínculos RSA, rentabilidad) del último commit */
+  Cliente.prototype.leer = function (ref, ruta) { return this.leerTexto(ref, ruta).then(function (t) { return t ? JSON.parse(t) : null; }); };
+  /* Archivos de una carpeta (y sus subcarpetas, un nivel) → {ruta: texto}. null si la carpeta no existe (D-037: fuentes/) */
+  Cliente.prototype.leerCarpeta = function (ref, dir) {
+    var self = this;
+    function listar(d) { return self.api("GET", urlRuta(d, ref)).then(function (l) { return Array.isArray(l) ? l : []; }, function (e) { if (e.status === 404) return null; throw e; }); }
+    return listar(dir).then(function (l) {
+      if (!l) return null;
+      return Promise.all(l.filter(function (x) { return x.type === "dir"; }).map(function (x) { return listar(x.path); })).then(function (subs) {
+        var rutas = l.filter(function (x) { return x.type === "file"; }).map(function (x) { return x.path; });
+        subs.forEach(function (s) { (s || []).forEach(function (x) { if (x.type === "file") rutas.push(x.path); }); });
+        return Promise.all(rutas.map(function (r) { return self.leerTexto(ref, r); })).then(function (tx) { var o = {}; rutas.forEach(function (r, i) { if (tx[i] != null) o[r] = tx[i]; }); return o; });
+      });
+    });
+  };
+  /* Lee todo (matriz, migración, vínculos RSA y fuentes de ingreso) del último commit */
   Cliente.prototype.cargar = function () {
     var self = this;
     return self.refDatos().then(function (sha) {
-      if (!sha) return { sha: null, base: null, mig: null, vinculos: null, rent: null };
-      return Promise.all([self.leer(sha, CFG.base), self.leer(sha, CFG.mig), self.leer(sha, CFG.vinculos), self.leer(sha, CFG.rent)])
-        .then(function (x) { return { sha: sha, base: x[0], mig: x[1], vinculos: x[2], rent: x[3] }; });
+      if (!sha) return { sha: null, base: null, mig: null, vinculos: null, fuentes: null };
+      return Promise.all([self.leer(sha, CFG.base), self.leer(sha, CFG.mig), self.leer(sha, CFG.vinculos), self.leerCarpeta(sha, CFG.fuentes)])
+        .then(function (x) { return { sha: sha, base: x[0], mig: x[1], vinculos: x[2], fuentes: x[3] }; });
     });
   };
   /* Un commit con varios archivos (Git Data API). padre = commit sobre el que se trabajó. Si la rama avanzó: error.conflicto. */

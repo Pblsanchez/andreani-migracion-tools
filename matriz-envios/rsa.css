@@ -1,0 +1,26 @@
+/* ===== Pestaña «Ingreso y resultado» (T-005, D-031). Solo tokens del Design System Cartesian ===== */
+.kpi--fin { border-color: var(--c-color-border-info); }
+.rsa-barra { display: flex; flex-wrap: wrap; align-items: center; gap: var(--c-spacing-2); margin: 0 0 var(--c-spacing-3); }
+.rsa-barra .input--select { max-width: 360px; height: 32px; }
+.rsa-carga { margin-top: var(--c-spacing-4); }
+.rsa-carga > summary { cursor: pointer; font-family: var(--c-font-family-title); font-size: 16px; line-height: 24px; font-weight: var(--c-font-weight-medium); color: var(--c-color-text-strong); border-radius: var(--c-border-radius-xsmall); }
+.rsa-carga[open] > summary { margin-bottom: var(--c-spacing-3); }
+.rsa-bases { list-style: none; margin: 0 0 var(--c-spacing-3); padding: 0; display: flex; flex-direction: column; gap: var(--c-spacing-2); }
+.rsa-bases li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--c-spacing-2) var(--c-spacing-4); border: 1px solid var(--c-color-border-subtle); border-radius: var(--c-border-radius-small); padding: var(--c-spacing-3) var(--c-spacing-4); font-size: 14px; line-height: 20px; color: var(--c-color-text-strong); }
+.rsa-bases__acc { display: flex; align-items: center; gap: var(--c-spacing-2); }
+.rsa-bases__err { flex-basis: 100%; margin: 0; color: var(--c-color-text-error-strong); }
+.rsa-asignar { display: flex; flex-wrap: wrap; gap: var(--c-spacing-1); }
+.rsa-asignar .input--select { max-width: 280px; }
+.rsa-vias { font-size: 12px; line-height: 16px; color: var(--c-color-text); margin: var(--c-spacing-3) 0 0; }
+/* Gráficos: rellenos explícitos (D-012) */
+.chart .dot { fill-opacity: .75; stroke: var(--c-color-surface); stroke-width: 1.5; }
+.chart .dot-ok { fill: var(--c-color-fill-success); } .chart .dot-warn { fill: var(--c-color-surface-warning); } .chart .dot-err { fill: var(--c-color-fill-primary); }
+.chart g[tabindex] { cursor: default; }
+.chart g[tabindex]:focus { outline: 2px solid transparent; }
+.chart g[tabindex]:focus-visible .dot { stroke: var(--c-blue-600); stroke-width: 3; }
+.chart .bar-ing { fill: var(--c-color-fill-info); } .chart .bar-res { fill: var(--c-color-fill-success); } .chart .bar-neg { fill: var(--c-color-fill-primary); }
+.sw--dot-ok, .sw--bar-res { background: var(--c-color-fill-success); }
+.sw--dot-warn { background: var(--c-color-surface-warning); }
+.sw--dot-err, .sw--bar-neg { background: var(--c-color-fill-primary); }
+.sw--bar-ing { background: var(--c-color-fill-info); }
+@media (max-width: 599px) { .rsa-bases li { flex-direction: column; align-items: flex-start; } .rsa-barra .input--select { max-width: none; width: 100%; } }
