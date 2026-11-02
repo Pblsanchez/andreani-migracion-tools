@@ -180,7 +180,13 @@
           <li>Se excluyen los RSA internos: 88881, 88882, 99999 y 01648 (Contado).</li>
           <li><strong>Rentabilidad</strong> = resultado ÷ ingreso del conjunto (no es un promedio de porcentajes). Semáforo: <span class="badge badge--success">Alta</span> 15 % o más, <span class="badge badge--warning">Media</span> entre 0 y 15 %, <span class="badge badge--error">Negativa</span> menos de 0.</li>
           <li><strong>Tabla por RSA</strong>: envíos, ingreso, resultado, rentabilidad e ingreso por envío. Se ordena tocando el título de cualquier columna: el primer toque ordena los textos de la A a la Z y los números de mayor a menor; el segundo invierte el orden. Por defecto, por ingreso de mayor a menor; los vacíos quedan al final. Se puede filtrar un RSA y exportar a CSV, que sale en el mismo orden y suma los costos.</li>
-          <li><strong>Matriz de priorización</strong>: los 60 RSA con más ingreso, envíos contra rentabilidad. <strong>Evolución</strong>: ingreso y resultado por mes, con tabla de datos.</li>
+          <li><strong>Matriz de priorización</strong>: los 60 RSA con más ingreso, envíos contra rentabilidad. La línea punteada es la mediana de envíos de esos 60: a la derecha, <em>mucho volumen</em>; a la izquierda, <em>poco volumen</em>. Con <span class="ui">Gráfico</span> / <span class="ui">Lista</span> cambiás la vista en el mismo panel:
+            <ul>
+              <li><strong>Lista</strong>: los mismos 60 RSA en tres grupos (<span class="badge badge--success">Alta</span>, <span class="badge badge--warning">Media</span>, <span class="badge badge--error">Negativa</span>). Cada grupo muestra cuántos RSA y razones sociales tiene, su ingreso, su peso en el ingreso de la lista y su rentabilidad. Cada fila trae las razones sociales del RSA, envíos, ingreso, resultado, rentabilidad y la <strong>ubicación en la matriz</strong> (mucho volumen y rentable; mucho volumen con rentabilidad baja o negativa; poco volumen, candidato a piloto). Las columnas se ordenan tocando el título, y <span class="ui">Exportar lista (CSV)</span> descarga todo con la columna Grupo.</li>
+              <li>Tocar un círculo del gráfico abre la Lista con la fila de ese RSA resaltada.</li>
+            </ul>
+          </li>
+          <li><strong>Evolución</strong>: ingreso y resultado por mes, con tabla de datos.</li>
           <li><strong>Calidad del vínculo</strong>: porcentaje de envíos con al menos un RSA y con un RSA único. Solo las razones con RSA único (o resueltas a mano) suman montos.</li>
         </ul>
 
