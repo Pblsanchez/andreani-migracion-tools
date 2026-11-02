@@ -179,13 +179,17 @@ function MATRIZ_RSA_VISTA(ctx) {
   /* Matriz de priorización (top 60 por ingreso) en dos vistas del mismo panel: Gráfico y Lista.
      Mucho/poco volumen = envíos por encima/debajo de la mediana de esos 60 RSA (línea punteada del gráfico). */
   ui.prioVista = ui.prioVista || "grafico"; ui.prioSort = ui.prioSort || { key: "ingreso", dir: -1 }; ui.prioSel = ui.prioSel || null;
-  var GRUPOS = [["alta", "success", "Alta", "rentabilidad 15 % o más"], ["media", "warning", "Media", "rentabilidad entre 0 y 15 %"], ["negativa", "error", "Negativa", "resultado negativo"]];
+  /* v1.8.3: la Lista se agrupa por ubicación en la matriz (pedido de Pablo: ver todos los candidatos a piloto juntos). */
+  var GRUPOS = [["piloto", "info", "Candidatos a piloto", "Poco volumen: menos envíos que la mediana, con cualquier rentabilidad. Buenos para probar DMS con bajo riesgo."],
+    ["cuidado", "success", "Migrar con cuidado", "Mucho volumen y rentabilidad alta (15 % o más). Mayor impacto: planificar bien su migración."],
+    ["tarifas", "warning", "Revisar tarifas", "Mucho volumen y rentabilidad media (0 a 15 %) o negativa. Conviene revisar tarifas antes o durante la migración."]];
   function topPrio(C) {
     var l = C.lista.filter(function (o) { return o.envios > 0 && o.ingreso > 0; }).slice(0, 60);
     var e = l.map(function (o) { return o.envios; }).sort(function (a, b) { return a - b; }), k = e.length;
     var med = !k ? 0 : k % 2 ? e[(k - 1) / 2] : (e[k / 2 - 1] + e[k / 2]) / 2;
     l.forEach(function (o) {
       o.nivel = R.nivel(o.rent); o.mucho = o.envios >= med;
+      o.cuad = !o.mucho ? "piloto" : o.nivel === "alta" ? "cuidado" : "tarifas";
       o.ubic = !o.mucho ? "Poco volumen: candidato a piloto" : o.nivel === "alta" ? "Mucho volumen y rentable: migrar con cuidado" : "Mucho volumen, rentabilidad baja o negativa: revisar tarifas";
     });
     return { l: l, med: med };
@@ -235,21 +239,22 @@ function MATRIZ_RSA_VISTA(ctx) {
     var tot = 0; l.forEach(function (o) { tot += o.ingreso; });
     c.appendChild(el("div", { "class": "rsa-lista__acc" }, [el("button", { type: "button", "class": "btn btn--secondary btn--small", id: "prio-csv", onclick: function () { exportarPrio(l); } }, [svgIcon("download", 16), "Exportar lista (CSV)"])]));
     GRUPOS.forEach(function (G) {
-      var gl = ordenar(l.filter(function (o) { return o.nivel === G[0]; }), ui.prioSort);
-      var t = { ing: 0, res: 0, raz: 0 }; gl.forEach(function (o) { t.ing += o.ingreso; t.res += o.resultado; t.raz += o.razones.length; });
+      var gl = ordenar(l.filter(function (o) { return o.cuad === G[0]; }), ui.prioSort);
+      var t = { ing: 0, res: 0, raz: 0, niv: {} }; gl.forEach(function (o) { t.ing += o.ingreso; t.res += o.resultado; t.raz += o.razones.length; t.niv[o.nivel] = (t.niv[o.nivel] || 0) + 1; });
       var hid = "prio-grupo-" + G[0];
       var sec = el("section", { "class": "rsa-grupo", "aria-labelledby": hid });
       sec.appendChild(el("h3", { id: hid, "class": "rsa-grupo__titulo" }, [U.badge(G[1], G[2]), " " + n(gl.length) + " RSA · " + n(t.raz) + " razones sociales · " + ars(t.ing) + " (" + pct(tot ? t.ing / tot : 0) + " del ingreso de la lista)" + (gl.length ? " · Rentabilidad del grupo " + pct(R.rentab(t.ing, t.res)) : "")]));
-      sec.appendChild(el("p", { "class": "panel__sub", text: "Grupo " + G[2] + ": " + G[3] + "." }));
+      var mix = ["alta", "media", "negativa", "sin"].filter(function (k) { return t.niv[k]; }).map(function (k) { return NIV[k][1] + " " + n(t.niv[k]); }).join(" · ");
+      sec.appendChild(el("p", { "class": "panel__sub", text: G[3] + (mix ? " Por rentabilidad: " + mix + "." : "") }));
       if (!gl.length) { sec.appendChild(el("p", { "class": "panel__sub", text: "Ningún RSA de la lista está en este grupo." })); c.appendChild(sec); return; }
       var tb = U.tabla([
         { t: "RSA", key: "nombre", f: function (o) { return o.id + " · " + o.nombre; } },
         { t: "Razones sociales", key: "razones", f: function (o) { return el("ul", { "class": "rsa-razones" }, o.razones.map(function (r) { return el("li", { text: r }); })); } },
         { t: "Tipo de cuenta", key: "tipo", f: function (o) { return o.tipo || "—"; } },
         { t: "Envíos", key: "envios", n: 1, f: function (o) { return n(o.envios); } }, { t: "Ingreso", key: "ingreso", n: 1, f: function (o) { return ars(o.ingreso); } },
-        { t: "Resultado", key: "resultado", n: 1, f: function (o) { return ars(o.resultado); } }, { t: "Rentabilidad", key: "rent", n: 1, f: function (o) { return pct(o.rent); } },
-        { t: "Ubicación en la matriz", f: function (o) { return o.ubic; } }
-      ], gl, { caption: "Grupo " + G[2] + " de la matriz de priorización: " + gl.length + " RSA.", sort: ui.prioSort, onSort: function (k) { cambiarOrdenPrio(k, G[0]); } });
+        { t: "Resultado", key: "resultado", n: 1, f: function (o) { return ars(o.resultado); } },
+        { t: "Rentabilidad", key: "rent", f: function (o) { return rentBadge(o.rent); } }
+      ], gl, { caption: G[2] + " (matriz de priorización): " + gl.length + " RSA.", sort: ui.prioSort, onSort: function (k) { cambiarOrdenPrio(k, G[0]); } });
       var keys = ["nombre", "razones", "tipo", "envios", "ingreso", "resultado", "rent"];
       Array.prototype.forEach.call(tb.querySelectorAll(".th-sort"), function (b, i) { b.setAttribute("data-fid", "prio-orden-" + G[0] + "-" + keys[i]); });
       var tbody = tb.querySelectorAll("tbody")[0];
@@ -269,10 +274,10 @@ function MATRIZ_RSA_VISTA(ctx) {
     var b = document.querySelector("[data-fid='prio-orden-" + grupo + "-" + key + "']"); if (b) b.focus();
   }
   function exportarPrio(l) {
-    var cab = ["Grupo", "ID RSA", "RSA", "Razones sociales", "Tipo de cuenta", "Envíos", "Ingreso", "Costos", "Resultado", "Rentabilidad", "Volumen", "Ubicación en la matriz"], rows = [];
+    var cab = ["Ubicación en la matriz", "ID RSA", "RSA", "Razones sociales", "Tipo de cuenta", "Envíos", "Ingreso", "Costos", "Resultado", "Rentabilidad", "Nivel de rentabilidad", "Volumen"], rows = [];
     GRUPOS.forEach(function (G) {
-      ordenar(l.filter(function (o) { return o.nivel === G[0]; }), ui.prioSort).forEach(function (o) {
-        rows.push([G[2], o.id, o.nombre, o.razones.join(" | "), o.tipo, o.envios, Math.round(o.ingreso), Math.round(o.costos), Math.round(o.resultado), (o.rent * 100).toFixed(2).replace(".", ",") + " %", o.mucho ? "Mucho" : "Poco", o.ubic]);
+      ordenar(l.filter(function (o) { return o.cuad === G[0]; }), ui.prioSort).forEach(function (o) {
+        rows.push([G[2], o.id, o.nombre, o.razones.join(" | "), o.tipo, o.envios, Math.round(o.ingreso), Math.round(o.costos), Math.round(o.resultado), (o.rent * 100).toFixed(2).replace(".", ",") + " %", (NIV[o.nivel] || NIV.sin)[1], o.mucho ? "Mucho" : "Poco"]);
       });
     });
     var blob = new Blob(["\uFEFF" + R.aCSV(cab, rows)], { type: "text/csv;charset=utf-8" }), a = document.createElement("a");
@@ -424,4 +429,4 @@ function MATRIZ_RSA_VISTA(ctx) {
   return { render: render, datos: datos, recalcular: recalcular, calcular: calcular, razonesBase: razonesBase };
 }
 if (typeof module !== "undefined" && module.exports) module.exports = MATRIZ_RSA_VISTA;
-/* ==RSA-VISTA-END== */
+/* ==RSA-VISTA-END==
