@@ -44,6 +44,7 @@
         <p>Envíos de todos los contratos y clientes de Grupo Logístico Andreani, canales <strong>B2B</strong> y <strong>B2C</strong>. Lo que se migra del sistema operativo <strong>Integra</strong> al nuevo sistema operativo <strong>DMS</strong> es el canal <strong>B2C</strong>: la pestaña «Migración a DMS» muestra solo B2C.</p>
         <p>Canal: si la descarga no trae la columna «Canal», los contratos que empiezan con 350 o 351 son B2B y el resto, B2C.</p>
         <p>Estructura: Segmento › Razón social › Tipo de servicio › Servicio agrupado › Servicio › N° contrato. El canal es un filtro aparte.</p>
+        <p>Privacidad: los datos se guardan en un repositorio privado de GitHub. Solo los ve quien está invitado y conecta su clave en este navegador.</p>
         <dl class="meta-list" id="about-meta"></dl>
       </div>
     </details>
@@ -262,10 +263,11 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="chart-tip" id="tip" aria-hidden="true"></div>
 
-<!-- Los datos se leen de la rama "datos" del repo (matriz-envios/datos/*.json) — D-022. v1.7: B2B + B2C (D-030, D-032, D-033, D-034) -->
+<!-- v1.8: los datos se leen y escriben con la clave de cada usuario en el repo PRIVADO Pblsanchez/andreani-migracion-datos (D-035). B2B + B2C (D-030, D-032, D-033, D-034) -->
 <script src="matriz-lib.js"></script>
 <script src="matriz-ui.js"></script>
 <script src="matriz-sync.js"></script>
+<script src="matriz-gh.js"></script>
 <script src="matriz-vistas.js"></script>
 <script src="matriz-detalle.js"></script>
 <script src="matriz-app.js"></script>
