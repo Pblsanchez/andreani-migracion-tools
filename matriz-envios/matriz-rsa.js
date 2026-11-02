@@ -120,17 +120,50 @@ function MATRIZ_RSA_VISTA(ctx) {
     c.appendChild(kpi("star", "Rentabilidad", r == null ? "—" : pct(r), "Resultado ÷ ingreso (no es un promedio)", rentBadge(r)));
     c.appendChild(kpi("box", "Ingreso por envío", porEnvio(t.ingreso, t.envios), n(t.envios) + " envíos de esos RSA en el período"));
   }
+  /* Orden de la tabla por RSA: clic en la cabecera. Texto: A→Z primero; números: mayor primero. Vacíos siempre al final */
+  var ORDEN = {
+    id: { t: "ID RSA", v: function (o) { return o.id; }, txt: 1 }, nombre: { t: "RSA", v: function (o) { return o.nombre; }, txt: 1 },
+    razones: { t: "razones sociales", v: function (o) { return o.razones.length; } }, tipo: { t: "tipo de cuenta", v: function (o) { return o.tipo || null; }, txt: 1 },
+    envios: { t: "envíos", v: function (o) { return o.envios; } }, ingreso: { t: "ingreso", v: function (o) { return o.ingreso; } },
+    resultado: { t: "resultado", v: function (o) { return o.resultado; } }, rent: { t: "rentabilidad", v: function (o) { return o.rent; } },
+    porEnvio: { t: "ingreso por envío", v: function (o) { return o.envios ? o.ingreso / o.envios : null; } }
+  };
+  ui.rsaSort = ui.rsaSort || { key: "ingreso", dir: -1 };
+  function ordenar(lista) {
+    var s = ui.rsaSort, d = ORDEN[s.key] || ORDEN.ingreso;
+    return lista.slice().sort(function (a, b) {
+      var x = d.v(a), y = d.v(b);
+      if (x == null || x === "") return y == null || y === "" ? 0 : 1;
+      if (y == null || y === "") return -1;
+      var r = d.txt ? String(x).localeCompare(String(y), "es", { sensitivity: "base", numeric: true }) : x - y;
+      return (r || (b.ingreso - a.ingreso)) * (r ? s.dir : 1);
+    });
+  }
+  function cambiarOrden(key) {
+    var s = ui.rsaSort;
+    if (s.key === key) s.dir = -s.dir; else { s.key = key; s.dir = ORDEN[key].txt ? 1 : -1; }
+    ctx.renderTodo();
+    var b = $("rsa-tabla").querySelector("[data-fid='rsa-orden-" + key + "']"); if (b) b.focus();
+  }
   function renderTabla(C) {
     var c = $("rsa-tabla"); c.innerHTML = "";
-    var lim = ui.rsaVerTodo ? C.lista.length : 25, filas = C.lista.slice(0, lim);
-    c.appendChild(el("div", { "class": "table-wrap" }, [U.tabla([
-      { t: "ID RSA", f: function (o) { return o.id; } }, { t: "RSA", f: function (o) { return o.nombre; } },
-      { t: "Razones sociales de la matriz", f: function (o) { return o.razones.slice(0, 2).join(" · ") + (o.razones.length > 2 ? " y " + (o.razones.length - 2) + " más" : ""); } },
-      { t: "Tipo de cuenta", f: function (o) { return o.tipo || "—"; } },
-      { t: "Envíos", n: 1, f: function (o) { return n(o.envios); } }, { t: "Ingreso", n: 1, f: function (o) { return ars(o.ingreso); } },
-      { t: "Resultado", n: 1, f: function (o) { return ars(o.resultado); } }, { t: "Rentabilidad", f: function (o) { return rentBadge(o.rent); } },
-      { t: "Ingreso por envío", n: 1, f: function (o) { return porEnvio(o.ingreso, o.envios); } }
-    ], filas, { caption: "Ingreso y resultado por RSA, ordenado por ingreso", vacio: "No hay RSA con envíos y montos para los filtros elegidos." })]));
+    var lista = ordenar(C.lista), lim = ui.rsaVerTodo ? lista.length : 25, filas = lista.slice(0, lim);
+    var s = ui.rsaSort, desc = (ORDEN[s.key] || ORDEN.ingreso).t + (s.dir > 0 ? " (ascendente)" : " (descendente)");
+    var tb = U.tabla([
+      { t: "ID RSA", key: "id", f: function (o) { return o.id; } }, { t: "RSA", key: "nombre", f: function (o) { return o.nombre; } },
+      { t: "Razones sociales de la matriz", key: "razones", f: function (o) { return o.razones.slice(0, 2).join(" · ") + (o.razones.length > 2 ? " y " + (o.razones.length - 2) + " más" : ""); } },
+      { t: "Tipo de cuenta", key: "tipo", f: function (o) { return o.tipo || "—"; } },
+      { t: "Envíos", key: "envios", n: 1, f: function (o) { return n(o.envios); } }, { t: "Ingreso", key: "ingreso", n: 1, f: function (o) { return ars(o.ingreso); } },
+      { t: "Resultado", key: "resultado", n: 1, f: function (o) { return ars(o.resultado); } }, { t: "Rentabilidad", key: "rent", f: function (o) { return rentBadge(o.rent); } },
+      { t: "Ingreso por envío", key: "porEnvio", n: 1, f: function (o) { return porEnvio(o.ingreso, o.envios); } }
+    ], filas, { caption: "Ingreso y resultado por RSA, ordenado por " + desc + ". Usá los botones de la cabecera para cambiar el orden.", vacio: "No hay RSA con envíos y montos para los filtros elegidos.",
+      sort: { key: s.key, dir: s.dir }, onSort: cambiarOrden });
+    /* data-fid para devolver el foco al botón después de ordenar. El estado lo anuncia aria-sort del th */
+    Array.prototype.forEach.call(tb.querySelectorAll(".th-sort"), function (b, i) {
+      b.setAttribute("data-fid", "rsa-orden-" + ["id", "nombre", "razones", "tipo", "envios", "ingreso", "resultado", "rent", "porEnvio"][i]);
+    });
+    c.appendChild(el("div", { "class": "table-wrap" }, [tb]));
+    C = { lista: lista };
     var pie = el("div", { "class": "pager" }, [el("span", { text: "Se muestran " + n(filas.length) + " de " + n(C.lista.length) + " RSA." })]);
     if (C.lista.length > 25) pie.appendChild(el("button", { type: "button", "class": "btn btn--ghost btn--small", id: "rsa-vertodo", onclick: function () { ui.rsaVerTodo = !ui.rsaVerTodo; ctx.renderTodo(); $("rsa-vertodo").focus(); } }, [ui.rsaVerTodo ? "Ver solo los 25 primeros" : "Ver todos"]));
     c.appendChild(pie);
