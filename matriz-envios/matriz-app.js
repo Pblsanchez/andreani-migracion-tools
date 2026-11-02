@@ -4,12 +4,16 @@
   var M = MATRIZ, U = MATRIZ_UI, S = MATRIZ_SYNC;
   var n = U.n, pct = U.pct, corto = U.corto, fecha = U.fecha, $ = U.$, el = U.el, svgIcon = U.svgIcon, badge = U.badge, alerta = U.alerta, toast = U.toast, share = U.share, tabla = U.tabla;
   var LS_TOKEN = "andreani.matriz-envios.github.token", LS_PEND = "andreani.matriz-envios.pendientes.v2", LS_VIEJA = "andreani.matriz-envios.base.v1";
+  /* Pendientes sin enviar: IndexedDB (D-035). LS_PEND solo se lee una vez para pasar lo que hubiera de la v1.7 */
+  var ALM = new S.Almacen(), K_PEND = "pendientes.v3";
 
   /* ---------- Estado ---------- */
   var VISTAS = [{ id: "resumen", t: "Resumen" }, { id: "analisis", t: "Análisis" }, { id: "migracion", t: "Migración a DMS" }];
   var base = null, f, ui = { vista: "resumen", tab: "crec", sortKey: "jer", sortDir: 1, page: 0, pageSize: 25, verTodoTab: false, abiertos: {}, limites: {}, migAbiertos: {}, migLimites: {}, migVer: "todo", deshacer: null };
-  /* Sincronización con GitHub (D-022): los datos viven en la rama "datos" del repo; lo ve cualquiera, edita quien tiene clave */
-  var gh = { cliente: null, usuario: null, puede: false, sha: null, pendientes: [], baseCambiada: false, cargando: true, enviando: false, error: null, errorEnvio: null, demorado: false, ultimaCarga: 0, migSola: null, baseRemotaAct: null, recuperados: false };
+  /* Sincronización con GitHub (D-035): los datos viven en un repo PRIVADO; solo los ve quien conecta su clave, edita quien tiene permiso de escritura.
+     rsa = vínculos razón social → RSA y rentabilidad (pestaña «Ingreso y resultado», D-031); rsaCambiado = cuáles hay que enviar */
+  var gh = { cliente: null, usuario: null, puede: false, sha: null, pendientes: [], baseCambiada: false, cargando: true, enviando: false, error: null, errorEnvio: null, ultimaCarga: 0, migSola: null, baseRemotaAct: null, recuperados: false,
+    rsa: { vinculos: null, rent: null }, rsaCambiado: {}, pendGuardado: null };
   function leerLS(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   gh.cliente = new S.Cliente(leerLS(LS_TOKEN));
   /* Canal (D-030; fijo en B2C en Migración) + un filtro por cada nivel de M.NIVELES (D-029) + período y texto */
@@ -19,49 +23,67 @@
   try { var h = (window.location && window.location.hash || "").replace("#", ""); if (VISTAS.some(function (v) { return v.id === h; })) ui.vista = h; } catch (e) { /* sin location */ }
 
   function editor() { return gh.puede && !!gh.usuario; }
-  function hayPend() { return gh.pendientes.length > 0 || gh.baseCambiada; }
+  function conClave() { return !!gh.cliente.token; }
+  function rsaPend() { return !!(gh.rsaCambiado.vinculos || gh.rsaCambiado.rent); }
+  function hayPend() { return gh.pendientes.length > 0 || gh.baseCambiada || rsaPend(); }
   function migVacia() { return { marcas: {}, historial: [] }; }
-  /* Carga los datos desde GitHub. silencioso = revisión automática (no reemplaza si no hubo cambios) */
-  function cargarRemoto(silencioso, reintento) {
+  /* Carga los datos desde GitHub. silencioso = revisión automática (no reemplaza si no hubo cambios). Sin clave no se lee nada (repo privado). */
+  function cargarRemoto(silencioso) {
+    if (!conClave()) { gh.cargando = false; gh.error = null; base = null; gh.rsa = { vinculos: null, rent: null }; renderTodo(); return Promise.resolve(false); }
     gh.cargando = !silencioso; if (!silencioso) renderTodo();
     return gh.cliente.cargar().then(function (d) {
-      gh.cargando = false; gh.error = null; gh.demorado = d.demorado; gh.ultimaCarga = Date.now();
+      gh.cargando = false; gh.error = null; gh.ultimaCarga = Date.now();
       if (silencioso && (hayPend() || !d.sha || d.sha === gh.sha)) { renderSync(); return false; }
       gh.sha = d.sha; gh.baseRemotaAct = d.base ? d.base.actualizado : null; gh.migSola = d.mig;
       base = d.base || null;
       if (base) base.migracion = d.mig || migVacia();
+      gh.rsa = { vinculos: d.vinculos || null, rent: d.rent || null };
       restaurarPendientes();
       if (base) M.podar(base, f);
       renderTodo();
       if (silencioso) toast("Se actualizaron los datos con los últimos cambios guardados en GitHub.");
       return true;
     }).catch(function (e) {
-      /* Clave guardada vencida: se descarta y se lee como visitante */
-      if (e && e.status === 401 && !reintento) { if (gh.cliente.token) olvidarClave(); return cargarRemoto(silencioso, true); }
+      /* Clave guardada vencida: se descarta y no se muestran datos */
+      if (e && e.status === 401 && conClave()) { olvidarClave(); base = null; gh.cargando = false; renderTodo(); return false; }
       gh.cargando = false; if (!silencioso) gh.error = e && e.message ? e.message : String(e); renderTodo(); return false;
     });
   }
   function olvidarClave() {
     try { localStorage.removeItem(LS_TOKEN); } catch (x) { /* nada */ }
     gh.cliente = new S.Cliente(null); gh.usuario = null; gh.puede = false;
-    toast("La clave de GitHub guardada venció o no es válida. Conectá de nuevo para editar.");
+    toast("La clave de GitHub guardada venció o no es válida. Conectá de nuevo para ver los datos.");
   }
-  /* Cambios sin enviar: se guardan en el navegador para no perderlos si se cierra la página */
+  /* Cambios sin enviar: se guardan en IndexedDB para no perderlos si se cierra la página */
   function guardarPendientes() {
-    try {
-      if (!hayPend()) localStorage.removeItem(LS_PEND);
-      else localStorage.setItem(LS_PEND, JSON.stringify({ ops: gh.pendientes, base: gh.baseCambiada ? sinMig(base) : null }));
-    } catch (e) { toast("No se pudieron guardar los cambios pendientes en este navegador. Enviá a GitHub para no perderlos."); }
+    var p = hayPend() ? { ops: gh.pendientes, base: gh.baseCambiada ? sinMig(base) : null,
+      rsa: rsaPend() ? { vinculos: gh.rsaCambiado.vinculos ? gh.rsa.vinculos : null, rent: gh.rsaCambiado.rent ? gh.rsa.rent : null } : null } : null;
+    gh.pendGuardado = p;
+    (p ? ALM.set(K_PEND, p) : ALM.del(K_PEND)).catch(function () { toast("No se pudieron guardar los cambios pendientes en este navegador. Enviá a GitHub para no perderlos."); });
     renderSync();
   }
   function sinMig(b) { var o = {}; Object.keys(b).forEach(function (k) { if (k !== "migracion") o[k] = b[k]; }); return o; }
   function restaurarPendientes() {
-    var p = null; try { p = JSON.parse(leerLS(LS_PEND) || "null"); } catch (e) { p = null; }
-    gh.pendientes = []; gh.baseCambiada = false;
+    var p = gh.pendGuardado;
+    gh.pendientes = []; gh.baseCambiada = false; gh.rsaCambiado = {};
     if (!p) return;
     if (p.base) { var mig = base ? base.migracion : (gh.migSola || migVacia()); base = p.base; base.migracion = mig; gh.baseCambiada = true; }
     if (p.ops && p.ops.length && base) { S.aplicarPendientes(base.migracion, p.ops); gh.pendientes = p.ops; }
+    if (p.rsa) ["vinculos", "rent"].forEach(function (t) { if (p.rsa[t]) { gh.rsa[t] = p.rsa[t]; gh.rsaCambiado[t] = true; } });
     gh.recuperados = hayPend();
+  }
+  /* Pendientes guardados: IndexedDB; si no hay, lo que quedó en localStorage de la v1.7 (se pasa y se borra) */
+  function leerPendGuardados() {
+    return ALM.get(K_PEND).then(function (p) {
+      if (p) return p;
+      var v = null; try { v = JSON.parse(leerLS(LS_PEND) || "null"); } catch (e) { v = null; }
+      if (v) { try { localStorage.removeItem(LS_PEND); } catch (e) { /* nada */ } ALM.set(K_PEND, v).catch(function () { /* queda en memoria */ }); }
+      return v;
+    }, function () { return null; }).then(function (p) { gh.pendGuardado = p; });
+  }
+  /* Para la pestaña «Ingreso y resultado» (matriz-rsa.js): leer y cambiar vínculos / rentabilidad. Quedan pendientes hasta «Enviar a GitHub». */
+  function cambiarRSA(tipo, obj) {
+    gh.rsa[tipo] = obj; gh.rsaCambiado[tipo] = true; guardarPendientes(); renderTodo();
   }
   function registrarOp(cambios) {
     var mg = M.migracion(base), hh = mg.historial[mg.historial.length - 1];
@@ -71,8 +93,8 @@
   }
   function descartarPendientes() {
     if (!confirm("¿Descartar los cambios que no se enviaron a GitHub? No se puede deshacer.")) return;
-    try { localStorage.removeItem(LS_PEND); } catch (e) { /* nada */ }
-    gh.pendientes = []; gh.baseCambiada = false; gh.recuperados = false; ui.deshacer = null;
+    gh.pendientes = []; gh.baseCambiada = false; gh.rsaCambiado = {}; gh.recuperados = false; ui.deshacer = null;
+    guardarPendientes();
     cargarRemoto(false);
   }
 
@@ -91,18 +113,22 @@
         var mig = S.aplicarPendientes(d.mig || migVacia(), gh.pendientes);
         mig.actualizado = new Date().toISOString(); mig.usuario = gh.usuario;
         var baseFinal = gh.baseCambiada ? base : (d.base || base);
-        var archivos = {}; archivos[S.CFG.mig] = S.serializarMig(mig);
+        var archivos = {}, extras = [];
+        if (gh.pendientes.length || !d.mig) archivos[S.CFG.mig] = S.serializarMig(mig);
         if (gh.baseCambiada) archivos[S.CFG.base] = S.serializarBase(baseFinal);
-        return gh.cliente.escribir(archivos, S.mensajeCommit(gh.pendientes, gh.baseCambiada, baseFinal), d.sha)
+        if (gh.rsaCambiado.vinculos && gh.rsa.vinculos) { archivos[S.CFG.vinculos] = S.serializarLista(gh.rsa.vinculos, "vinculos"); extras.push("Vínculos razón social → RSA: " + (gh.rsa.vinculos.vinculos || []).length + " razones sociales"); }
+        if (gh.rsaCambiado.rent && gh.rsa.rent) { archivos[S.CFG.rent] = S.serializarLista(gh.rsa.rent, "rsa"); extras.push("Rentabilidad por RSA: " + (gh.rsa.rent.rsa || []).length + " RSA" + (gh.rsa.rent.archivo ? " (" + gh.rsa.rent.archivo + ")" : "")); }
+        return gh.cliente.escribir(archivos, S.mensajeCommit(gh.pendientes, gh.baseCambiada, baseFinal, extras), d.sha)
           .then(function (sha) { return { sha: sha, base: baseFinal, mig: mig }; });
       }).catch(function (e) { if (e.conflicto && intento < 3) return uno(); throw e; });
     }
     return uno().then(function (r) {
-      var nOps = gh.pendientes.length, conBase = gh.baseCambiada;
-      gh.sha = r.sha; base = r.base; base.migracion = r.mig; gh.baseRemotaAct = base.actualizado; gh.migSola = r.mig;
-      gh.pendientes = []; gh.baseCambiada = false; gh.recuperados = false; gh.enviando = false;
-      guardarPendientes(); M.podar(base, f); renderTodo();
-      toast("Enviado a GitHub" + (conBase ? ": matriz actualizada" : "") + (nOps ? (conBase ? " y " : ": ") + nOps + (nOps === 1 ? " cambio" : " cambios") + " de migración" : "") + ". Quien abra el dashboard ya ve la información al día.");
+      var nOps = gh.pendientes.length, conBase = gh.baseCambiada, conRsa = rsaPend();
+      gh.sha = r.sha; base = r.base; if (base) { base.migracion = r.mig; gh.baseRemotaAct = base.actualizado; } gh.migSola = r.mig;
+      gh.pendientes = []; gh.baseCambiada = false; gh.rsaCambiado = {}; gh.recuperados = false; gh.enviando = false;
+      guardarPendientes(); if (base) M.podar(base, f); renderTodo();
+      var partes = []; if (conBase) partes.push("matriz actualizada"); if (conRsa) partes.push("ingreso y resultado actualizados"); if (nOps) partes.push(nOps + (nOps === 1 ? " cambio" : " cambios") + " de migración");
+      toast("Enviado a GitHub" + (partes.length ? ": " + partes.join(", ") : "") + ".");
     }).catch(function (e) {
       gh.enviando = false; gh.errorEnvio = e && e.message ? e.message : String(e); renderTodo();
     });
@@ -122,12 +148,12 @@
       editor() ? [el("button", { type: "button", "class": "btn btn--primary btn--small", onclick: enviar }, ["Enviar a GitHub"]),
         el("button", { type: "button", "class": "btn btn--ghost btn--small", onclick: descartarPendientes }, ["Descartar"])]
         : [el("button", { type: "button", "class": "btn btn--secondary btn--small", onclick: abrirGh }, ["Conectar GitHub para enviarlos"])]));
-    if (gh.demorado && !gh.error) avisos.push(alerta("info", ["GitHub limitó las consultas desde esta red: los datos pueden tener hasta 5 minutos de demora."]));
     avisos.reverse().forEach(function (a) { a.setAttribute("data-auto", ""); a.classList.add("alert--compacta"); c.insertBefore(a, c.firstChild); });
   }
   function pendTxt() {
     var p = gh.pendientes.length, partes = [];
     if (gh.baseCambiada) partes.push("matriz nueva");
+    if (rsaPend()) partes.push("ingreso y resultado");
     if (p) partes.push(p + (p === 1 ? " cambio de migración" : " cambios de migración"));
     return partes.join(" y ");
   }
@@ -135,17 +161,18 @@
   function renderSync() {
     var c = $("sync"); c.innerHTML = "";
     var est;
-    if (gh.cargando) est = badge("info", "Cargando datos…", "clock");
+    if (!conClave()) est = badge("info", "Datos privados: conectá GitHub", "info");
+    else if (gh.cargando) est = badge("info", "Cargando datos…", "clock");
     else if (gh.enviando) est = badge("info", "Enviando a GitHub…", "upload");
     else if (gh.error) est = badge("error", "Sin conexión con GitHub");
     else if (hayPend()) est = badge("warning", "Sin enviar: " + pendTxt());
-    else est = badge("ok", "Datos al día");
+    else est = badge("ok", editor() ? "Datos al día" : "Datos al día · solo lectura");
     est.setAttribute("role", "status"); est.setAttribute("id", "sync-estado");
     c.appendChild(est);
     if (editor()) c.appendChild(el("button", { type: "button", "class": "btn btn--primary btn--small", id: "btn-enviar", disabled: !hayPend() || gh.enviando, onclick: enviar }, [svgIcon("upload", 16), "Enviar a GitHub"]));
-    c.appendChild(el("button", { type: "button", "class": "btn btn--ghost btn--small", id: "btn-recargar", title: "Volver a leer los datos de GitHub", disabled: gh.cargando || gh.enviando, onclick: function () { cargarRemoto(false); } }, [svgIcon("undo", 16), "Recargar"]));
-    c.appendChild(el("button", { type: "button", "class": "btn btn--ghost btn--small", id: "btn-gh", "aria-haspopup": "dialog", onclick: abrirGh },
-      [svgIcon("user", 16), editor() ? gh.usuario : "Conectar GitHub"]));
+    if (conClave()) c.appendChild(el("button", { type: "button", "class": "btn btn--ghost btn--small", id: "btn-recargar", title: "Volver a leer los datos de GitHub", disabled: gh.cargando || gh.enviando, onclick: function () { cargarRemoto(false); } }, [svgIcon("undo", 16), "Recargar"]));
+    c.appendChild(el("button", { type: "button", "class": conClave() ? "btn btn--ghost btn--small" : "btn btn--primary btn--small", id: "btn-gh", "aria-haspopup": "dialog", onclick: abrirGh },
+      [svgIcon("user", 16), gh.usuario ? gh.usuario : "Conectar GitHub"]));
     $("btn-actualizar").hidden = !editor();
   }
   function periodoTxt() { return M.mesTxt(base.meses[0]) + " a " + M.mesTxt(base.meses[base.meses.length - 1]) + (base.mesParcial ? " (" + M.mesTxt(base.mesParcial) + " parcial)" : ""); }
@@ -423,73 +450,26 @@
     else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
   }
 
-  /* ---------- Conexión con GitHub (clave personal del editor, guardada solo en este navegador) ---------- */
-  function abrirGh() { renderGh(); abrirDialogo("modal-gh", editor() ? "gh-desconectar" : "gh-token"); }
-  function renderGh() {
-    var c = $("gh-body"); c.innerHTML = "";
-    if (editor()) {
-      c.appendChild(alerta("ok", [el("strong", { text: "Conectado como " + gh.usuario + ". " }), "Podés marcar la migración, cargar descargas nuevas y enviarlas a GitHub. La clave está guardada solo en este navegador."]));
-      c.appendChild(el("button", { type: "button", "class": "btn btn--secondary", id: "gh-desconectar", onclick: desconectar }, ["Desconectar este navegador"]));
-      return;
-    }
-    c.appendChild(el("p", { "class": "gh-intro", text: "Cualquiera puede ver el dashboard. Para editar (marcar la migración o cargar una descarga nueva) hace falta una clave personal de GitHub con permiso de escritura en el repositorio. Se genera una sola vez:" }));
-    c.appendChild(el("ol", { "class": "gh-pasos" }, [
-      el("li", null, ["Entrá a ", el("a", { href: "https://github.com/settings/personal-access-tokens/new", target: "_blank", rel: "noopener noreferrer" }, ["GitHub › Fine-grained tokens › Generate new token (se abre en otra pestaña)"]), "."]),
-      el("li", null, ["Nombre: «Dashboard matriz de envíos». Vencimiento: el que prefieras (por ejemplo, 90 días)."]),
-      el("li", null, ["Repository access: «Only select repositories» › ", el("strong", { text: S.CFG.owner + "/" + S.CFG.repo }), "."]),
-      el("li", null, ["Permissions › Repository permissions › ", el("strong", { text: "Contents: Read and write" }), "."]),
-      el("li", null, ["Tocá «Generate token», copiala y pegala acá abajo."])
-    ]));
-    var inp = el("input", { "class": "input gh-token", type: "password", id: "gh-token", autocomplete: "off", spellcheck: "false", "aria-describedby": "gh-nota" });
-    inp.addEventListener("keydown", function (ev) { if (ev.key === "Enter") { ev.preventDefault(); conectar(); } });
-    c.appendChild(el("div", { "class": "field" }, [el("label", { "for": "gh-token", text: "Clave de GitHub (token)" }), inp,
-      el("span", { "class": "gh-nota", id: "gh-nota", text: "No la compartas. Queda guardada solo en este navegador y se puede quitar con «Desconectar»." })]));
-    c.appendChild(el("div", { id: "gh-resultado", "aria-live": "polite" }));
-    c.appendChild(el("button", { type: "button", "class": "btn btn--primary", id: "gh-conectar", onclick: conectar }, ["Conectar"]));
-  }
-  function conectar() {
-    var token = ($("gh-token").value || "").trim(), res = $("gh-resultado");
-    res.innerHTML = "";
-    if (!token) { res.appendChild(alerta("error", ["Pegá la clave de GitHub para conectar."])); $("gh-token").focus(); return; }
-    $("gh-conectar").disabled = true;
-    res.appendChild(alerta("info", ["Verificando la clave…"]));
-    var cli = new S.Cliente(token);
-    cli.verificar().then(function (v) {
-      $("gh-conectar").disabled = false; res.innerHTML = "";
-      if (!v.puedeEscribir) { res.appendChild(alerta("error", ["El usuario " + v.usuario + " no tiene permiso de escritura en " + S.CFG.owner + "/" + S.CFG.repo + "."])); return; }
-      try { localStorage.setItem(LS_TOKEN, token); } catch (e) { /* sin almacenamiento: queda solo en esta sesión */ }
-      gh.cliente = cli; gh.usuario = v.usuario; gh.puede = true;
-      cerrarDialogo(); renderTodo(); $("btn-gh").focus();
-      toast("Conectado como " + v.usuario + ". Ya podés editar y enviar a GitHub.");
-    }).catch(function (e) {
-      $("gh-conectar").disabled = false; res.innerHTML = "";
-      res.appendChild(alerta("error", [e && e.message ? e.message : String(e)])); $("gh-token").focus();
-    });
-  }
-  function desconectar() {
-    if (hayPend() && !confirm("Hay cambios sin enviar (" + pendTxt() + "). Quedan guardados en este navegador, pero no se van a poder enviar hasta que conectes de nuevo. ¿Desconectar igual?")) return;
-    try { localStorage.removeItem(LS_TOKEN); } catch (e) { /* nada */ }
-    gh.cliente = new S.Cliente(null); gh.usuario = null; gh.puede = false;
-    cerrarDialogo(); renderTodo(); $("btn-gh").focus();
-    toast("Se quitó la clave de GitHub de este navegador.");
-  }
-  /* Al abrir: si hay una clave guardada, se verifica en segundo plano */
-  function verificarGuardada() {
-    if (!gh.cliente.token) return;
-    gh.cliente.verificar().then(function (v) { gh.usuario = v.usuario; gh.puede = v.puedeEscribir; renderTodo(); })
-      .catch(function (e) {
-        if (e.status === 401 && gh.cliente.token) { olvidarClave(); renderTodo(); }
-      });
-  }
+  /* ---------- Conexión con GitHub: matriz-gh.js ---------- */
+  var G = MATRIZ_GH({ gh: gh, LS_TOKEN: LS_TOKEN, editor: editor, hayPend: hayPend, pendTxt: pendTxt, abrirDialogo: abrirDialogo, cerrarDialogo: cerrarDialogo,
+    cargarRemoto: function (x) { return cargarRemoto(x); }, renderTodo: function () { return renderTodo(); }, olvidarClave: olvidarClave,
+    limpiarDatos: function () { base = null; gh.rsa = { vinculos: null, rent: null }; gh.pendientes = []; gh.baseCambiada = false; gh.rsaCambiado = {}; } });
+  function abrirGh() { return G.abrirGh(); }
+  function verificarGuardada() { return G.verificarGuardada(); }
 
   /* ---------- Estado vacío: todavía no hay matriz en GitHub ---------- */
   function renderVacio() {
     var c = $("vacio-body"); c.innerHTML = "";
+    if (!conClave()) {
+      c.appendChild(el("h2", { text: "Los datos son privados" }));
+      c.appendChild(el("p", { text: "La matriz de envíos, el avance de la migración y el ingreso y resultado por cliente se guardan en un repositorio privado de GitHub. Para verlos, conectá tu clave personal de GitHub (hace falta estar invitado al repositorio)." }));
+      c.appendChild(el("div", { "class": "vacio__acciones" }, [el("button", { type: "button", "class": "btn btn--primary", id: "vacio-conectar", onclick: abrirGh }, [svgIcon("user", 16), "Conectar GitHub"])]));
+      return;
+    }
     if (gh.cargando) { c.appendChild(el("p", { text: "Cargando datos desde GitHub…" })); return; }
     if (gh.error) { c.appendChild(el("p", { text: "No se pudieron leer los datos. Revisá la conexión y tocá «Reintentar»." })); return; }
     c.appendChild(el("h2", { text: "Todavía no hay datos de la matriz de envíos" }));
-    if (!editor()) { c.appendChild(el("p", { text: "Cuando se cargue la primera descarga de Power BI la vas a ver acá. Si sos quien la carga, conectá tu cuenta de GitHub." }));
-      c.appendChild(el("button", { type: "button", "class": "btn btn--secondary", onclick: abrirGh }, ["Conectar GitHub"])); return; }
+    if (!editor()) { c.appendChild(el("p", { text: "Cuando se cargue la primera descarga de Power BI la vas a ver acá. Tu clave es de solo lectura: para cargarla hace falta «Contents: Read and write»." })); return; }
     c.appendChild(el("p", { text: "Cargá el Excel de la Matriz de Envíos (formato oficial: data (27).xlsx, B2B + B2C con «Servicio Agrupado») y después tocá «Enviar a GitHub»." }));
     var acc = el("div", { "class": "vacio__acciones" }, [el("button", { type: "button", "class": "btn btn--primary", id: "vacio-cargar", onclick: abrirModal }, [svgIcon("upload", 16), "Cargar Excel de Power BI"])]);
     var vieja = null; try { vieja = JSON.parse(leerLS(LS_VIEJA) || "null"); } catch (e) { vieja = null; }
@@ -610,7 +590,7 @@
 
   /* Revisión automática: al volver a la pestaña y cada 5 minutos, si hay cambios nuevos en GitHub se recargan (solo sin cambios pendientes) */
   function revisarCambios() {
-    if (document.hidden || gh.cargando || gh.enviando || hayPend() || Date.now() - gh.ultimaCarga < 60000) return;
+    if (!conClave() || document.hidden || gh.cargando || gh.enviando || hayPend() || Date.now() - gh.ultimaCarga < 60000) return;
     gh.ultimaCarga = Date.now();
     gh.cliente.refDatos().then(function (sha) { if (sha && sha !== gh.sha) cargarRemoto(true); }, function () { /* se reintenta en la próxima vuelta */ });
   }
@@ -622,11 +602,12 @@
   try {
     renderTodo();
     verificarGuardada();
-    listo = cargarRemoto(false);
+    listo = leerPendGuardados().then(function () { return cargarRemoto(false); });
   } catch (e) {
     $("alertas").appendChild(alerta("error", [el("strong", { text: "Error al iniciar el dashboard: " }), e && e.message ? e.message : String(e)]));
     if (window.console) console.error(e);
   }
-  window.__MATRIZ_APP__ = { base: function () { return base; }, filtros: function () { return f; }, ui: ui, irA: irA, gh: gh, listo: function () { return listo; }, enviar: enviar, revisar: revisarCambios };
+  window.__MATRIZ_APP__ = { base: function () { return base; }, filtros: function () { return f; }, ui: ui, irA: irA, gh: gh, listo: function () { return listo; }, enviar: enviar, revisar: revisarCambios,
+    rsa: function () { return gh.rsa; }, cambiarRSA: cambiarRSA, editor: editor };
 })();
 /* ==APP-END== */
