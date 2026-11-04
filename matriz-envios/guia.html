@@ -188,6 +188,7 @@
           </li>
           <li><strong>Evolución</strong>: ingreso y resultado por mes, con tabla de datos.</li>
           <li><strong>Calidad del vínculo</strong>: porcentaje de envíos con al menos un RSA y con un RSA único. Solo las razones con RSA único (o resueltas a mano) suman montos.</li>
+          <li><strong>Descargar Excel</strong> (en <span class="ui">Resolver vínculos</span>, para cualquier usuario con clave): baja un .xlsx con <strong>todas</strong> las razones sociales pendientes, no solo las que se ven en pantalla. Hoja <em>Pendientes</em>, ordenada por envíos, con las columnas Razón social, Envíos, Situación (Ambiguo / Sin RSA), Cantidad de RSA posibles, RSA posibles, Candidatos sugeridos y <em>RSA elegido</em> (vacía, para completarla vos). El archivo se arma en tu navegador: los datos no pasan por ningún servidor. Completar la columna no cambia el dashboard: los vínculos se siguen guardando con <span class="ui">Guardar vínculo</span> (<a href="#faq-sugeridos">cómo se sugieren los candidatos</a>).</li>
         </ul>
 
         <h3 id="leer-analisis">Pestaña Análisis</h3>
@@ -334,6 +335,7 @@
           <li>Elegí las tres planillas de Power BI: <strong>Envíos y facturación</strong> (de ahí solo se usa la hoja que vincula razón social con solicitante), <strong>Base RSA Solicitantes</strong> y <strong>Rentabilidad clientes</strong>. Se leen en tu navegador; podés cargar solo la que cambió.</li>
           <li>Tocá <span class="ui">Usar estas bases</span> y después <span class="ui">Enviar a GitHub</span>. Se guardan normalizadas en la carpeta <code>fuentes/</code> del repositorio privado (un archivo por mes de rentabilidad). La tabla FACTURACION no se guarda.</li>
           <li>En <span class="ui">Resolver vínculos</span> aparecen las razones sociales con más de un RSA posible o sin RSA, ordenadas por envíos. Elegí el RSA (o <span class="ui">Es interno (excluir)</span>) y tocá <span class="ui">Guardar vínculo</span>. Si no tiene RSA, podés buscarlo por código o nombre. Queda como vínculo manual, con tu usuario y la fecha, y se conserva cuando se recalcula.</li>
+          <li>Para trabajar la lista completa fuera del dashboard, tocá <span class="ui">Descargar Excel</span>. Incluye todas las pendientes con sus candidatos sugeridos y una columna vacía <em>RSA elegido</em>. Lo que elijas ahí lo cargás después con <span class="ui">Guardar vínculo</span> (todavía no se puede subir el Excel).</li>
         </ol>
 
         <h3 id="ed-enviar">Enviar a GitHub</h3>
@@ -387,6 +389,16 @@
           <details>
             <summary>Una razón social no suma ingreso</summary>
             <div class="faq__body"><p>Tiene más de un RSA posible o ninguno. Revisala en <span class="ui">Resolver vínculos</span>. También puede pasar que el período elegido no tenga montos en Rentabilidad.</p></div>
+          </details>
+          <details id="faq-sugeridos">
+            <summary>¿Cómo se eligen los «Candidatos sugeridos» del Excel?</summary>
+            <div class="faq__body"><p>Se compara el nombre de la razón social con los nombres de los RSA de Rentabilidad y de la Base RSA, palabra por palabra, sin acentos ni formas societarias (S.A., S.R.L., etc.). El porcentaje entre paréntesis es el parecido.</p>
+              <ul>
+                <li><strong>Sin RSA</strong>: hasta 3 RSA con un parecido de 50 % o más. Solo se consideran si comparten al menos una palabra poco común; una palabra genérica sola (por ejemplo «Distribuidora») no alcanza.</li>
+                <li><strong>Ambiguo</strong>: de los RSA posibles, el de nombre más parecido, si llega a 50 % y no empata con otro.</li>
+                <li>Si no hay ninguno, la celda queda vacía. Los RSA internos (88881, 88882, 99999 y 01648 Contado) no se sugieren.</li>
+              </ul>
+              <p>Es una ayuda: confirmá siempre el RSA antes de guardarlo.</p></div>
           </details>
           <details>
             <summary>Marqué contratos pero mis compañeros no los ven</summary>
