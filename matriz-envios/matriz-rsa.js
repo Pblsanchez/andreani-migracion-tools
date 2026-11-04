@@ -336,8 +336,12 @@ function MATRIZ_RSA_VISTA(ctx) {
     ].forEach(function (x) { c.appendChild(el("li", null, [el("div", { "class": "quality__top" }, [el("span", { "class": "quality__n num", text: x[2] }), U.badge(x[0], x[1])]), el("span", { "class": "quality__t", text: x[3] }), el("span", { "class": "quality__x", text: x[4] })])); });
     var vias = Object.keys(Q.porVia).sort().map(function (k) { var v = Q.porVia[k]; return ({ 1: "Hoja de envíos, exacto", 2: "Hoja de envíos, normalizado", 3: "Base RSA, exacto", 4: "Base RSA, normalizado", 6: "Sin cruce", manual: "Manual" }[k] || k) + ": " + n(v.razones) + " (" + pct(Q.envios ? v.envios / Q.envios : 0) + " de los envíos)"; });
     $("rsa-vias").textContent = "Cómo se vinculó: " + vias.join(" · ") + ". Actualizado: " + U.fecha(V.actualizado) + ".";
-    if (!ctx.editor()) { rv.appendChild(el("p", { "class": "panel__sub", text: n(du.length) + " razones sociales pendientes. Las resuelve el editor." })); return; }
-    rv.appendChild(el("div", { "class": "toolbar" }, [botonRecalcular()]));
+    if (!ctx.editor()) {
+      rv.appendChild(el("p", { "class": "panel__sub", text: n(du.length) + " razones sociales pendientes. Las resuelve el editor." + (du.length ? " Podés descargar el detalle en Excel." : "") }));
+      if (du.length) rv.appendChild(el("div", { "class": "toolbar" }, [botonExcel(du)]));
+      return;
+    }
+    rv.appendChild(el("div", { "class": "toolbar" }, du.length ? [botonRecalcular(), botonExcel(du)] : [botonRecalcular()]));
     if (!du.length) { rv.appendChild(el("p", { "class": "panel__sub", text: "No hay vínculos pendientes." })); return; }
     var lim = ui.rsaDudasTodas ? du.length : 15;
     var tb = el("tbody");
@@ -345,6 +349,24 @@ function MATRIZ_RSA_VISTA(ctx) {
     rv.appendChild(el("div", { "class": "table-wrap" }, [el("table", null, [el("caption", { "class": "sr-only", text: "Razones sociales a resolver, ordenadas por envíos" }),
       el("thead", null, [el("tr", null, ["Razón social", "Envíos", "Situación", "RSA a asignar", "Acción"].map(function (t, j) { return el("th", { scope: "col", "class": j === 1 ? "n" : null, text: t }); }))]), tb])]));
     if (du.length > 15) rv.appendChild(el("button", { type: "button", "class": "btn btn--ghost btn--small", id: "rsa-dudas-todas", onclick: function () { ui.rsaDudasTodas = !ui.rsaDudasTodas; ctx.renderTodo(); $("rsa-dudas-todas").focus(); } }, [ui.rsaDudasTodas ? "Ver solo las 15 primeras" : "Ver las " + n(du.length)]));
+  }
+  /* v1.8.4: «Descargar Excel» con todas las pendientes (editor y lectores, D-038). El .xlsx se arma en el navegador con matriz-xlsx.js,
+     que se carga recién al tocar el botón. Los datos no salen del navegador (D-003, D-035) */
+  function botonExcel(du) {
+    return el("button", { type: "button", "class": "btn btn--secondary btn--small", id: "rsa-excel", onclick: function () { descargarExcel(du); } }, [svgIcon("download", 16), "Descargar Excel"]);
+  }
+  function conXlsx(cb) {
+    if (typeof MATRIZ_XLSX !== "undefined" && typeof MATRIZ_RSA_XLSX !== "undefined") { cb(); return; }
+    var sc = document.createElement("script"); sc.src = "matriz-xlsx.js?v=1.8.4";
+    sc.onload = cb; sc.onerror = function () { toast("No pude cargar el generador de Excel. Recargá la página y probá de nuevo."); };
+    document.head.appendChild(sc);
+  }
+  function descargarExcel(du) {
+    conXlsx(function () {
+      var D = datos(), r = MATRIZ_RSA_XLSX.hojaPendientes(du, D.catalogo || [], D.baseRsa || []);
+      MATRIZ_XLSX.descargar(MATRIZ_RSA_XLSX.nombreArchivo(), [r.hoja]);
+      toast("Se descargó el Excel con " + n(du.length) + " razones sociales pendientes (" + n(r.conSugeridos) + " con candidatos sugeridos).");
+    });
   }
   function filaDuda(d, i) {
     var id = "rsa-duda-" + i, sel = el("select", { id: id, "class": "input input--select", "aria-label": "RSA para " + d.rs });
