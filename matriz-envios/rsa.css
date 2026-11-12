@@ -1,5 +1,5 @@
 /* ===== Pestaña «Ingreso y resultado» (T-005, D-031). Solo tokens del Design System Cartesian ===== */
-.kpi--fin { border-color: var(--c-color-border-info); }
+.kpi--fin { border-color: var(--c-color-border-subtle); }
 .rsa-barra { display: flex; flex-wrap: wrap; align-items: center; gap: var(--c-spacing-2); margin: 0 0 var(--c-spacing-3); }
 .rsa-barra .input--select { max-width: 360px; height: 32px; }
 .rsa-carga { margin-top: var(--c-spacing-4); }
@@ -17,12 +17,12 @@
 .chart .dot-ok { fill: var(--c-color-fill-success); } .chart .dot-warn { fill: var(--c-color-surface-warning); } .chart .dot-err { fill: var(--c-color-fill-primary); }
 .chart g[tabindex] { cursor: default; }
 .chart g[tabindex]:focus { outline: 2px solid transparent; }
-.chart g[tabindex]:focus-visible .dot { stroke: var(--c-blue-600); stroke-width: 3; }
-.chart .bar-ing { fill: var(--c-color-fill-info); } .chart .bar-res { fill: var(--c-color-fill-success); } .chart .bar-neg { fill: var(--c-color-fill-primary); }
+.chart g[tabindex]:focus-visible .dot { stroke: var(--c-color-focus); stroke-width: 3; }
+.chart .bar-ing { fill: var(--c-color-fill-neutral-strong); } .chart .bar-res { fill: var(--c-color-fill-success); } .chart .bar-neg { fill: var(--c-color-fill-primary); }
 .sw--dot-ok, .sw--bar-res { background: var(--c-color-fill-success); }
 .sw--dot-warn { background: var(--c-color-surface-warning); }
 .sw--dot-err, .sw--bar-neg { background: var(--c-color-fill-primary); }
-.sw--bar-ing { background: var(--c-color-fill-info); }
+.sw--bar-ing { background: var(--c-color-fill-neutral-strong); }
 /* Matriz de priorización: Gráfico / Lista (v1.8.2) */
 .rsa-vistas { display: inline-flex; gap: var(--c-spacing-1); padding: 2px; border: 1px solid var(--c-color-border-strong); border-radius: var(--c-border-radius-xlarge); margin-bottom: var(--c-spacing-2); }
 .rsa-vistas__btn { background: transparent; color: var(--c-color-text-strong); }
@@ -33,8 +33,8 @@
 .rsa-grupo { margin-top: var(--c-spacing-4); }
 .rsa-grupo__titulo { display: flex; flex-wrap: wrap; align-items: center; gap: var(--c-spacing-2); font-size: 14px; line-height: 20px; }
 .rsa-razones { margin: 0; padding: 0; list-style: none; }
-.rsa-fila--sel td { background: var(--c-color-surface-info-subtle); }
-tr[tabindex="-1"]:focus { outline: 2px solid transparent; box-shadow: inset 0 0 0 3px var(--c-blue-600); }
+.rsa-fila--sel td { background: var(--c-color-fill-primary-subtle); }
+tr[tabindex="-1"]:focus { outline: 2px solid transparent; box-shadow: inset 0 0 0 3px var(--c-color-focus); }
 .chart .rsa-punto { cursor: pointer; }
 .chart .rsa-mediana { stroke: var(--c-color-border-strong); }
 @media (max-width: 599px) { .rsa-bases li { flex-direction: column; align-items: flex-start; } .rsa-barra .input--select { max-width: none; width: 100%; } }
