@@ -39,7 +39,7 @@
 /* Pasos numerados */
 .pasos { counter-reset: paso; list-style: none; padding-left: 0 !important; }
 .pasos > li { counter-increment: paso; position: relative; padding-left: 44px; margin-bottom: var(--c-spacing-3) !important; min-height: 28px; }
-.pasos > li::before { content: counter(paso); position: absolute; left: 0; top: -2px; width: 28px; height: 28px; border-radius: 50%; background: var(--c-color-fill-info); color: var(--c-color-text-inverse); font-size: 14px; line-height: 28px; text-align: center; font-weight: var(--c-font-weight-bold); }
+.pasos > li::before { content: counter(paso); position: absolute; left: 0; top: -2px; width: 28px; height: 28px; border-radius: 50%; background: var(--c-color-fill-neutral-dark); color: var(--c-color-text-inverse); font-size: 14px; line-height: 28px; text-align: center; font-weight: var(--c-font-weight-bold); }
 
 /* Tarjetas de "qué puedo hacer" */
 .tarjetas { list-style: none; padding: 0 !important; margin: 0 0 var(--c-spacing-4); display: grid; gap: var(--c-spacing-3); grid-template-columns: repeat(3, minmax(0, 1fr)); }
