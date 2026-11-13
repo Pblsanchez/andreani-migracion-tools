@@ -6,8 +6,8 @@
 <meta name="robots" content="noindex">
 <title>Guía de usuario · Matriz de Envíos · Andreani</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="estilos.css?v=1.8.5">
-<link rel="stylesheet" href="guia.css?v=1.8.5">
+<link rel="stylesheet" href="estilos.css?v=1.9">
+<link rel="stylesheet" href="guia.css?v=1.9">
 </head>
 <body>
 <a class="skip-link" href="#contenido">Saltar al contenido</a>
@@ -38,6 +38,7 @@
             <li><a href="#leer-resumen">Pestaña Resumen</a></li>
             <li><a href="#leer-ingreso">Pestaña Ingreso y resultado</a></li>
             <li><a href="#leer-analisis">Pestaña Análisis</a></li>
+            <li><a href="#leer-resumen-ejecutivo">Resumen ejecutivo (PDF)</a></li>
             <li><a href="#leer-estado">Estado de los datos</a></li>
           </ol>
         </li>
@@ -121,7 +122,7 @@
       <!-- ============ 2. Cómo leer el dashboard ============ -->
       <section id="leer" aria-labelledby="h-leer">
         <h2 id="h-leer"><span class="guia__num" aria-hidden="true">2</span>Cómo leer el dashboard</h2>
-        <p>El dashboard tiene cuatro pestañas. La barra de filtros queda fija arriba y aplica a todas (en Ingreso y resultado, solo Canal, Segmento, Razón social y Período).</p>
+        <p>El dashboard tiene cuatro pestañas y, aparte, un <a href="#leer-resumen-ejecutivo">resumen ejecutivo</a> descargable en PDF (botón <span class="ui">Resumen</span> del encabezado). La barra de filtros queda fija arriba y aplica a todas (en Ingreso y resultado, solo Canal, Segmento, Razón social y Período).</p>
         <div class="table-wrap">
           <table>
             <caption class="sr-only">Pestañas del dashboard</caption>
@@ -207,6 +208,24 @@
           <li><strong>Base de datos</strong> e <strong>Historial de actualizaciones</strong>: qué descargas se cargaron, cuándo, y cuántos registros nuevos y cambios trajo cada una.</li>
           <li><strong>Detalle:</strong> un registro por fila (canal, segmento, razón social, tipo de servicio, servicio agrupado, servicio y contrato) con los envíos de cada mes, 25 por página, ordenable por columna. <span class="ui">Exportar CSV</span> descarga lo filtrado con las mismas columnas.</li>
         </ul>
+
+        <h3 id="leer-resumen-ejecutivo">Resumen ejecutivo (PDF)</h3>
+        <p>El botón <span class="ui">Resumen</span> del encabezado abre una pantalla con los números generales de la matriz, pensada para presentaciones y comités. Usa <strong>todo el negocio y todos los meses de la base</strong>: no depende de los filtros ni de la pestaña en la que estés. Hace falta tener la clave conectada.</p>
+        <ul>
+          <li><strong>Números por canal:</strong> clientes, contratos, envíos y facturación, con el total, B2C, B2B y el porcentaje de cada canal. Un cliente con contratos en los dos canales cuenta en ambos; el total no lo repite.</li>
+          <li><strong>Comparativo B2C vs B2B:</strong> contratos activos en el último mes completo, envíos promedio por mes, envíos por contrato, concentración de los 10 clientes más grandes, facturación, rentabilidad e ingreso por envío.</li>
+          <li><strong>Avance de la migración a DMS (B2C):</strong> envíos, contratos y clientes migrados, según lo marcado en la pestaña Migración a DMS.</li>
+          <li><strong>Rankings:</strong> los 10 clientes con más envíos en B2C y en B2B (sin clientes internos), los 10 RSA con más facturación (con su rentabilidad y qué parte de sus envíos es B2C), y los envíos por segmento y por tipo de servicio abiertos por canal.</li>
+          <li><strong>Evolución mensual de envíos por canal</strong> (el mes en curso aparece atenuado y marcado con *) y <strong>Notas</strong> con las fuentes y el método.</li>
+        </ul>
+        <p><strong>Facturación por canal:</strong> la base Rentabilidad trae el ingreso por RSA, no por canal. Por eso el ingreso de cada RSA se reparte entre B2C y B2B según sus envíos en los mismos meses, y se muestra como <em>estimado</em>. El ingreso de RSA que no tienen un vínculo único con la matriz (ambiguos, sin RSA o sin envíos) se informa aparte como <em>sin atribuir</em>. Si todavía no hay bases de ingreso cargadas, la facturación no aparece y una nota lo explica.</p>
+        <ol class="pasos">
+          <li>Tocá <span class="ui">Resumen</span> en el encabezado.</li>
+          <li>Tocá <span class="ui">Descargar PDF</span>. Se abre la ventana de impresión del navegador.</li>
+          <li>En <em>Destino</em> elegí <strong>Guardar como PDF</strong> y guardá. Sale en A4 horizontal, solo con el resumen; el nombre sugerido es «Resumen Matriz de Envios AAAA-MM-DD».</li>
+          <li>Con <span class="ui">Volver al dashboard</span> (o la tecla Escape) volvés adonde estabas.</li>
+        </ol>
+        <div class="alert alert--warning" role="note"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M1 21h22L12 2 1 21Zm12-3h-2v-2h2v2Zm0-4h-2v-4h2v4Z"/></svg><div class="alert__body"><strong>El PDF tiene datos de clientes e ingresos.</strong> Es de uso interno: compartilo solo con quien corresponda.</div></div>
 
         <h3 id="leer-estado">Estado de los datos</h3>
         <p>A la derecha del encabezado se ve el estado de la sincronización con GitHub:</p>
