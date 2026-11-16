@@ -117,6 +117,10 @@ body.modo-resumen > :not(#resumen):not(.toast):not(.chart-tip) { display: none !
 .rs-crit--media { background: var(--c-color-surface-caution-subtle); color: var(--c-color-text-warning-strong); border-color: var(--c-color-surface-caution); }
 .rs-crit--alta { background: var(--c-color-surface-warning-subtle); color: var(--c-color-text-caution-strong); border-color: var(--c-color-surface-warning); }
 
+/* ===== Hoja simplificada (T-015): más angosta en pantalla; en PDF 1 hoja A4 vertical (el @page lo pone matriz-resumen.js al imprimir) ===== */
+.resumen.rs-simple { max-width: 1100px; }
+.rs-simple .rs-kpi__v { font-size: 32px; line-height: 36px; }
+
 /* Pantallas angostas: se pierde la fila única y las cajas pasan a una grilla (sigue el orden de la secuencia) */
 @media (max-width: 1023px) { .rs-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .rs-grid { grid-template-columns: minmax(0, 1fr); } .rs-linea { grid-template-columns: repeat(2, minmax(0, 1fr)); } .rs-linea__per { grid-column: span 2; } .rs-linea__olas { grid-template-columns: repeat(2, minmax(0, 1fr)); } .rs-tabla-wrap { overflow-x: auto; } }
 @media (max-width: 599px) { .resumen { padding: var(--c-spacing-4); } .rs-kpis { grid-template-columns: minmax(0, 1fr); } .rs-barra .btn { width: auto; } .rs-linea { grid-template-columns: minmax(0, 1fr); } .rs-linea__per { grid-column: auto; } .rs-linea__olas { grid-template-columns: minmax(0, 1fr); } }
@@ -161,4 +165,14 @@ body.modo-resumen > :not(#resumen):not(.toast):not(.chart-tip) { display: none !
   .rs-codigo { font-size: 10px; line-height: 13px; }
   .rs-si { width: 16px; height: 16px; }
   .rs-si svg { width: 10px; height: 10px; }
+  /* T-015: 1 hoja vertical (~190 mm de ancho útil) */
+  .rs-simple .rs-cab h1 { font-size: 22px; line-height: 26px; }
+  .rs-simple .rs-kpis { gap: 6px; }
+  .rs-simple .rs-kpi { padding: 6px 8px; gap: 4px; }
+  .rs-simple .rs-kpi__t { font-size: 11px; line-height: 14px; }
+  .rs-simple .rs-kpi__v { font-size: 20px; line-height: 24px; }
+  .rs-simple .rs-kpi__n { font-size: 9px; line-height: 12px; }
+  .rs-simple .rs-destacado { font-size: 12px; line-height: 16px; padding: 6px 10px; margin-top: 8px; }
+  .rs-simple .rs-serv thead th.rs-serv__h { min-width: 0; font-size: 9px; line-height: 11px; letter-spacing: 0; padding: 3px 4px; }
+  .rs-simple .rs-serv th, .rs-simple .rs-serv td { padding: 3px 4px; }
 }

@@ -57,7 +57,7 @@ var MATRIZ_RESUMEN = (function () {
   }
 
   /* ---------- Vista ---------- */
-  var U, $, el, n, pct, abierto = false, previo = null, tituloPrevio = "";
+  var U, $, el, n, pct, abierto = false, previo = null, tituloPrevio = "", modo = "completo", estiloPagina = null;
   var fmt0 = new Intl.NumberFormat("es-AR", { maximumFractionDigits: 0 });
   function millones(x) { return (x < 0 ? "−" : "") + "$ " + fmt0.format(Math.abs(x || 0) / 1e6) + " M"; }
   function mes(m) { return M.mesTxt(m); }
@@ -195,14 +195,41 @@ var MATRIZ_RESUMEN = (function () {
       "Envíos B2C sin vínculo único con un RSA (no suman monto): " + n(I.envSin) + " (" + pct(A.envios ? I.envSin / A.envios : 0) + " de los envíos B2C).");
     c.appendChild(seccion("rs-t-notas", "·", "Notas", null, [el("ul", { "class": "rs-notas" }, notas.map(function (t) { return el("li", { text: t }); }))]));
   }
-  function abrir() {
-    var A = window.__MATRIZ_APP__, base = A && A.base();
+  /* ---------- Hoja simplificada (T-015, D-062): feedback de Esteban. Aparte de la v2: la v2 queda igual ---------- */
+  var SIMPLE = { contratos: 6327, integracion: [["Integración estándar", "90 %", INTEGRACION[0][1]], ["Integración a medida", "10 %", INTEGRACION[1][1]]],
+    ciclosUnicos: 463, nota: "El 90 % de los contratos están configurados bajo 6 ciclos de vida." };
+  function renderSimple(o) {
+    var c = $("rs-contenido"); c.innerHTML = "";
+    var A = o.c1, I = A.ingreso;
+    $("rs-meta").textContent = "Estrategia de migración B2C a DMS · Período " + rango(A.meses) + " · Matriz actualizada " + U.fecha(o.actualizado);
+    /* 1. Comerciales: Clientes B2C > Contratos > Envíos promedio mes > Facturación B2C por mes (sin rentabilidad) */
+    var kp = el("ul", { "class": "rs-kpis" }, [
+      tarjeta("Clientes B2C", n(A.clientes), "Razones sociales con envíos B2C en " + rango(A.meses) + "."),
+      tarjeta("Contratos", n(SIMPLE.contratos), "Contratos B2C del plan por olas (" + n(INTEGRACION[0][2]) + " de integración estándar + " + n(INTEGRACION[1][2]) + " a medida)."),
+      tarjeta("Envíos promedio por mes", n(Math.round(A.promedioEnvios)), n(A.envios) + " envíos B2C en " + A.meses.length + " meses (" + rango(A.meses) + ")."),
+      tarjeta("Facturación B2C por mes", I ? millones(I.promedio) : "—", I ? "Promedio de " + rango(I.meses) + " · total " + millones(I.ingreso) + "." : A.motivo)]);
+    c.appendChild(seccion("rs-t-com", 1, "Criterios de migración: comerciales (B2C)", null, [kp]));
+    /* 2. Sistémicos: 2.1 integración (%) + ciclos de vida · 2.2 servicios por ola (ex 2.3, sin cambios) */
+    var b1 = el("div", { "class": "rs-bloque" }, [el("h3", { text: "2.1 Tipo de integración y ciclos de vida" }),
+      el("ul", { "class": "rs-kpis" }, SIMPLE.integracion.map(function (x) { return tarjeta(x[0], x[1], x[2]); }).concat([
+        tarjeta("Ciclos de vida únicos", n(SIMPLE.ciclosUnicos), "Ciclos de vida distintos configurados en los contratos B2C."),
+        tarjeta("Ciclos de vida de distribución", "90 %", "Se adecua a 6 ciclos de vida de distribución.")])),
+      el("p", { "class": "rs-destacado" }, [el("strong", { text: SIMPLE.nota })])]);
+    var b2 = el("div", { "class": "rs-bloque" }, [el("h3", { text: "2.2 Servicios a migrar por ola" }), tablaServicios()]);
+    c.appendChild(seccion("rs-t-sis", 2, "Criterios de migración: sistémicos y operativos", null, [b1, b2]));
+  }
+  function abrirSimple() { modo = "simple"; mostrar(); }
+  function abrir() { modo = "completo"; mostrar(); }
+  function mostrar() {
+    var A = window.__MATRIZ_APP__, base = A && A.base(), simple = modo === "simple";
     previo = document.activeElement; abierto = true;
+    $("rs-titulo").textContent = simple ? "Matriz de Envíos · Resumen ejecutivo simplificado" : "Matriz de Envíos · Resumen ejecutivo";
+    $("resumen").setAttribute("class", simple ? "resumen rs-simple" : "resumen");
     document.body.classList.add("modo-resumen"); $("resumen").hidden = false;
     $("rs-pdf").disabled = !base;
     if (!base) { $("rs-contenido").innerHTML = ""; $("rs-meta").textContent = ""; $("rs-contenido").appendChild(U.alerta("info", [el("strong", { text: "Todavía no hay datos cargados. " }), "Conectá GitHub en el dashboard y volvé a abrir el resumen."])); }
     else {
-      try { render(calcular(base, A.rsa())); }
+      try { (simple ? renderSimple : render)(calcular(base, A.rsa())); }
       catch (e) { $("rs-contenido").innerHTML = ""; $("rs-contenido").appendChild(U.alerta("error", [el("strong", { text: "No se pudo armar el resumen. " }), e && e.message ? e.message : String(e)])); }
     }
     window.scrollTo(0, 0); $("rs-titulo").focus();
@@ -214,7 +241,9 @@ var MATRIZ_RESUMEN = (function () {
   }
   function pdf() {
     tituloPrevio = document.title;
-    var d = new Date(); document.title = "Hoja soporte estrategia migracion B2C " + d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
+    /* Hoja simplificada: 1 hoja A4 vertical (la v2 sigue en A4 horizontal, D-059) */
+    if (modo === "simple" && !estiloPagina) { estiloPagina = document.createElement("style"); estiloPagina.textContent = "@media print { @page { size: A4 portrait; margin: 12mm; } }"; document.head.appendChild(estiloPagina); }
+    var d = new Date(); document.title = (modo === "simple" ? "Resumen simplificado estrategia migracion B2C " : "Hoja soporte estrategia migracion B2C ") + d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
     U.toast("En la ventana de impresión elegí «Guardar como PDF» como destino.");
     setTimeout(function () { window.print(); }, 50);
   }
@@ -224,11 +253,21 @@ var MATRIZ_RESUMEN = (function () {
     $("btn-resumen").addEventListener("click", abrir);
     $("rs-volver").addEventListener("click", cerrar);
     $("rs-pdf").addEventListener("click", pdf);
-    window.addEventListener("afterprint", function () { if (tituloPrevio) { document.title = tituloPrevio; tituloPrevio = ""; } });
+    /* Botón «Resumen simplificado» (T-015) junto a «Resumen»: se crea acá para no tocar index.html */
+    var br = $("btn-resumen"), bs = document.getElementById("btn-resumen-simple");
+    if (!bs && br && br.parentNode && br.parentNode.insertBefore) {
+      bs = document.createElement("button"); bs.type = "button"; bs.id = "btn-resumen-simple"; bs.className = br.className;
+      bs.title = "Versión simplificada del resumen ejecutivo (1 hoja A4 vertical en PDF)";
+      bs.appendChild(U.svgIcon("grid", 16)); bs.appendChild(document.createTextNode(" Resumen simplificado"));
+      br.parentNode.insertBefore(bs, br.nextSibling);
+    }
+    if (bs) bs.addEventListener("click", abrirSimple);
+    window.addEventListener("afterprint", function () { if (tituloPrevio) { document.title = tituloPrevio; tituloPrevio = ""; }
+      if (estiloPagina) { estiloPagina.parentNode.removeChild(estiloPagina); estiloPagina = null; } });
     document.addEventListener("keydown", function (ev) { if (abierto && ev.key === "Escape" && !document.querySelector(".modal-backdrop[data-open='true']")) cerrar(); });
   }
   iniciar();
-  return { calcular: calcular, comerciales: comerciales, PERIODO: PERIODO, abrir: abrir, cerrar: cerrar };
+  return { calcular: calcular, comerciales: comerciales, PERIODO: PERIODO, abrir: abrir, abrirSimple: abrirSimple, cerrar: cerrar };
 })();
 if (typeof module !== "undefined" && module.exports) module.exports = MATRIZ_RESUMEN;
 /* ==RESUMEN-END== */
