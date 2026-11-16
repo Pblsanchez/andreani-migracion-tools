@@ -1,10 +1,10 @@
 /* ==RESUMEN-START== «Resumen ejecutivo» v2 de la Matriz de Envíos (T-013, D-049): hoja soporte de la presentación de estrategia
    de migración B2C (Esteban Bocco). Reemplaza la v1.9 de T-012 (queda en el historial del repo). Se construye punto por punto:
-   1. Criterios de migración: comerciales (D-052) · 2. Sistémicos y operativos (D-053) · 3. Plan por olas con su secuenciación (D-054, D-055) · 4. Servicios por ola.
+   1. Criterios de migración: comerciales (D-052, D-056) · 2. Sistémicos y operativos (D-053, D-056) · 3. Plan por olas con su secuenciación (D-054, D-055, D-056) · 4. Servicios por ola.
    Lee los datos ya cargados por el dashboard (window.__MATRIZ_APP__): no pide nada a GitHub ni cambia matriz-app.js.
    Solo B2C (canal por N° de contrato, D-032). Período fijo enero a septiembre 2026 (D-052 a).
    Facturación y rentabilidad = mismo criterio que la pestaña «Ingreso y resultado» con Canal = B2C (D-052 b): suma el monto de cada RSA
-   con vínculo único que tiene envíos B2C. Rentabilidad = resultado ÷ facturación (D-052 c). Relevancia estratégica = relato de Esteban Bocco (D-052 d). */
+   con vínculo único que tiene envíos B2C. Rentabilidad = resultado ÷ facturación (D-052 c). Relevancia estratégica = relato de Esteban Bocco (D-052 d, sin tarjeta desde D-056). */
 var MATRIZ_RESUMEN = (function () {
   "use strict";
   var M = typeof MATRIZ !== "undefined" ? MATRIZ : null, R = typeof MATRIZ_RSA !== "undefined" ? MATRIZ_RSA : null;
@@ -19,13 +19,14 @@ var MATRIZ_RESUMEN = (function () {
     var ix = R.indexarMontos(mm);
     return ix.meses.length ? ix : null;
   }
-  /* Punto 1: criterios comerciales B2C */
+  /* Punto 1: criterios comerciales B2C. Clientes = razones sociales B2C con envíos en el período (mismo criterio que el KPI «Clientes» del dashboard, D-056) */
   function comerciales(base, rsa) {
     var meses = enPeriodo(base.meses, base.mesParcial), regs = base.registros.filter(function (r) { return M.canalDe(r) === "B2C"; });
-    var o = { meses: meses, envios: 0, promedioEnvios: 0, contratos: 0, ingreso: null };
-    var con = {};
-    regs.forEach(function (r) { var e = M.sumaMeses(r, meses); o.envios += e; if (e > 0) con[r.contrato] = 1; });
+    var o = { meses: meses, envios: 0, promedioEnvios: 0, contratos: 0, clientes: 0, ingreso: null };
+    var con = {}, cli = {};
+    regs.forEach(function (r) { var e = M.sumaMeses(r, meses); o.envios += e; if (e > 0) { con[r.contrato] = 1; if (r.cliente) cli[r.cliente] = 1; } });
     o.contratos = Object.keys(con).length;
+    o.clientes = Object.keys(cli).length;
     o.promedioEnvios = meses.length ? o.envios / meses.length : 0;
     var ix = rsa && rsa.fuentes ? montos(rsa.fuentes) : null;
     if (!ix) { o.motivo = "Todavía no hay bases de ingreso cargadas (pestaña «Ingreso y resultado»)."; return o; }
@@ -68,88 +69,124 @@ var MATRIZ_RESUMEN = (function () {
     return el("li", { "class": "rs-kpi" }, [el("span", { "class": "rs-kpi__t", text: titulo }), el("span", { "class": "rs-kpi__v num", text: valor }),
       nota ? el("span", { "class": "rs-kpi__n", text: nota }) : null, pend ? el("span", { "class": "rs-kpi__n" }, [el("strong", { text: pend })]) : null]);
   }
-  /* Punto 2: contenido fijo validado por Pablo (D-053). 2.1 = lámina «Criterios de secuenciación de las olas»; 2.2 = Ticket 684687
-     (imagen de Pablo, descripciones copiadas tal cual); 2.3 = servicios por ola dictados por Pablo (2026-11-13 15:42). */
-  var INTEGRACION = [["Integración estándar", "Encomienda Pyme · Encomienda Corporativa · HOP · Envío Nube · Global Pack", 5943], ["Integración a medida", "MELI · Tarjeta Financiera", 383],
-    ["Etiqueta estándar", "Encomienda Pyme · Encomienda Corporativa · HOP · Envío Nube · Global Pack · Tarjeta Financiera", 6318], ["Etiqueta custom", "MELI", 8]];
+  /* Tarjeta con dos renglones de cifras (D-056, punto 2.1): renglón 1 clientes, renglón 2 contratos */
+  function tarjeta2(titulo, filas, nota) {
+    return el("li", { "class": "rs-kpi" }, [el("span", { "class": "rs-kpi__t", text: titulo }),
+      el("dl", { "class": "rs-kpi__dos" }, [].concat.apply([], filas.map(function (f) { return [el("dd", { "class": "num", text: f[1] }), el("dt", { text: f[0] })]; }))),
+      nota ? el("span", { "class": "rs-kpi__n", text: nota }) : null]);
+  }
+  /* Punto 2: contenido fijo validado por Pablo (D-053). 2.1 = lámina «Criterios de secuenciación de las olas» (clientes = suma de las olas, D-056);
+     2.2 = ciclos de vida (Integra, nov 2026; descripciones de Pablo, D-056); 2.3 = servicios por ola dictados por Pablo (2026-11-13 15:42). */
+  var INTEGRACION = [["Integración estándar", "Encomienda Pyme · Encomienda Corporativa · HOP · Envío Nube · Global Pack", 5943, "+1.503"], ["Integración a medida", "MELI · Tarjeta Financiera", 383, "+31"],
+    ["Etiqueta estándar", "Encomienda Pyme · Encomienda Corporativa · HOP · Envío Nube · Global Pack · Tarjeta Financiera", 6318, "+1.533"], ["Etiqueta custom", "MELI", 8, "1"]];
   /* Punto 3: línea de tiempo de las 9 olas (D-048, D-054) con los criterios de secuenciación dentro de cada caja (D-055, ex punto 4).
      Datos de la lámina «Criterios de secuenciación de las olas». Global Pack = «Temu» y Envío Nube = «Tienda Nube» de la lámina:
-     clientes, contratos y ciclos vienen sumados para las dos (conj: true). Piloto sin información. */
-  var CRIT = ["Integración", "Etiqueta", "Desarrollo ad hoc", "Clientes", "Contratos", "Ciclos de vida", "Riesgo"];
-  var RIESGO = { Bajo: "▁", Medio: "▃", Alto: "▅", "Crítico": "▇" };
+     clientes, contratos y ciclos vienen sumados para las dos (conj: true). Piloto sin información.
+     v: [integración, etiqueta, desarrollo ad hoc, clientes, contratos, ciclos de vida, riesgo] */
+  var RIESGO = { Bajo: ["bajo", "ok"], Medio: ["medio", "warn"], Alto: ["alto", "warn"], "Crítico": ["critico", "error"] };
   var TN = { v: ["Estándar", "Estándar", "No", "2", "27", "7", "Alto"], conj: true };
   var OLAS = [["Piloto", "Q4 2026", null], ["Encomienda Pyme", "2027", { v: ["Estándar", "Estándar", "No", "+1.000", "3.959", "47", "Bajo"] }],
-    ["Encomienda Corporativa", "2027", { v: ["Estándar", "Estándar", "No", "+500", "1.930", "93 (a confirmar)", "Medio"] }],
+    ["Encomienda Corporativa", "2027", { v: ["Estándar", "Estándar", "No", "+500", "1.930", "93", "Medio"], conf: true }],
     ["HOP", "2027", { v: ["Estándar", "Estándar", "Sí", "1", "27", "3", "Alto"] }], ["Envío Nube", "2027", TN], ["Global Pack", "2027", TN],
     ["MELI", "2027", { v: ["A medida", "Custom", "Sí", "1", "8", "4", "Crítico"] }], ["Tarjeta Financiera", "2027", { v: ["A medida", "Estándar", "Sí", "+30", "375", "66", "Crítico"] }],
     ["Productos postales", "2027", { v: ["—", "—", "Sí", "—", "—", "—", "—"] }]];
-  var CICLOS = [["*B-3 , B-2 , CU-7-DES", 2778], ["*CU-7-DES", 1514], ["**B-3 , B-2**", 1257], ["*B-1 , B-2 , CU-7-DES", 179], ["¿B-3 , B-2 , CU-3-DES", 118], ["B-1 , B-2", 66]];
+  var CICLOS = [["*B-3 , B-2 , CU-7-DES", "2 visitas más custodia de 7 días descentralizada", 2778], ["*CU-7-DES", "Custodia de 7 días descentralizada", 1514],
+    ["**B-3 , B-2**", "2 visitas sin custodia", 1257], ["*B-1 , B-2 , CU-7-DES", "2 visitas más custodia de 7 días descentralizada", 179],
+    ["¿B-3 , B-2 , CU-3-DES", "2 visitas más custodia de 3 días descentralizada", 118], ["B-1 , B-2", "2 visitas sin custodia", 66]];
+  var CONDICION = "Mayor de 18 años, solicitando exhibición de documento que acredite identidad";
   var SERVICIOS = ["Entrega directa", "Entrega en sucursal", "Entrega en punto de retiro", "Drop off en punto de retiro", "Cambio", "Devolución", "Llega Hoy"];
   var SERV_OLA = [["Encomienda Pyme y Corporativa", [1, 1, 1, 1, 1, 1, 1]], ["HOP", [0, 0, 1, 1, 0, 0, 0]], ["Envío Nube y MELI", [1, 1, 1, 1, 1, 1, 1]], ["Global Pack", [1, 1, 1, 1, 0, 0, 0]]];
-  function tabla(caption, cab, filas, numDesde, cls) {
-    return el("div", { "class": "table-wrap" }, [el("table", { "class": cls || null }, [el("caption", { "class": "sr-only", text: caption }),
-      el("thead", null, [el("tr", null, cab.map(function (t, i) { return el("th", { scope: "col", "class": i >= numDesde ? "n" : null, text: t }); }))]),
-      el("tbody", null, filas.map(function (f) { return el("tr", { "class": f.cls || null }, f.c.map(function (v, i) {
-        return el(i ? "td" : "th", i ? { "class": i >= numDesde ? "n" : null } : { scope: "row" }, [v instanceof Node ? v : String(v)]); })); }))])]);
+  var SERV_DEFINIR = ["Piloto", "Tarjeta Financiera", "Productos postales"];
+  function tablaWrap(caption, cls, thead, filas) {
+    return el("div", { "class": "table-wrap rs-tabla-wrap" }, [el("table", { "class": "rs-tabla " + cls }, [el("caption", { "class": "sr-only", text: caption }), thead, el("tbody", null, filas)])]);
+  }
+  function cab(cols) { return el("thead", null, [el("tr", null, cols.map(function (c) { return el("th", { scope: "col", "class": c[1] || null, text: c[0] }); }))]); }
+  function tablaCiclos() {
+    var tot = 0, max = 0; CICLOS.forEach(function (x) { tot += x[2]; max = Math.max(max, x[2]); });
+    var filas = CICLOS.map(function (x) {
+      return el("tr", null, [el("th", { scope: "row" }, [el("span", { "class": "rs-codigo", text: x[0] })]), el("td", { "class": "rs-desc", text: x[1] }),
+        el("td", { "class": "n" }, [el("span", { "class": "rs-barra-dato" }, [el("span", { "class": "num", text: n(x[2]) }),
+          el("span", { "class": "rs-barra-dato__bar", "aria-hidden": "true" }, [el("span", { style: "width:" + (max ? (x[2] / max * 100).toFixed(1) : 0) + "%" })])])])]);
+    });
+    filas.push(el("tr", { "class": "rs-total" }, [el("th", { scope: "row", text: "Total" }), el("td", { text: "6 ciclos de vida" }), el("td", { "class": "n" }, [el("span", { "class": "num", text: n(tot) })])]));
+    return tablaWrap("Los 6 ciclos de vida con más contratos, con su descripción", "rs-ciclos", cab([["Ciclo de vida"], ["Descripción"], ["Contratos", "n"]]), filas);
+  }
+  function tablaServicios() {
+    var filas = SERV_OLA.map(function (x) {
+      return el("tr", null, [el("th", { scope: "row", text: x[0] })].concat(x[1].map(function (s, i) {
+        return el("td", { "class": "rs-serv__c" }, s ? [el("span", { "class": "rs-si", title: "Incluye " + SERVICIOS[i] }, [U.svgIcon("check", 14), el("span", { "class": "sr-only", text: "Incluye" })])]
+          : [el("span", { "class": "rs-no", "aria-hidden": "true", text: "—" }), el("span", { "class": "sr-only", text: "No incluye" })]);
+      })));
+    });
+    SERV_DEFINIR.forEach(function (o) {
+      filas.push(el("tr", { "class": "rs-serv__def" }, [el("th", { scope: "row", text: o }), el("td", { colspan: String(SERVICIOS.length) }, [el("span", { "class": "badge badge--neutral", text: "Servicios a definir" })])]));
+    });
+    return tablaWrap("Servicios a migrar por ola", "rs-serv", cab([["Ola"]].concat(SERVICIOS.map(function (s) { return [s, "rs-serv__h"]; }))), filas);
   }
   function sistemicos() {
-    var totInt = INTEGRACION[0][2] + INTEGRACION[1][2], totCic = 0; CICLOS.forEach(function (x) { totCic += x[1]; });
+    var totInt = INTEGRACION[0][2] + INTEGRACION[1][2];
     var b1 = el("div", { "class": "rs-bloque" }, [el("h3", { text: "2.1 Tipo de integración y etiqueta" }),
-      el("ul", { "class": "rs-kpis" }, INTEGRACION.map(function (x) { return tarjeta(x[0], n(x[2]) + " contratos", x[1] + " · " + pct(x[2] / totInt) + " de los contratos con ola."); })),
-      el("p", { "class": "rs-sub", text: "Fuente: lámina «Criterios de secuenciación de las olas»." })]);
+      el("ul", { "class": "rs-kpis" }, INTEGRACION.map(function (x) { return tarjeta2(x[0], [["clientes", x[3]], ["contratos", n(x[2])]], x[1] + " · " + pct(x[2] / totInt) + " de los contratos con ola."); })),
+      el("p", { "class": "rs-sub", text: "Fuente: lámina «Criterios de secuenciación de las olas». Clientes: suma de las olas de cada grupo; «+» = más de." })]);
     var b2 = el("div", { "class": "rs-bloque" }, [el("h3", { text: "2.2 Ciclos de vida del envío" }),
       el("p", { "class": "rs-destacado" }, [el("strong", { text: "El 90 % de los contratos están configurados bajo 6 ciclos de vida." })]),
-      tabla("Los 6 ciclos de vida con más contratos", ["Ciclo de vida", "Contratos"], CICLOS.map(function (x) { return { c: [x[0], n(x[1])] }; })
-        .concat([{ cls: "rs-total", c: ["Total", n(totCic)] }]), 1),
-      el("p", { "class": "rs-sub", text: "Fuente: Ticket 684687 (ciclos de vida por contrato, contratos B2C con imposición 2026)." })]);
-    var b3 = el("div", { "class": "rs-bloque" }, [el("h3", { text: "2.3 Servicios a migrar" }),
-      tabla("Servicios a migrar por ola", ["Ola"].concat(SERVICIOS), SERV_OLA.map(function (x) {
-        return { c: [x[0]].concat(x[1].map(function (s) { return s ? el("span", { "aria-label": "Incluye" }, ["✔ Sí"]) : el("span", { "aria-label": "No incluye" }, ["—"]); })) }; }), 99, "rs-serv"),
-      el("p", { "class": "rs-sub", text: "Piloto, Tarjeta Financiera y Productos postales: servicios a definir." })]);
+      tablaCiclos(),
+      el("p", { "class": "rs-condicion" }, [U.svgIcon("info", 16), el("span", null, ["Todos estos ciclos tienen como condición de entrega: ", el("strong", { text: "«" + CONDICION + "»" }), "."])]),
+      el("p", { "class": "rs-sub", text: "Fuente: Integra Nov 26 (ciclos de vida por contrato, contratos B2C con imposición 2026)." })]);
+    var b3 = el("div", { "class": "rs-bloque" }, [el("h3", { text: "2.3 Servicios a migrar por ola" }), tablaServicios()]);
     return [b1, b2, b3];
   }
   function lineaOlas() {
-    var grupos = [], g = null, hayConj = false;
+    var grupos = [], g = null, hayConj = false, hayConf = false;
     OLAS.forEach(function (x) { if (!g || g.p !== x[1]) { g = { p: x[1], olas: [] }; grupos.push(g); } g.olas.push(x); });
-    function criterios(d) {
-      if (!d) return el("p", { "class": "rs-linea__sin", text: "Sin información." });
-      if (d.conj) hayConj = true;
-      return el("dl", { "class": "rs-linea__crit" }, [].concat.apply([], CRIT.map(function (t, i) {
-        var v = d.v[i], dd;
-        if (t === "Riesgo" && RIESGO[v]) dd = el("dd", { "class": "rs-riesgo rs-riesgo--" + (v === "Crítico" ? "critico" : v.toLowerCase()) }, [el("span", { "aria-hidden": "true", text: RIESGO[v] + " " }), v]);
-        else dd = el("dd", { text: v + (d.conj && i >= 3 && i <= 5 ? " *" : "") });
-        return [el("dt", { text: t }), dd];
-      })));
+    function fila(t, v, cls) { return el("div", { "class": "rs-ola__fila" + (cls ? " " + cls : "") }, [el("dt", { text: t }), el("dd", null, [v])]); }
+    function riesgo(v) {
+      var r = RIESGO[v];
+      if (!r) return el("p", { "class": "rs-ola__riesgo rs-ola__riesgo--nd" }, [el("span", { "class": "rs-ola__riesgo-t", text: "Criticidad" }), el("span", { "class": "badge badge--neutral", text: "Sin dato" })]);
+      return el("p", { "class": "rs-ola__riesgo" }, [el("span", { "class": "rs-ola__riesgo-t", text: "Criticidad" }), el("span", { "class": "rs-crit rs-crit--" + r[0] }, [U.svgIcon(r[1], 14), v])]);
     }
+    function criterios(d) {
+      if (!d) return [el("p", { "class": "rs-linea__sin", text: "Sin información." })];
+      if (d.conj) hayConj = true; if (d.conf) hayConf = true;
+      var ast = d.conj ? " *" : "";
+      var tec = el("dl", { "class": "rs-ola__grupo" }, [
+        fila("Integración", el("span", { "class": "rs-tag" + (d.v[0] === "A medida" ? " rs-tag--dest" : ""), text: d.v[0] })),
+        fila("Etiqueta", el("span", { "class": "rs-tag" + (d.v[1] === "Custom" ? " rs-tag--dest" : ""), text: d.v[1] })),
+        fila("Desarrollo ad hoc", el("span", { "class": "rs-tag" + (d.v[2] === "Sí" ? " rs-tag--dest" : ""), text: d.v[2] }))]);
+      var vol = el("dl", { "class": "rs-ola__vol" }, [["Clientes", d.v[3] + ast], ["Contratos", d.v[4] + ast], ["Ciclos de vida", d.v[5] + ast + (d.conf ? " †" : "")]].map(function (x) {
+        return el("div", { "class": "rs-ola__cifra" }, [el("dt", { text: x[0] }), el("dd", { "class": "num", text: x[1] })]); }));
+      return [tec, vol, riesgo(d.v[6])];
+    }
+    function claseRiesgo(d) { var r = d && RIESGO[d.v[6]]; return r ? " rs-linea__ola--" + r[0] : ""; }
     var k = 0;
     var linea = el("ol", { "class": "rs-linea", "aria-label": "Línea de tiempo de las olas de migración" }, grupos.map(function (gr, i) {
       return el("li", { "class": "rs-linea__per" + (i === 0 ? " rs-linea__per--piloto" : "") }, [el("span", { "class": "rs-linea__fecha", text: gr.p }),
         el("ul", { "class": "rs-linea__olas" }, gr.olas.map(function (o) { k++;
-          return el("li", { "class": "rs-linea__ola" }, [el("div", { "class": "rs-linea__cab" }, [el("span", { "class": "rs-linea__n", "aria-hidden": "true", text: k === 1 ? "P" : String(k - 1) }), el("strong", { text: o[0] })]), criterios(o[2])]); }))]);
+          return el("li", { "class": "rs-linea__ola" + claseRiesgo(o[2]) }, [el("div", { "class": "rs-linea__cab" }, [el("span", { "class": "rs-linea__n", "aria-hidden": "true", text: k === 1 ? "P" : String(k - 1) }), el("strong", { text: o[0] })])].concat(criterios(o[2]))); }))]);
     }));
     var notas = [el("p", { "class": "rs-sub", text: "La secuencia prioriza integraciones estándar y riesgos bajos al inicio, avanzando hacia desarrollos específicos y operaciones de mayor criticidad. Fuente: lámina «Criterios de secuenciación de las olas»." })];
     if (hayConj) notas.push(el("p", { "class": "rs-sub", text: "* Envío Nube y Global Pack: clientes, contratos y ciclos de vida son el total conjunto de las dos olas (en la lámina, «Tienda Nube + Temu»)." }));
+    if (hayConf) notas.push(el("p", { "class": "rs-sub", text: "† Encomienda Corporativa: cantidad de ciclos de vida a confirmar." }));
     return [linea].concat(notas);
   }
-  function render(o, usuario) {
+  function render(o) {
     var c = $("rs-contenido"); c.innerHTML = "";
     var A = o.c1, I = A.ingreso;
-    $("rs-meta").textContent = "Hoja soporte · Estrategia de migración B2C a DMS · Período " + rango(A.meses) + " · Matriz actualizada " + U.fecha(o.actualizado) +
-      " · Generado " + U.fecha(new Date().toISOString()) + (usuario ? " por " + usuario : "");
-    /* 1. Criterios de migración: comerciales */
+    $("rs-meta").textContent = "Hoja soporte · Estrategia de migración B2C a DMS · Período " + rango(A.meses) + " · Matriz actualizada " + U.fecha(o.actualizado);
+    /* 1. Criterios de migración: comerciales (D-056: + Clientes, sin tarjeta «Relevancia estratégica») */
     var kp = el("ul", { "class": "rs-kpis" }, [
+      tarjeta("Clientes B2C", n(A.clientes), "Razones sociales con envíos B2C en " + rango(A.meses) + "."),
       tarjeta("Envíos promedio por mes", n(Math.round(A.promedioEnvios)), n(A.envios) + " envíos B2C en " + A.meses.length + " meses (" + rango(A.meses) + ") · " + n(A.contratos) + " contratos con envíos."),
       tarjeta("Facturación B2C por mes", I ? millones(I.promedio) : "—", I ? "Promedio de " + rango(I.meses) + " · total " + millones(I.ingreso) + "." : A.motivo),
-      tarjeta("Rentabilidad B2C", I && I.rent != null ? pct(I.rent) : "—", I ? "Resultado ÷ facturación, " + rango(I.meses) + "." : A.motivo),
-      tarjeta("Relevancia estratégica", "Relato", "La desarrolla Esteban Bocco en la presentación.")]);
-    c.appendChild(seccion("rs-t-com", 1, "Criterios de migración: comerciales (B2C)", "Envíos, facturación y rentabilidad del canal B2C, que es el que se migra de Integra a DMS.", [kp]));
+      tarjeta("Rentabilidad B2C", I && I.rent != null ? pct(I.rent) : "—", I ? "Resultado ÷ facturación, " + rango(I.meses) + "." : A.motivo)]);
+    c.appendChild(seccion("rs-t-com", 1, "Criterios de migración: comerciales (B2C)", "Clientes, envíos, facturación y rentabilidad del canal B2C, que es el que se migra de Integra a DMS.", [kp]));
     c.appendChild(seccion("rs-t-sis", 2, "Criterios de migración: sistémicos y operativos", null, sistemicos()));
     c.appendChild(seccion("rs-t-olas", 3, "Plan de migración por olas", "Piloto y 8 olas, en orden de migración, con sus criterios de secuenciación.", lineaOlas()));
     var pend = [["4", "Servicios a migrar por ola"]];
     c.appendChild(el("section", { "class": "rs-sec", "aria-labelledby": "rs-t-pend" }, [el("h2", { id: "rs-t-pend", text: "En construcción" }),
       el("ul", { "class": "rs-notas" }, pend.map(function (p) { return el("li", { text: p[0] + ". " + p[1] }); }))]));
     /* Notas */
-    var notas = ["Envíos: Matriz de Envíos (Power BI), canal B2C = contratos que no empiezan con 350 ni 351. Meses completos de " + rango(A.meses) + "."];
+    var notas = ["Envíos y clientes: Matriz de Envíos (Power BI), canal B2C = contratos que no empiezan con 350 ni 351. Meses completos de " + rango(A.meses) + "."];
     if (I) notas.push("Facturación y rentabilidad: base Rentabilidad clientes (Power BI), mismo criterio que la pestaña «Ingreso y resultado» con Canal = B2C: se suma el monto de los " + n(I.rsa) +
       " RSA con vínculo único que tienen envíos B2C. Sin RSA internos (88881, 88882, 99999, 01648).",
       n(I.mixtos) + " de esos RSA también tienen envíos B2B; su monto entra completo (" + millones(I.ingresoMixtos) + " en el período).",
@@ -163,7 +200,7 @@ var MATRIZ_RESUMEN = (function () {
     $("rs-pdf").disabled = !base;
     if (!base) { $("rs-contenido").innerHTML = ""; $("rs-meta").textContent = ""; $("rs-contenido").appendChild(U.alerta("info", [el("strong", { text: "Todavía no hay datos cargados. " }), "Conectá GitHub en el dashboard y volvé a abrir el resumen."])); }
     else {
-      try { render(calcular(base, A.rsa()), A.gh && A.gh.usuario); }
+      try { render(calcular(base, A.rsa())); }
       catch (e) { $("rs-contenido").innerHTML = ""; $("rs-contenido").appendChild(U.alerta("error", [el("strong", { text: "No se pudo armar el resumen. " }), e && e.message ? e.message : String(e)])); }
     }
     window.scrollTo(0, 0); $("rs-titulo").focus();
