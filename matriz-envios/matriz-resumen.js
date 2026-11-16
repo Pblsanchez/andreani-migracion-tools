@@ -131,7 +131,8 @@ var MATRIZ_RESUMEN = (function () {
     var b1 = el("div", { "class": "rs-bloque" }, [el("h3", { text: "2.1 Tipo de integración y etiqueta" }),
       el("ul", { "class": "rs-kpis" }, INTEGRACION.map(function (x) { return tarjeta2(x[0], [["clientes", x[3]], ["contratos", n(x[2])]], x[1] + " · " + pct(x[2] / totInt) + " de los contratos con ola."); })),
       el("p", { "class": "rs-sub", text: "Fuente: lámina «Criterios de secuenciación de las olas». Clientes: suma de las olas de cada grupo; «+» = más de." })]);
-    var b2 = el("div", { "class": "rs-bloque" }, [el("h3", { text: "2.2 Ciclos de vida del envío" }),
+    /* D-059: en el PDF, 2.2 abre la hoja 2 (rs-salto) */
+    var b2 = el("div", { "class": "rs-bloque rs-salto" }, [el("h3", { text: "2.2 Ciclos de vida del envío" }),
       el("p", { "class": "rs-destacado" }, [el("strong", { text: "El 90 % de los contratos están configurados bajo 6 ciclos de vida." })]),
       tablaCiclos(),
       el("p", { "class": "rs-condicion" }, [U.svgIcon("info", 16), el("span", null, ["Todos estos ciclos tienen como condición de entrega: ", el("strong", { text: "«" + CONDICION + "»" }), "."])]),
@@ -183,7 +184,9 @@ var MATRIZ_RESUMEN = (function () {
       tarjeta("Rentabilidad B2C", I && I.rent != null ? pct(I.rent) : "—", I ? "Resultado ÷ facturación, " + rango(I.meses) + "." : A.motivo)]);
     c.appendChild(seccion("rs-t-com", 1, "Criterios de migración: comerciales (B2C)", "Clientes, envíos, facturación y rentabilidad del canal B2C, que es el que se migra de Integra a DMS.", [kp]));
     c.appendChild(seccion("rs-t-sis", 2, "Criterios de migración: sistémicos y operativos", null, sistemicos()));
-    c.appendChild(seccion("rs-t-olas", 3, "Plan de migración por olas", "Piloto y 8 olas, en orden de migración, con sus criterios de secuenciación.", lineaOlas()));
+    /* D-059: en el PDF, el punto 3 (con las notas) abre la hoja 3 */
+    var s3 = seccion("rs-t-olas", 3, "Plan de migración por olas", "Piloto y 8 olas, en orden de migración, con sus criterios de secuenciación.", lineaOlas());
+    s3.setAttribute("class", "rs-sec rs-salto"); c.appendChild(s3);
     /* Notas */
     var notas = ["Envíos y clientes: Matriz de Envíos (Power BI), canal B2C = contratos que no empiezan con 350 ni 351. Meses completos de " + rango(A.meses) + "."];
     if (I) notas.push("Facturación y rentabilidad: base Rentabilidad clientes (Power BI), mismo criterio que la pestaña «Ingreso y resultado» con Canal = B2C: se suma el monto de los " + n(I.rsa) +

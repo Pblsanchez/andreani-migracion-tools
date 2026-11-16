@@ -136,7 +136,10 @@ body.modo-resumen > :not(#resumen):not(.toast):not(.chart-tip) { display: none !
   .rs-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .rs-kpi__v { font-size: 22px; line-height: 26px; }
   .rs-kpi__dos dd { font-size: 18px; line-height: 22px; }
-  .rs-sec { margin-top: 12px; }
+  .rs-sec { margin-top: 12px; break-inside: auto; page-break-inside: auto; }
+  /* D-059: 3 hojas fijas — 1) punto 1 + 2.1 · 2) 2.2 + 2.3 · 3) punto 3 + notas */
+  .rs-bloque.rs-salto, .rs-sec.rs-salto { break-before: page; page-break-before: always; margin-top: 0; }
+  .rs-bloque { break-inside: avoid; page-break-inside: avoid; }
   .rs-bloque { margin-top: 12px; }
   .rs-chart { max-height: 200px; }
   .rs-linea { grid-template-columns: repeat(var(--rs-olas, 9), minmax(0, 1fr)); gap: 4px; }
