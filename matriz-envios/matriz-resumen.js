@@ -77,20 +77,21 @@ var MATRIZ_RESUMEN = (function () {
   }
   /* Punto 2: contenido fijo validado por Pablo (D-053). 2.1 = lámina «Criterios de secuenciación de las olas» (clientes = suma de las olas, D-056);
      2.2 = ciclos de vida (Integra, nov 2026; descripciones de Pablo, D-056); 2.3 = servicios por ola dictados por Pablo (2026-11-13 15:42). */
-  var INTEGRACION = [["Integración estándar", "Encomienda Pyme · Encomienda Corporativa · HOP · Envío Nube · Global Pack", 5943, "+1.503"], ["Integración a medida", "MELI · Tarjeta Financiera", 383, "+31"],
-    ["Etiqueta estándar", "Encomienda Pyme · Encomienda Corporativa · HOP · Envío Nube · Global Pack · Tarjeta Financiera", 6318, "+1.533"], ["Etiqueta custom", "MELI", 8, "1"]];
+  /* D-058: Tarjeta Financiera pasa a Etiqueta custom; Envío Nube = 4 contratos y Global Pack = 24 (antes 27 conjunto): estándar = 3.959 + 1.930 + 27 + 4 + 24 = 5.944 */
+  var INTEGRACION = [["Integración estándar", "Encomienda Pyme · Encomienda Corporativa · HOP · Envío Nube · Global Pack", 5944, "+1.503"], ["Integración a medida", "MELI · Tarjeta Financiera", 383, "+31"],
+    ["Etiqueta estándar", "Encomienda Pyme · Encomienda Corporativa · HOP · Envío Nube · Global Pack", 5944, "+1.503"], ["Etiqueta custom", "MELI · Tarjeta Financiera", 383, "+31"]];
   /* Punto 3: línea de tiempo de las 9 olas (D-048, D-054) con los criterios de secuenciación dentro de cada caja (D-055, ex punto 4).
-     Datos de la lámina «Criterios de secuenciación de las olas». Global Pack = «Temu» y Envío Nube = «Tienda Nube» de la lámina:
-     clientes, contratos y ciclos vienen sumados para las dos (conj: true). Piloto sin información.
+     Datos de la lámina «Criterios de secuenciación de las olas». Global Pack = «Temu» y Envío Nube = «Tienda Nube» de la lámina
+     (datos por ola separados desde D-058). Piloto sin información.
      v: [integración, etiqueta, desarrollo ad hoc, clientes, contratos, ciclos de vida, riesgo] */
   /* Criticidad (D-057): Baja = success · Media = caution · Alta = warning, siempre con ícono + texto.
-     Períodos 2027 estimados: 2 olas por trimestre (D-057). Envío Nube y Global Pack: 1 cliente y 1 ciclo cada una; contratos 27 = total conjunto (conj). */
+     Períodos 2027 estimados: 2 olas por trimestre (D-057). Envío Nube = 1 cliente, 4 contratos, 1 ciclo; Global Pack = 1 cliente, 24 contratos, 1 ciclo (D-058). */
   var RIESGO = { Baja: ["baja", "ok"], Media: ["media", "warn"], Alta: ["alta", "warn"] };
   var OLAS = [["Piloto", "Q4 2026", null], ["Encomienda Pyme", "Q1 2027", { v: ["Estándar", "Estándar", "No", "+1.000", "3.959", "47", "Baja"] }],
     ["Encomienda Corporativa", "Q1 2027", { v: ["Estándar", "Estándar", "No", "+500", "1.930", "93", "Baja"] }],
-    ["HOP", "Q2 2027", { v: ["Estándar", "Estándar", "Sí", "1", "27", "3", "Media"] }], ["Envío Nube", "Q2 2027", { v: ["Estándar", "Estándar", "No", "1", "27", "1", "Media"], conj: true }],
-    ["Global Pack", "Q3 2027", { v: ["Estándar", "Estándar", "No", "1", "27", "1", "Media"], conj: true }],
-    ["MELI", "Q3 2027", { v: ["A medida", "Custom", "Sí", "1", "8", "4", "Media"] }], ["Tarjeta Financiera", "Q4 2027", { v: ["A medida", "Estándar", "Sí", "+30", "375", "66", "Alta"] }],
+    ["HOP", "Q2 2027", { v: ["Estándar", "Estándar", "Sí", "1", "27", "3", "Media"] }], ["Envío Nube", "Q2 2027", { v: ["Estándar", "Estándar", "No", "1", "4", "1", "Media"] }],
+    ["Global Pack", "Q3 2027", { v: ["Estándar", "Estándar", "No", "1", "24", "1", "Media"] }],
+    ["MELI", "Q3 2027", { v: ["A medida", "Custom", "Sí", "1", "8", "4", "Media"] }], ["Tarjeta Financiera", "Q4 2027", { v: ["A medida", "Custom", "Sí", "+30", "375", "66", "Alta"] }],
     ["Productos postales", "Q4 2027", { v: ["—", "—", "Sí", "—", "—", "—", "Alta"] }]];
   var CICLOS = [["*B-3 , B-2 , CU-7-DES", "2 visitas más custodia de 7 días descentralizada", 2778], ["*CU-7-DES", "Custodia de 7 días descentralizada", 1514],
     ["**B-3 , B-2**", "2 visitas sin custodia", 1257], ["*B-1 , B-2 , CU-7-DES", "2 visitas más custodia de 7 días descentralizada", 179],
@@ -168,7 +169,6 @@ var MATRIZ_RESUMEN = (function () {
     }));
     var notas = [el("p", { "class": "rs-sub", text: "La secuencia prioriza integraciones estándar y riesgos bajos al inicio, avanzando hacia desarrollos específicos y operaciones de mayor criticidad. Fuente: lámina «Criterios de secuenciación de las olas»." })];
     notas.push(el("p", { "class": "rs-sub", text: "Períodos 2027 estimados: 2 olas por trimestre." }));
-    if (hayConj) notas.push(el("p", { "class": "rs-sub", text: "* Envío Nube y Global Pack: 27 contratos es el total conjunto de las dos olas (en la lámina, «Tienda Nube + Temu»). Cada una es 1 cliente con 1 ciclo de vida." }));
     return [linea].concat(notas);
   }
   function render(o) {
