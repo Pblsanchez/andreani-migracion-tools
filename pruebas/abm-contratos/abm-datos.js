@@ -2,12 +2,63 @@
 (function (g) {
   "use strict";
 
-  // Niveles de esfuerzo (valores de ejemplo)
+  // Niveles de esfuerzo: catálogo real de DMS (cod / dms) + nombre comercial y ayuda (D-070). Ver esquemas/niveles-esfuerzo-dms.md
   var NIVELES = [
-    { id: "logistica", nombre: "Logística solicitada", opciones: ["Distribución", "Logística inversa", "Almacenaje y distribución"] },
-    { id: "container", nombre: "Container", opciones: ["Seco", "Refrigerado 2 a 8 °C", "Congelado"] },
-    { id: "sla", nombre: "SLA", opciones: ["Estándar", "Prioritario", "Llega Hoy"] },
-    { id: "form", nombre: "Formulario Mobile", opciones: ["Entrega estándar", "Entrega con DNI", "Entrega a mayor de 18 con DNI"] }
+    { id: "logistica", nombre: "Tipo de operación", dmsNombre: "Logística solicitada", opciones: [
+      { cod: "1", dms: "Entrega", nombre: "Entrega", ayuda: "Llevamos el envío del cliente al destinatario." },
+      { cod: "2", dms: "Entrega con un unidad exclusiva", nombre: "Entrega con vehículo exclusivo", ayuda: "Entrega con un vehículo dedicado solo a este cliente." },
+      { cod: "3", dms: "Logística inversa", nombre: "Retorno de lo no entregado", ayuda: "Vuelve al cliente la mercadería que no se entregó: rechazos, roturas, recuperos de siniestros. No hay un pedido de retiro: es el flujo de regreso." },
+      { cod: "4", dms: "Logística inversa con unidad exclusiva", nombre: "Retorno de lo no entregado con vehículo exclusivo", ayuda: "Igual que el retorno, con un vehículo dedicado solo a este cliente." },
+      { cod: "5", dms: "Punto a punto", nombre: "Traslado punto a punto", ayuda: "Retiramos en un punto A y entregamos en un punto B sin pasar por plantas, troncal ni sucursales." },
+      { cod: "6", dms: "Retiro", nombre: "Retiro posventa a pedido", ayuda: "El cliente nos pide retirar un paquete a un destinatario al que ya se le entregó (posventa)." },
+      { cod: "7", dms: "Cambio", nombre: "Cambio (entrega y retiro en la misma visita)", ayuda: "Se entrega un producto y se retira otro en la misma visita." }
+    ] },
+    { id: "continente", nombre: "Tipo de carga", dmsNombre: "Continente", opciones: [
+      { cod: "1", dms: "Contenedor de 2 a 8 °C", nombre: "Refrigerado (2 a 8 °C)", frio: true, ayuda: "Temperatura controlada entre 2 y 8 °C: farmacéuticos, alimentos." },
+      { cod: "2", dms: "Contenedor de 15 a 25 °C", nombre: "Temperatura controlada (15 a 25 °C)", frio: true, ayuda: "Cadena de frío de temperatura controlada entre 15 y 25 °C: productos sensibles al calor." },
+      { cod: "3", dms: "Bulto/Paquete", nombre: "Paquete o caja", ayuda: "Mercadería embalada en cajas, bolsas o sobres." },
+      { cod: "4", dms: "Pallet", nombre: "Pallet", ayuda: "Carga sobre pallet." },
+      { cod: "5", dms: "Contenedor -30 °C", nombre: "Congelado (hasta −30 °C)", frio: true, ayuda: "Mantiene temperaturas de congelación hasta −30 °C." },
+      { cod: "6", dms: "Equipos", nombre: "Equipos o maquinaria", ayuda: "Maquinaria, herramientas o electrónicos que requieren transporte especializado." },
+      { cod: "7", dms: "Sobre", nombre: "Sobre o documentación", ayuda: "Documentos o artículos pequeños y planos." },
+      { cod: "8", dms: "Bodega", nombre: "Bodega exclusiva en el vehículo", ayuda: "Espacio del vehículo reservado solo para la mercadería de este cliente." },
+      { cod: "9", dms: "Contenedor Nitrógeno -190°", nombre: "Ultracongelado con nitrógeno (−190 °C)", frio: true, ayuda: "Nitrógeno líquido para muestras biológicas o materiales muy sensibles." },
+      { cod: "10", dms: "Bultos Bigger", nombre: "Bulto grande (fuera de medida)", ayuda: "Bultos que exceden las medidas estándar: muebles, maquinaria, voluminosos." },
+      { cod: "11", dms: "Bultos irregulares", nombre: "Bulto de forma irregular", ayuda: "Formas no estándar que dificultan apilar o automatizar: tubos, piezas curvas." },
+      { cod: "12", dms: "Pallets irregulares", nombre: "Pallet no apilable", ayuda: "Pallets que no se pueden apilar de forma uniforme." }
+    ] },
+    { id: "sla", nombre: "Plazo de entrega", dmsNombre: "SLA", opciones: [
+      { cod: "1", dms: "SLA 1 - Estandar B2B", nombre: "Estándar", ayuda: "Plazo de llegada habitual entre origen y destino." },
+      { cod: "2", dms: "SLA 2 - Acordado con el cliente", nombre: "Acordado con el cliente", ayuda: "Plazos acordados especialmente con el cliente." },
+      { cod: "3", dms: "SLA 3 - Urgente", nombre: "Urgente", ayuda: "Plazo de llegada extraordinario entre origen y destino." }
+    ] }
+  ];
+
+  // Nivel 4: «Condición de entrega» = Formulario Mobile B2B, armado por requisitos (D-071). El B2B 9 no se ofrece (no se migrará).
+  var REQUISITOS = [
+    { id: "dni", grupo: "pide", nombre: "DNI de quien recibe" },
+    { id: "firmaSello", grupo: "pide", nombre: "Firma y sello en el remito" },
+    { id: "firmaSelloDoc", grupo: "pide", nombre: "Firma y sello en la documentación" },
+    { id: "fotoRemito", grupo: "pide", nombre: "Foto del remito" },
+    { id: "fotoHojaRuta", grupo: "pide", nombre: "Foto de la hoja de ruta firmada (retira en depósito)" },
+    { id: "fotoProducto", grupo: "pide", nombre: "Foto del producto retirado" },
+    { id: "valores", grupo: "retira", nombre: "Valores (cobro)" },
+    { id: "documentacion", grupo: "retira", nombre: "Documentación" },
+    { id: "insumo", grupo: "retira", nombre: "Insumo (conservadora retornable)" }
+  ];
+  var FORMULARIOS = [
+    { cod: "1", dms: "Formulario B2B 1", req: ["fotoRemito"] },
+    { cod: "2", dms: "Formulario B2B 2", req: ["dni", "fotoRemito"] },
+    { cod: "3", dms: "Formulario B2B 3", req: ["dni", "fotoRemito", "valores"] },
+    { cod: "4", dms: "Formulario B2B 4", req: ["dni", "fotoRemito", "documentacion"] },
+    { cod: "5", dms: "Formulario B2B 5", req: ["dni", "fotoRemito", "insumo"] },
+    { cod: "6", dms: "Formulario B2B 6", req: ["firmaSello", "fotoRemito", "insumo"] },
+    { cod: "7", dms: "Formulario B2B 7", req: ["firmaSello", "fotoRemito"] },
+    { cod: "8", dms: "Formulario B2B 8", req: ["fotoHojaRuta"] },
+    { cod: "10", dms: "Formulario B2B 10", req: ["dni", "firmaSelloDoc", "fotoRemito"] },
+    { cod: "11", dms: "Formulario B2B 11", req: ["dni", "firmaSello", "fotoRemito", "valores"] },
+    { cod: "12", dms: "Formulario B2B 12", req: ["dni", "firmaSello", "fotoRemito", "valores", "insumo"] },
+    { cod: "13", dms: "Formulario B2B 13", req: ["fotoProducto"] }
   ];
 
   // Ciclo de vida de ejemplo (D-067.2 / D-068): código + descripción coloquial
@@ -75,27 +126,27 @@
 
   // Contratos ya configurados en DMS (ficticios)
   var CONTRATOS = [
-    { nro: "4000100231", niveles: { logistica: "Distribución", container: "Seco", sla: "Estándar", form: "Entrega estándar" }, ciclo: "cv-01",
+    { nro: "4000100231", niveles: { logistica: "1", continente: "3", sla: "1" }, req: ["dni", "fotoRemito"], ciclo: "cv-01",
       cond: condBase({}), analizar: { poliza: "", tipoEnvio: "", tipoEntrega: "", agrupador: "", finValidez: "9999-12-31" },
       domicilios: [{ id: "d1", dom: DOMI_A, clases: ["DEVOLUCION", "DEVOLUCION_REMITOS", "REENVIO"] }],
       estado: "habilitado", vigencia: "2026-10-05",
       historial: [{ fecha: "2026-10-05 10:12", usuario: "comercial.ejemplo", accion: "Alta", detalle: "Contrato creado · Habilitado desde 05/10/2026" }] },
-    { nro: "4000100232", niveles: { logistica: "Distribución", container: "Seco", sla: "Estándar", form: "Entrega con DNI" }, ciclo: "cv-01",
+    { nro: "4000100232", niveles: { logistica: "1", continente: "3", sla: "1" }, req: ["dni", "fotoRemito", "valores"], ciclo: "cv-01",
       cond: condBase({ cobranza: true, retiroParcial: true, remito: "Físico" }), analizar: { poliza: "", tipoEnvio: "", tipoEntrega: "", agrupador: "", finValidez: "9999-12-31" },
       domicilios: [{ id: "d2", dom: DOMI_A, clases: ["DEVOLUCION", "DEVOLUCION_REMITOS", "DEVOLUCION_COBROS"] }],
       estado: "habilitado", vigencia: "2026-10-05",
       historial: [{ fecha: "2026-10-05 10:30", usuario: "comercial.ejemplo", accion: "Alta", detalle: "Contrato creado · Habilitado desde 05/10/2026" }] },
-    { nro: "4000100417", niveles: { logistica: "Distribución", container: "Refrigerado 2 a 8 °C", sla: "Prioritario", form: "Entrega con DNI" }, ciclo: "cv-01",
+    { nro: "4000100417", niveles: { logistica: "1", continente: "1", sla: "3" }, req: ["dni", "fotoRemito", "insumo"], ciclo: "cv-01",
       cond: condBase({ frio: true, conservadora: true, aforo: true, remito: "Digital" }), analizar: { poliza: "", tipoEnvio: "", tipoEntrega: "", agrupador: "", finValidez: "9999-12-31" },
       domicilios: [{ id: "d3", dom: DOMI_B, clases: ["DEVOLUCION", "DEVOLUCION_REMITOS"] }],
       estado: "programado", vigencia: "2026-12-01",
       historial: [{ fecha: "2026-11-12 16:02", usuario: "comercial.demo", accion: "Alta", detalle: "Contrato creado · Vigente desde 01/12/2026" }] },
-    { nro: "4000100502", niveles: { logistica: "Distribución", container: "Seco", sla: "Llega Hoy", form: "Entrega estándar" }, ciclo: "cv-01",
-      cond: condBase({ parcial: true, remito: "Sin remito" }), analizar: { poliza: "", tipoEnvio: "", tipoEntrega: "", agrupador: "", finValidez: "9999-12-31" },
+    { nro: "4000100502", niveles: { logistica: "1", continente: "7", sla: "2" }, req: ["firmaSello", "fotoRemito"], ciclo: "cv-01",
+      cond: condBase({ parcial: true, remito: "Digital" }), analizar: { poliza: "", tipoEnvio: "", tipoEntrega: "", agrupador: "", finValidez: "9999-12-31" },
       domicilios: [{ id: "d4", dom: DOMI_B, clases: ["DEVOLUCION"] }],
       estado: "deshabilitado", vigencia: "",
       historial: [{ fecha: "2026-11-03 09:45", usuario: "comercial.demo", accion: "Alta", detalle: "Contrato creado · Deshabilitado (falta domicilio de rendición)" }] }
   ];
 
-  g.ABM_DATOS = { NIVELES: NIVELES, CICLOS: CICLOS, BLOQUES: BLOQUES, CONDICIONES: CONDICIONES, CLASES: CLASES, SAP: SAP, CONTRATOS: CONTRATOS };
+  g.ABM_DATOS = { NIVELES: NIVELES, REQUISITOS: REQUISITOS, FORMULARIOS: FORMULARIOS, CICLOS: CICLOS, BLOQUES: BLOQUES, CONDICIONES: CONDICIONES, CLASES: CLASES, SAP: SAP, CONTRATOS: CONTRATOS };
 })(typeof window !== "undefined" ? window : globalThis);
