@@ -14,6 +14,21 @@
   function tarjeta(ic, t, p, hoy, gris) {
     return '<article class="tarjeta' + (gris ? " gris" : "") + '"><span class="ic">' + ic + "</span><h3>" + t + "</h3><p>" + p + "</p>" + (hoy ? '<p class="hoy"><b>Hoy:</b> ' + hoy + "</p>" : "") + "</article>";
   }
+  // Problemas del ABM actual (hallazgos H1–H25 de T-007). [pantalla, título, descripción]
+  var DOLORES = [
+    ["Datos", "Un nombre de contrato que no dice nada", "Le ponemos al contrato un nombre armado con los niveles de esfuerzo. No sabemos qué aporta y varios contratos terminan llamándose igual. ¿Para qué lo queremos?"],
+    ["Datos", "Volvemos a tipear lo que ya está en SAP", "Número de contrato, solicitante, razón social: todo existe en SAP y lo cargamos de nuevo a mano. Cada carga es una oportunidad de error."],
+    ["Datos", "Campos que nadie usa", "Póliza, tipo de envío, tipo de entrega vacíos, y fin de validez 31/12/9999 en todos. Los pedimos igual, sin saber quién los consume."],
+    ["Servicio", "16 interruptores en una sola lista", "Sin agrupar, sin ayuda y con nombres técnicos. Hay dos de gestión telefónica que parecen decir lo mismo."],
+    ["Servicio", "El remito es sí o no", "En la operación hay remito digital, físico o directamente no hay. La pantalla no lo distingue."],
+    ["Servicio", "Datos que se contradicen y nadie avisa", "Container refrigerado con cadena de frío apagada, retiro parcial de valores sin cobranza. La pantalla lo deja pasar."],
+    ["Servicio", "Un solo ciclo de vida para todos", "El contrato no permite elegir el ciclo: todos usan el mismo y los ciclos no tienen un nombre que se entienda."],
+    ["Domicilios", "Domicilios por número", "«Tipo 1», «Tipo 2»… No dice qué clase es cada uno ni cuáles faltan cargar."],
+    ["Domicilios", "El mismo domicilio, cargado muchas veces", "Hay que repetirlo en cada clase, y muchas veces termina escrito de formas distintas."],
+    ["General", "La pantalla no te guía", "«Siguiente» se bloquea sin decir qué falta, y al editar el resumen no muestra qué cambiaste."],
+    ["Guardado", "El alta queda deshabilitada", "Creamos el contrato y queda apagado. Si nadie se acuerda de habilitarlo, no opera."],
+    ["Guardado", "Los cambios rigen en el momento", "No hay fecha de vigencia: un cambio impacta al instante, incluso en envíos que ya están en curso."]
+  ];
   var DIAPOS = [
     { oscura: true, titulo: "Portada", html:
       '<svg class="hero-deco" viewBox="0 0 520 520" aria-hidden="true"><circle cx="260" cy="260" r="250"/><circle cx="260" cy="260" r="190"/><circle cx="260" cy="260" r="130"/><circle class="r" cx="260" cy="260" r="140"/></svg>' +
@@ -22,12 +37,10 @@
       '<p class="hero-bajada anim">Un recorrido guiado que trae lo que ya existe en SAP, habla en lenguaje comercial y deja cada cambio con fecha y registro.</p>' +
       '<div class="hero-meta anim"><span><strong>4</strong>pasos guiados</span><span><strong>0</strong>datos de SAP tipeados a mano</span><span><strong>100 %</strong>de los cambios con fecha y auditoría</span></div></div>' },
     { titulo: "Punto de partida", html:
-      '<div class="diapo-in"><span class="eyebrow anim">El punto de partida</span><h2 class="grande anim">Lo que hoy hace difícil configurar un contrato</h2>' +
-      '<div class="dolores">' +
-      '<div class="dolor"><span class="num">16</span><span class="que">interruptores en una sola lista</span><p>Sin agrupar, sin ayuda y con nombres técnicos; algunos parecen duplicados.</p></div>' +
-      '<div class="dolor"><span class="num">Tipo N</span><span class="que">domicilios por número</span><p>No dice qué clase es cada uno ni cuáles faltan cargar.</p></div>' +
-      '<div class="dolor"><span class="num">1</span><span class="que">ciclo de vida para todos</span><p>El contrato no permite elegir el ciclo: se aplica uno único.</p></div>' +
-      '<div class="dolor"><span class="num">0</span><span class="que">fechas de vigencia</span><p>Un cambio rige en el momento y puede afectar envíos en curso.</p></div>' +
+      '<div class="diapo-in"><span class="eyebrow anim">El punto de partida · ABM de contratos actual</span><h2 class="grande anim">Lo que hoy hace difícil configurar un contrato</h2>' +
+      '<div class="dolores">' + DOLORES.map(function (d, i) {
+        return '<div class="dolor" style="animation-delay:' + (0.3 + i * 0.08).toFixed(2) + 's"><span class="chip" style="justify-self:start">' + d[0] + '</span><span class="que">' + d[1] + "</span><p>" + d[2] + "</p></div>";
+      }).join("") +
       "</div></div>" },
     { titulo: "Principios", html:
       '<div class="diapo-in"><span class="eyebrow anim">Principios de la propuesta</span><h2 class="grande anim">Cuatro ideas que ordenan todo el rediseño</h2><div class="tarjetas">' +
@@ -45,11 +58,11 @@
       '<li><span class="paso">3</span><h3>Domicilios</h3><p>Todas las clases a la vista; un domicilio sirve para varias.</p></li>' +
       '<li><span class="paso">4</span><h3>Resumen y guardado</h3><p>Se ve qué cambió y desde cuándo rige.</p></li></ol></div>' },
     { titulo: "Después de la demo", html:
-      '<div class="diapo-in"><span class="eyebrow anim">Fuera de este prototipo · propuesta de proceso</span><h2 class="grande anim">Lo que hace falta para que el contrato solo tenga que elegir</h2><div class="tarjetas">' +
-      tarjeta(I.ciclo, "Maestro de ciclos de vida con nombre", "El contrato solo elige el ciclo por nombre; los ciclos se definen en un maestro aparte, con cada intento completo.", "", true) +
-      tarjeta(I.plantilla, "Plantillas para generar ciclos", "Crear ciclos a partir de plantillas o Excel, no con un ABM pantalla por pantalla.", "", true) +
-      tarjeta(I.flecha, "Conversión de ciclos Integra → DMS", "Validar cuánto cubre el programa de Pablo Lugo antes de construir un ABM de ciclos.", "", true) +
-      tarjeta(I.motivo, "Alta de motivos", "Un motivo nuevo se crea indicando «se comporta igual que el motivo X».", "", true) +
+      '<div class="diapo-in"><span class="eyebrow anim">Fuera de este prototipo · a resolver junto con DMS</span><h2 class="grande anim">Lo que necesitamos para que el contrato solo tenga que elegir</h2><div class="tarjetas">' +
+      tarjeta(I.ciclo, "Ciclos de vida con nombre", "Que cada ciclo tenga un nombre que se entienda y que el contrato solo tenga que elegirlo. Hoy los ciclos no tienen nombre y todos los contratos usan el mismo.", "", true) +
+      tarjeta(I.flecha, "Cómo se crean y migran los ciclos a DMS", "Un ciclo en DMS no es un dato: son muchas reglas por estado, motivo, intento y días de custodia, y aplica a entrega, reenvío, devolución, rendición y siniestro. Necesitamos una forma de crearlos y de traerlos desde Integra sin cargarlos regla por regla.", "", true) +
+      tarjeta(I.motivo, "Sumar motivos nuevos", "Agregar un motivo no debería obligar a revisar ciclo por ciclo, ni dejar intentos sin definir.", "", true) +
+      tarjeta(I.dato, "Datos sin dueño claro", "Clases de domicilio, póliza, tipo de envío, fin de validez: necesitamos que DMS confirme cuáles se usan, quién los consume y cuáles son obligatorios.", "", true) +
       '</div><div class="cta anim"><button class="btn btn-primary btn-lg" data-intro="demo">Ver la demo</button><span class="small">Datos ficticios · no se conecta con DMS ni con SAP.</span></div></div>' }
   ];
 
