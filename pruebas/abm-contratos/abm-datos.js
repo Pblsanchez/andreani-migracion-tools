@@ -61,8 +61,10 @@
     { cod: "13", dms: "Formulario B2B 13", req: ["fotoProducto"] }
   ];
 
-  // Ciclo de vida de ejemplo (D-067.2 / D-068): código + descripción coloquial
+  // Ciclos de vida de ejemplo (D-068, D-075): código + descripción coloquial
+  // cv-std = ciclo estándar B2B que hoy tienen todos los contratos en DMS (D-075)
   var CICLOS = [
+    { id: "cv-std", codigo: "Alertran motives v4", nombre: "2 intentos de visita y devolución", estandar: true },
     { id: "cv-01", codigo: "*B-3 , B-2 , CU-7-DES", nombre: "2 visitas + custodia de 7 días descentralizada" }
   ];
 
@@ -126,22 +128,22 @@
 
   // Contratos ya configurados en DMS (ficticios)
   var CONTRATOS = [
-    { nro: "4000100231", niveles: { logistica: "1", continente: "3", sla: "1" }, req: ["dni", "fotoRemito"], ciclo: "cv-01",
+    { nro: "4000100231", niveles: { logistica: "1", continente: "3", sla: "1" }, req: ["dni", "fotoRemito"], ciclo: "cv-std",
       cond: condBase({}), analizar: { poliza: "", tipoEnvio: "", tipoEntrega: "", agrupador: "", finValidez: "9999-12-31" },
       domicilios: [{ id: "d1", dom: DOMI_A, clases: ["DEVOLUCION", "DEVOLUCION_REMITOS", "REENVIO"] }],
       estado: "habilitado", vigencia: "2026-10-05",
       historial: [{ fecha: "2026-10-05 10:12", usuario: "comercial.ejemplo", accion: "Alta", detalle: "Contrato creado · Habilitado desde 05/10/2026" }] },
-    { nro: "4000100232", niveles: { logistica: "1", continente: "3", sla: "1" }, req: ["dni", "fotoRemito", "valores"], ciclo: "cv-01",
+    { nro: "4000100232", niveles: { logistica: "1", continente: "3", sla: "1" }, req: ["dni", "fotoRemito", "valores"], ciclo: "cv-std",
       cond: condBase({ cobranza: true, retiroParcial: true, remito: "Físico" }), analizar: { poliza: "", tipoEnvio: "", tipoEntrega: "", agrupador: "", finValidez: "9999-12-31" },
       domicilios: [{ id: "d2", dom: DOMI_A, clases: ["DEVOLUCION", "DEVOLUCION_REMITOS", "DEVOLUCION_COBROS"] }],
       estado: "habilitado", vigencia: "2026-10-05",
       historial: [{ fecha: "2026-10-05 10:30", usuario: "comercial.ejemplo", accion: "Alta", detalle: "Contrato creado · Habilitado desde 05/10/2026" }] },
-    { nro: "4000100417", niveles: { logistica: "1", continente: "1", sla: "3" }, req: ["dni", "fotoRemito", "insumo"], ciclo: "cv-01",
+    { nro: "4000100417", niveles: { logistica: "1", continente: "1", sla: "3" }, req: ["dni", "fotoRemito", "insumo"], ciclo: "cv-std",
       cond: condBase({ frio: true, conservadora: true, aforo: true, remito: "Digital" }), analizar: { poliza: "", tipoEnvio: "", tipoEntrega: "", agrupador: "", finValidez: "9999-12-31" },
       domicilios: [{ id: "d3", dom: DOMI_B, clases: ["DEVOLUCION", "DEVOLUCION_REMITOS"] }],
       estado: "programado", vigencia: "2026-12-01",
       historial: [{ fecha: "2026-11-12 16:02", usuario: "comercial.demo", accion: "Alta", detalle: "Contrato creado · Vigente desde 01/12/2026" }] },
-    { nro: "4000100502", niveles: { logistica: "1", continente: "7", sla: "2" }, req: ["firmaSello", "fotoRemito"], ciclo: "cv-01",
+    { nro: "4000100502", niveles: { logistica: "1", continente: "7", sla: "2" }, req: ["firmaSello", "fotoRemito"], ciclo: "cv-std",
       cond: condBase({ parcial: true, remito: "Digital" }), analizar: { poliza: "", tipoEnvio: "", tipoEntrega: "", agrupador: "", finValidez: "9999-12-31" },
       domicilios: [{ id: "d4", dom: DOMI_B, clases: ["DEVOLUCION"] }],
       estado: "deshabilitado", vigencia: "",
