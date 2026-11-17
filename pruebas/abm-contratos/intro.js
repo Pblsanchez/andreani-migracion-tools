@@ -25,10 +25,19 @@
     ["Servicio", "Un solo ciclo de vida para todos", "El contrato no permite elegir el ciclo: todos usan el mismo y los ciclos no tienen un nombre que se entienda."],
     ["Domicilios", "Domicilios por número", "«Tipo 1», «Tipo 2»… No dice qué clase es cada uno ni cuáles faltan cargar."],
     ["Domicilios", "El mismo domicilio, cargado muchas veces", "Hay que repetirlo en cada clase, y muchas veces termina escrito de formas distintas."],
-    ["General", "La pantalla no te guía", "«Siguiente» se bloquea sin decir qué falta, y al editar el resumen no muestra qué cambiaste."],
     ["Guardado", "El alta queda deshabilitada", "Creamos el contrato y queda apagado. Si nadie se acuerda de habilitarlo, no opera."],
-    ["Guardado", "Los cambios rigen en el momento", "No hay fecha de vigencia: un cambio impacta al instante, incluso en envíos que ya están en curso."]
+    ["Guardado", "Los cambios rigen en el momento", "No hay fecha de vigencia: un cambio impacta al instante. ¿Qué pasa con los envíos que ya están en curso?"]
   ];
+  // «La pantalla no te guía» (H5 + H14) queda afuera hasta que Pablo lo confirme en DMS (D-074).
+  var CATEGORIAS = ["Datos", "Servicio", "Domicilios", "Guardado"];
+  function vDolores() {
+    var n = 0;
+    return '<div class="dolores">' + CATEGORIAS.map(function (cat) {
+      var ds = DOLORES.filter(function (d) { return d[0] === cat; });
+      return '<div style="display:grid;gap:16px;align-content:start"><h3 class="anim" style="display:flex;align-items:center;gap:8px;font-size:18px;line-height:22px;border-bottom:3px solid var(--c-color-border-primary);padding-bottom:8px">' + cat + ' <span class="chip">' + ds.length + "</span></h3>" +
+        ds.map(function (d) { var del = (0.3 + (n++) * 0.08).toFixed(2); return '<div class="dolor" style="padding:16px;gap:4px;animation-delay:' + del + 's"><span class="que">' + d[1] + "</span><p>" + d[2] + "</p></div>"; }).join("") + "</div>";
+    }).join("") + "</div>";
+  }
   var DIAPOS = [
     { oscura: true, titulo: "Portada", html:
       '<svg class="hero-deco" viewBox="0 0 520 520" aria-hidden="true"><circle cx="260" cy="260" r="250"/><circle cx="260" cy="260" r="190"/><circle cx="260" cy="260" r="130"/><circle class="r" cx="260" cy="260" r="140"/></svg>' +
@@ -38,10 +47,7 @@
       '<div class="hero-meta anim"><span><strong>4</strong>pasos guiados</span><span><strong>0</strong>datos de SAP tipeados a mano</span><span><strong>100 %</strong>de los cambios con fecha y auditoría</span></div></div>' },
     { titulo: "Punto de partida", html:
       '<div class="diapo-in"><span class="eyebrow anim">El punto de partida · ABM de contratos actual</span><h2 class="grande anim">Lo que hoy hace difícil configurar un contrato</h2>' +
-      '<div class="dolores">' + DOLORES.map(function (d, i) {
-        return '<div class="dolor" style="animation-delay:' + (0.3 + i * 0.08).toFixed(2) + 's"><span class="chip" style="justify-self:start">' + d[0] + '</span><span class="que">' + d[1] + "</span><p>" + d[2] + "</p></div>";
-      }).join("") +
-      "</div></div>" },
+      vDolores() + "</div>" },
     { titulo: "Principios", html:
       '<div class="diapo-in"><span class="eyebrow anim">Principios de la propuesta</span><h2 class="grande anim">Cuatro ideas que ordenan todo el rediseño</h2><div class="tarjetas">' +
       tarjeta(I.sap, "Datos de SAP, no se tipean", "El contrato y el cliente se buscan en SAP y se muestran en solo lectura. Si algo está mal, se corrige en el origen.", "se cargan a mano en DMS.") +
