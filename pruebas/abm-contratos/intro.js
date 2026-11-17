@@ -1,4 +1,4 @@
-/* ABM Contratos DMS · intro animada de la propuesta (T-007 v0.3, D-072). Sin datos de clientes. */
+/* ABM Contratos DMS · intro animada de la propuesta (T-007 v0.6, D-072 a D-075). Sin datos de clientes. */
 (function () {
   "use strict";
   var I = {
@@ -9,6 +9,7 @@
     ciclo: '<svg viewBox="0 0 24 24" aria-hidden="true"><path class="t" d="M20 12a8 8 0 1 1-2.3-5.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     plantilla: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect class="t" x="4" y="3" width="16" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>',
     flecha: '<svg viewBox="0 0 24 24" aria-hidden="true"><path class="t" d="M3 12h15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    guia: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle class="t" cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 8.5l-2 5-5 2 2-5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
     motivo: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect class="t" x="3" y="4" width="8" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13" y="13" width="8" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 11v5h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
   };
   function tarjeta(ic, t, p, hoy, gris) {
@@ -22,20 +23,25 @@
     ["Servicio", "16 interruptores en una sola lista", "Sin agrupar, sin ayuda y con nombres técnicos. Hay dos de gestión telefónica que parecen decir lo mismo."],
     ["Servicio", "El remito es sí o no", "En la operación hay remito digital, físico o directamente no hay. La pantalla no lo distingue."],
     ["Servicio", "Datos que se contradicen y nadie avisa", "Container refrigerado con cadena de frío apagada, retiro parcial de valores sin cobranza. La pantalla lo deja pasar."],
-    ["Servicio", "Un solo ciclo de vida para todos", "El contrato no permite elegir el ciclo: todos usan el mismo y los ciclos no tienen un nombre que se entienda."],
+    ["Servicio", "Un solo ciclo de vida para todos", "El contrato no permite elegir el ciclo: todos usan el mismo, «Alertran motives v4» (2 intentos de visita y devolución), y los ciclos no tienen un nombre que se entienda."],
     ["Domicilios", "Domicilios por número", "«Tipo 1», «Tipo 2»… No dice qué clase es cada uno ni cuáles faltan cargar."],
     ["Domicilios", "El mismo domicilio, cargado muchas veces", "Hay que repetirlo en cada clase, y muchas veces termina escrito de formas distintas."],
     ["Guardado", "El alta queda deshabilitada", "Creamos el contrato y queda apagado. Si nadie se acuerda de habilitarlo, no opera."],
     ["Guardado", "Los cambios rigen en el momento", "No hay fecha de vigencia: un cambio impacta al instante. ¿Qué pasa con los envíos que ya están en curso?"]
   ];
   // «La pantalla no te guía» (H5 + H14) queda afuera hasta que Pablo lo confirme en DMS (D-074).
-  var CATEGORIAS = ["Datos", "Servicio", "Domicilios", "Guardado"];
+  var CATEGORIAS = [
+    ["Datos", "Lo que identifica al contrato"],
+    ["Servicio", "Cómo se opera el envío"],
+    ["Domicilios", "A dónde vuelve lo que no se entrega"],
+    ["Guardado", "Cuándo empieza a regir"]
+  ];
   function vDolores() {
     var n = 0;
-    return '<div class="dolores">' + CATEGORIAS.map(function (cat) {
-      var ds = DOLORES.filter(function (d) { return d[0] === cat; });
-      return '<div style="display:grid;gap:16px;align-content:start"><h3 class="anim" style="display:flex;align-items:center;gap:8px;font-size:18px;line-height:22px;border-bottom:3px solid var(--c-color-border-primary);padding-bottom:8px">' + cat + ' <span class="chip">' + ds.length + "</span></h3>" +
-        ds.map(function (d) { var del = (0.3 + (n++) * 0.08).toFixed(2); return '<div class="dolor" style="padding:16px;gap:4px;animation-delay:' + del + 's"><span class="que">' + d[1] + "</span><p>" + d[2] + "</p></div>"; }).join("") + "</div>";
+    return '<div class="dolores">' + CATEGORIAS.map(function (c, k) {
+      var ds = DOLORES.filter(function (d) { return d[0] === c[0]; });
+      return '<div class="cat-col"><div class="cat-head" style="animation-delay:' + (0.2 + k * 0.1).toFixed(2) + 's"><span class="cat-num">' + (k + 1) + '</span><span><span class="cat-nom">' + c[0] + ' <span class="chip">' + ds.length + (ds.length === 1 ? " problema" : " problemas") + '</span></span><span class="cat-desc">' + c[1] + "</span></span></div>" +
+        ds.map(function (d) { var del = (0.4 + (n++) * 0.08).toFixed(2); return '<div class="dolor" style="animation-delay:' + del + 's"><span class="que">' + d[1] + "</span><p>" + d[2] + "</p></div>"; }).join("") + "</div>";
     }).join("") + "</div>";
   }
   var DIAPOS = [
@@ -47,13 +53,15 @@
       '<div class="hero-meta anim"><span><strong>4</strong>pasos guiados</span><span><strong>0</strong>datos de SAP tipeados a mano</span><span><strong>100 %</strong>de los cambios con fecha y auditoría</span></div></div>' },
     { titulo: "Punto de partida", html:
       '<div class="diapo-in"><span class="eyebrow anim">El punto de partida · ABM de contratos actual</span><h2 class="grande anim">Lo que hoy hace difícil configurar un contrato</h2>' +
+      '<p class="bajada anim">Once problemas que encontramos en la pantalla actual, ordenados según el paso donde aparecen.</p>' +
       vDolores() + "</div>" },
     { titulo: "Principios", html:
-      '<div class="diapo-in"><span class="eyebrow anim">Principios de la propuesta</span><h2 class="grande anim">Cuatro ideas que ordenan todo el rediseño</h2><div class="tarjetas">' +
+      '<div class="diapo-in"><span class="eyebrow anim">Principios de la propuesta</span><h2 class="grande anim">Cinco ideas que ordenan todo el rediseño</h2><div class="tarjetas cinco">' +
       tarjeta(I.sap, "Datos de SAP, no se tipean", "El contrato y el cliente se buscan en SAP y se muestran en solo lectura. Si algo está mal, se corrige en el origen.", "se cargan a mano en DMS.") +
       tarjeta(I.dato, "Cada dato tiene un consumidor", "Si ningún proceso (Mostrador, Mobile u otro) usa un dato, se cuestiona antes de pedirlo.", "hay campos que nadie consume.") +
       tarjeta(I.persona, "Configura quien conoce el acuerdo", "No conviene derivar un requerimiento a un área que no le agrega valor. El control lo da la auditoría de DMS: quién cambió qué y cuándo.", "") +
       tarjeta(I.reloj, "Los cambios rigen hacia adelante", "Cada alta o cambio tiene fecha de vigencia y no afecta a los envíos ya admitidos.", "los cambios aplican al instante.") +
+      tarjeta(I.guia, "La pantalla te guía", "Marca desde el principio qué es obligatorio y, si falta algo, te dice qué y cómo completarlo. Si dos datos no cierran, te propone el arreglo.", "") +
       "</div></div>" },
     { titulo: "Recorrido de la demo", html:
       '<div class="diapo-in"><span class="eyebrow anim">Lo que vamos a ver</span><h2 class="grande anim">Un recorrido guiado en 4 pasos</h2>' +
