@@ -1,4 +1,4 @@
-/* ABM Contratos DMS · prototipo de propuesta (T-007, D-063 a D-068). Datos ficticios. */
+/* ABM Contratos DMS · prototipo de propuesta v0.2 (T-007, D-063 a D-071). Datos ficticios. */
 (function (g) {
   "use strict";
   var D = g.ABM_DATOS;
@@ -15,6 +15,23 @@
   function ciclo(id) { for (var i = 0; i < D.CICLOS.length; i++) if (D.CICLOS[i].id === id) return D.CICLOS[i]; return null; }
   function clase(id) { for (var i = 0; i < D.CLASES.length; i++) if (D.CLASES[i].id === id) return D.CLASES[i]; return null; }
   function condDef(id) { for (var i = 0; i < D.CONDICIONES.length; i++) if (D.CONDICIONES[i].id === id) return D.CONDICIONES[i]; return null; }
+  function nivel(id) { for (var i = 0; i < D.NIVELES.length; i++) if (D.NIVELES[i].id === id) return D.NIVELES[i]; return null; }
+  function opNivel(id, cod) { var n = nivel(id); if (!n) return null; for (var i = 0; i < n.opciones.length; i++) if (n.opciones[i].cod === cod) return n.opciones[i]; return null; }
+  function reqNombre(id) { for (var i = 0; i < D.REQUISITOS.length; i++) if (D.REQUISITOS[i].id === id) return D.REQUISITOS[i].nombre; return id; }
+  function mismoSet(a, b) { if (a.length !== b.length) return false; for (var i = 0; i < a.length; i++) if (b.indexOf(a[i]) < 0) return false; return true; }
+  function formDe(req) { req = req || []; for (var i = 0; i < D.FORMULARIOS.length; i++) if (mismoSet(D.FORMULARIOS[i].req, req)) return D.FORMULARIOS[i]; return null; }
+  function formsCercanos(req) {
+    req = req || [];
+    return D.FORMULARIOS.map(function (f) {
+      var falta = f.req.filter(function (r) { return req.indexOf(r) < 0; }).length, sobra = req.filter(function (r) { return f.req.indexOf(r) < 0; }).length;
+      return { f: f, d: falta + sobra * 2 };
+    }).sort(function (a, b) { return a.d - b.d; }).slice(0, 3).map(function (x) { return x.f; });
+  }
+  function textoReq(req) {
+    var p = (req || []).filter(function (r) { return reqGrupo(r) === "pide"; }).map(reqNombre), r = (req || []).filter(function (x) { return reqGrupo(x) === "retira"; }).map(reqNombre);
+    return (p.length ? "Pide: " + p.join(", ") : "") + (p.length && r.length ? " · " : "") + (r.length ? "Retira: " + r.join(", ") : "");
+  }
+  function reqGrupo(id) { for (var i = 0; i < D.REQUISITOS.length; i++) if (D.REQUISITOS[i].id === id) return D.REQUISITOS[i].grupo; return ""; }
   function domTexto(d) { return d.calle + " " + d.numero + ", " + d.localidad + ", " + d.provincia + " (CP " + d.cp + ")"; }
   function domClave(d) { return [d.calle, d.numero, d.localidad, d.provincia, d.cp].join("|").toLowerCase().replace(/\s+/g, " ").trim(); }
 
@@ -45,7 +62,7 @@
   function nuevoBorrador() {
     var cond = {};
     D.CONDICIONES.forEach(function (c) { cond[c.id] = c.tipo === "opciones" ? "" : false; });
-    return { nro: "", niveles: { logistica: "", container: "", sla: "", form: "" }, ciclo: "", cond: cond,
+    return { nro: "", niveles: { logistica: "", continente: "", sla: "" }, req: [], ciclo: "", cond: cond,
       analizar: { poliza: "", tipoEnvio: "", tipoEntrega: "", agrupador: "", finValidez: "9999-12-31" },
       domicilios: [], estado: "", vigencia: "" };
   }
@@ -62,6 +79,8 @@
     }
     if (paso === 2) {
       D.NIVELES.forEach(function (n) { if (!b.niveles[n.id]) f.push("Elegir «" + n.nombre + "»"); });
+      if (!b.req.length) f.push("Marcar qué se pide o se retira al entregar («Condición de entrega»)");
+      else if (!formDe(b.req)) f.push("La combinación marcada en «Condición de entrega» no existe hoy en DMS: elegí una de las sugeridas");
       if (!b.ciclo) f.push("Elegir el ciclo de vida");
       if (!b.cond.remito) f.push("Indicar cómo viaja el remito (Admisión)");
     }
@@ -80,9 +99,13 @@
   }
   function advertencias(b) {
     var a = [];
-    var frioCont = /Refrigerado|Congelado/.test(b.niveles.container || "");
-    if (frioCont && !b.cond.frio) a.push({ tipo: "warning", txt: "El container es «" + b.niveles.container + "» pero «Cadena de frío» está apagada. Revisá si corresponde activarla." });
-    if (!frioCont && b.niveles.container && b.cond.frio) a.push({ tipo: "caution", txt: "«Cadena de frío» está activa con container «" + b.niveles.container + "»." });
+    var oc = opNivel("continente", b.niveles.continente), ol = opNivel("logistica", b.niveles.logistica), req = b.req || [];
+    if (oc && oc.frio && !b.cond.frio) a.push({ tipo: "warning", txt: "El tipo de carga es «" + oc.nombre + "» pero «Cadena de frío» está apagada. Revisá si corresponde activarla." });
+    if (oc && !oc.frio && b.cond.frio) a.push({ tipo: "caution", txt: "«Cadena de frío» está activa con tipo de carga «" + oc.nombre + "»." });
+    if (req.indexOf("valores") >= 0 && !b.cond.cobranza) a.push({ tipo: "warning", txt: "La condición de entrega retira valores pero «Gestión de cobranza» está apagada (Administrativas)." });
+    if (b.cond.cobranza && req.length && req.indexOf("valores") < 0) a.push({ tipo: "warning", txt: "«Gestión de cobranza» está activa pero la condición de entrega no retira valores." });
+    if (b.cond.remito === "Sin remito" && req.indexOf("fotoRemito") >= 0) a.push({ tipo: "warning", txt: "El remito es «Sin remito» pero la condición de entrega pide foto del remito." });
+    if (ol && ol.cod === "7" && !b.cond.cambio) a.push({ tipo: "caution", txt: "El tipo de operación es «Cambio» pero la condición «Cambio» está apagada. Hoy son dos datos que dicen lo mismo." });
     if (b.cond.conservadora && !b.cond.frio) a.push({ tipo: "caution", txt: "«Conservadora cerrada por el cliente» suele ir con «Cadena de frío»." });
     return a;
   }
@@ -95,7 +118,8 @@
     add("analizar", "Póliza", b.analizar.poliza || "—"); add("analizar", "Tipo de envío", b.analizar.tipoEnvio || "—");
     add("analizar", "Tipo de entrega", b.analizar.tipoEntrega || "—"); add("analizar", "Contrato agrupador", b.analizar.agrupador || "—");
     add("analizar", "Fin de validez", b.analizar.finValidez === "9999-12-31" ? "Sin vencimiento (31/12/9999)" : fmtFecha(b.analizar.finValidez));
-    D.NIVELES.forEach(function (n) { add("servicio", n.nombre, b.niveles[n.id] || "—"); });
+    D.NIVELES.forEach(function (n) { var o = opNivel(n.id, b.niveles[n.id]); add("servicio", n.nombre, o ? o.nombre + " (DMS " + n.dmsNombre + " " + o.cod + ")" : "—"); });
+    var fm = formDe(b.req); add("servicio", "Condición de entrega", b.req && b.req.length ? textoReq(b.req) + (fm ? " (" + fm.dms + ")" : " (combinación inexistente)") : "—");
     var cv = ciclo(b.ciclo); add("servicio", "Ciclo de vida", cv ? cv.codigo + " · " + cv.nombre : "—");
     D.CONDICIONES.forEach(function (c) {
       if (c.depende && !b.cond[c.depende]) add("cond-" + c.bloque, c.nombre, "No aplica (requiere " + condDef(c.depende).nombre + ")");
@@ -114,7 +138,7 @@
     for (var i = 0; i < n.length; i++) if (a[i] && a[i].v !== n[i].v) m[n[i].sec + "|" + n[i].k] = a[i].v;
     return m;
   }
-  g.ABM_LOGICA = { nuevoBorrador: nuevoBorrador, faltantes: faltantes, advertencias: advertencias, clasesCubiertas: clasesCubiertas, filasResumen: filasResumen, diferencias: diferencias, domClave: domClave };
+  g.ABM_LOGICA = { formDe: formDe, formsCercanos: formsCercanos, nuevoBorrador: nuevoBorrador, faltantes: faltantes, advertencias: advertencias, clasesCubiertas: clasesCubiertas, filasResumen: filasResumen, diferencias: diferencias, domClave: domClave };
   if (typeof document === "undefined") return;
 
   /* ---------- estado de la interfaz ---------- */
@@ -150,7 +174,8 @@
     filas.forEach(function (c) {
       var s = sap(c.nro) || {}; var cv = ciclo(c.ciclo);
       h += "<tr><td>" + esc(s.razon) + "</td><td><span class=\"strong\">" + esc(c.nro) + '</span><br><span class="caption">' + esc(s.desc) + "</span></td><td>" + esc(s.solicitante) + "</td>" +
-        '<td><div class="chips">' + D.NIVELES.map(function (n) { return '<span class="chip" title="' + esc(n.nombre) + '">' + esc(c.niveles[n.id]) + "</span>"; }).join("") + "</div></td>" +
+        '<td><div class="chips">' + D.NIVELES.map(function (n) { var o = opNivel(n.id, c.niveles[n.id]); return '<span class="chip" title="' + esc(n.nombre) + (o ? " · DMS " + n.dmsNombre + " " + o.cod : "") + '">' + esc(o ? o.nombre : "—") + "</span>"; }).join("") +
+        (function () { var fm = formDe(c.req); return fm ? '<span class="chip" title="Condición de entrega: ' + esc(textoReq(c.req)) + '">' + esc(fm.dms.replace("Formulario ", "Form. ")) + "</span>" : ""; })() + "</div></td>" +
         "<td>" + (cv ? esc(cv.nombre) + '<br><span class="caption">' + esc(cv.codigo) + "</span>" : "—") + "</td>" +
         "<td>" + (c.vigencia ? "Desde " + fmtFecha(c.vigencia) : "—") + "</td><td>" + chipEstado(c) + "</td>" +
         '<td class="acc"><div class="kebab"><button class="btn btn-ghost btn-icon btn-sm" aria-haspopup="true" aria-expanded="false" data-acc="kebab" data-nro="' + c.nro + '" aria-label="Acciones del contrato ' + c.nro + '">' + ICO.kebab + "</button>" +
@@ -224,12 +249,16 @@
 
   function vPaso2() {
     var b = S.b;
-    var h = '<div class="grid-2"><div class="campo" style="gap:16px"><h3>Niveles de esfuerzo</h3><div class="campos">' + D.NIVELES.map(function (n) {
-      return '<div class="campo"><label for="niv-' + n.id + '">' + n.nombre + '</label><select id="niv-' + n.id + '"><option value="">Elegir…</option>' + n.opciones.map(function (o) { return "<option" + (b.niveles[n.id] === o ? " selected" : "") + ">" + esc(o) + "</option>"; }).join("") + "</select></div>";
-    }).join("") + '</div><p class="caption">Valores de ejemplo. Hoy DMS concatena estos niveles como «Nombre contrato DMS»; proponemos mostrarlos en el listado en lugar de un nombre que se repite.</p></div>';
+    var h = '<div class="grid-2"><div class="campo" style="gap:16px"><h3>Niveles de esfuerzo</h3><div class="campos" style="grid-template-columns:1fr">' + D.NIVELES.map(function (n) {
+      var sel = opNivel(n.id, b.niveles[n.id]);
+      return '<div class="campo"><label for="niv-' + n.id + '">' + n.nombre + ' <span class="caption">(DMS: ' + esc(n.dmsNombre) + ')</span></label><select id="niv-' + n.id + '" aria-describedby="niv-' + n.id + '-a"><option value="">Elegir…</option>' + n.opciones.map(function (o) {
+        return '<option value="' + o.cod + '"' + (b.niveles[n.id] === o.cod ? " selected" : "") + ">" + esc(o.nombre) + " — DMS " + o.cod + ": " + esc(o.dms) + "</option>";
+      }).join("") + '</select><span class="ayuda" id="niv-' + n.id + '-a">' + (sel ? esc(sel.ayuda) : "&nbsp;") + "</span></div>";
+    }).join("") + '</div><p class="caption">Nombre comercial con el valor real de DMS al lado. Hoy DMS concatena los niveles como «Nombre contrato DMS»; proponemos mostrarlos en el listado.</p></div>';
     h += '<div class="campo" style="gap:16px"><h3>Ciclo de vida</h3><fieldset class="opciones"><legend>Elegí el ciclo por nombre</legend>' + D.CICLOS.map(function (c) {
       return '<label class="opcion grande"><input type="radio" name="ciclo" value="' + c.id + '"' + (b.ciclo === c.id ? " checked" : "") + '><span><span class="strong">' + esc(c.nombre) + '</span><span class="det">' + esc(c.codigo) + "</span></span></label>";
     }).join("") + '</fieldset><p class="caption">La lista sale del maestro de ciclos con nombre (propuesta, fuera de este prototipo). Hoy todos los contratos usan un único ciclo y no se puede elegir.</p></div></div>';
+    h += vCondEntrega(b);
     advertencias(b).forEach(function (a) { h += alerta(a.tipo, esc(a.txt)); });
     h += "<h3>Condiciones del servicio</h3><p class=\"small\">Los 16 interruptores de hoy, agrupados y explicados. Debajo de cada uno figura su nombre actual en DMS. Textos de ayuda de ejemplo, a validar con DMS.</p>";
     D.BLOQUES.forEach(function (bl, i) {
@@ -241,6 +270,22 @@
       h += "</div></details>";
     });
     return h;
+  }
+  function vCondEntrega(b) {
+    var fm = formDe(b.req);
+    var h = '<div class="campo" style="gap:12px"><h3>Condición de entrega <span class="caption">(DMS: Formulario Mobile)</span></h3><p class="small">Marcá qué hace el repartidor al entregar. DMS elige el formulario Mobile que corresponde.</p><div class="grid-2">';
+    [["pide", "Al entregar, pide"], ["retira", "Además, retira"]].forEach(function (g2) {
+      h += '<fieldset class="opciones" style="display:grid;gap:0"><legend>' + g2[1] + "</legend>" + D.REQUISITOS.filter(function (r) { return r.grupo === g2[0]; }).map(function (r) {
+        return '<label class="chk"><input type="checkbox" id="req-' + r.id + '" data-req="' + r.id + '"' + (b.req.indexOf(r.id) >= 0 ? " checked" : "") + ">" + esc(r.nombre) + "</label>";
+      }).join("") + "</fieldset>";
+    });
+    h += "</div>";
+    if (!b.req.length) h += alerta("info", "Todavía no marcaste requisitos.");
+    else if (fm) h += alerta("success", "<strong>Corresponde a " + esc(fm.dms) + "</strong> (código DMS " + fm.cod + "). " + esc(textoReq(fm.req)) + ".");
+    else h += alerta("warning", "<strong>Esta combinación no existe hoy en DMS.</strong> Combinaciones disponibles más parecidas:<ul>" + formsCercanos(b.req).map(function (f) {
+      return '<li>' + esc(textoReq(f.req)) + ' (' + esc(f.dms) + ') <button class="btn btn-ghost btn-sm" data-acc="usarForm" data-cod="' + f.cod + '">Usar esta</button></li>';
+    }).join("") + "</ul>");
+    return h + "</div>";
   }
   function vCond(c, b) {
     var idA = "ay-" + c.id;
@@ -349,7 +394,7 @@
     if (modo === "alta") { S.b = nuevoBorrador(); S.orig = null; }
     else {
       var c = contrato(nro);
-      S.b = { nro: c.nro, niveles: clon(c.niveles), ciclo: c.ciclo, cond: clon(c.cond), analizar: clon(c.analizar), domicilios: clon(c.domicilios), estado: "", vigencia: "" };
+      S.b = { nro: c.nro, niveles: clon(c.niveles), req: clon(c.req || []), ciclo: c.ciclo, cond: clon(c.cond), analizar: clon(c.analizar), domicilios: clon(c.domicilios), estado: "", vigencia: "" };
       S.orig = clon(S.b);
     }
     render("t-wiz"); window.scrollTo(0, 0);
@@ -366,12 +411,12 @@
     var b = S.b, vig = b.estado === "habilitado" ? hoyISO() : b.estado === "programado" ? b.vigencia : "";
     var detEstado = b.estado === "habilitado" ? "Habilitado desde " + fmtFecha(vig) : b.estado === "programado" ? "Vigente desde " + fmtFecha(vig) : "Deshabilitado";
     if (S.modo === "alta") {
-      S.contratos.unshift({ nro: b.nro, niveles: b.niveles, ciclo: b.ciclo, cond: b.cond, analizar: b.analizar, domicilios: b.domicilios, estado: b.estado, vigencia: vig,
+      S.contratos.unshift({ nro: b.nro, niveles: b.niveles, req: b.req, ciclo: b.ciclo, cond: b.cond, analizar: b.analizar, domicilios: b.domicilios, estado: b.estado, vigencia: vig,
         historial: [{ fecha: ahora(), usuario: "comercial.ejemplo", accion: "Alta", detalle: "Contrato creado · " + detEstado }] });
       toast("Contrato " + b.nro + " creado · " + detEstado);
     } else {
       var c = contrato(b.nro), dif = diferencias(S.orig, b), ks = Object.keys(dif);
-      c.niveles = b.niveles; c.ciclo = b.ciclo; c.cond = b.cond; c.analizar = b.analizar; c.domicilios = b.domicilios; c.estado = b.estado; c.vigencia = vig;
+      c.niveles = b.niveles; c.req = b.req; c.ciclo = b.ciclo; c.cond = b.cond; c.analizar = b.analizar; c.domicilios = b.domicilios; c.estado = b.estado; c.vigencia = vig;
       c.historial.push({ fecha: ahora(), usuario: "comercial.ejemplo", accion: "Modificación (versión " + (c.historial.length + 1) + ")",
         detalle: (ks.length ? ks.map(function (k) { return k.split("|")[1]; }).join(", ") : "Sin cambios de configuración") + " · " + detEstado });
       toast("Cambios guardados · " + detEstado);
@@ -412,6 +457,7 @@
     else if (a === "irPaso") irPaso(+t.getAttribute("data-paso"));
     else if (a === "elegirSap") { S.b.nro = nro; S.b.domicilios = []; S.errores = false; render("busqSap"); }
     else if (a === "agregarDom") agregarDom();
+    else if (a === "usarForm") { var cod = t.getAttribute("data-cod"); D.FORMULARIOS.forEach(function (f) { if (f.cod === cod) S.b.req = f.req.slice(); }); render("req-" + S.b.req[0]); }
     else if (a === "quitarDom") { var id = t.getAttribute("data-id"); S.b.domicilios = S.b.domicilios.filter(function (d) { return d.id !== id; }); S.msgDom = ""; render(); }
   });
   function cerrarMenus() { var ms = raiz.querySelectorAll(".menu"); for (var i = 0; i < ms.length; i++) { ms[i].hidden = true; var b = ms[i].previousElementSibling; if (b) b.setAttribute("aria-expanded", "false"); } }
@@ -433,6 +479,7 @@
     else if (id === "an-finValidez") S.b.analizar.finValidez = t.value || "9999-12-31";
     else if (id.indexOf("niv-") === 0) { S.b.niveles[id.slice(4)] = t.value; render(id); }
     else if (t.name === "ciclo") { S.b.ciclo = t.value; render(); }
+    else if (t.hasAttribute("data-req")) { var rq = t.getAttribute("data-req"); S.b.req = S.b.req.filter(function (x) { return x !== rq; }); if (t.checked) S.b.req.push(rq); render(t.id); }
     else if (t.hasAttribute("data-cond")) {
       var c = t.getAttribute("data-cond"); S.b.cond[c] = t.checked;
       D.CONDICIONES.forEach(function (x) { if (x.depende === c && !t.checked) S.b.cond[x.id] = false; });
