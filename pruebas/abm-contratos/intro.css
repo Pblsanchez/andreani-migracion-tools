@@ -1,5 +1,4 @@
-/* ABM Contratos DMS · intro animada de la propuesta (T-007 v0.3) · DS Cartesian + D-045 */
-section[aria-labelledby="t-prop"] { display: none !important; } /* los principios se movieron a la intro (D-072); quitar vPropuesta() de abm.js al partirlo */
+/* ABM Contratos DMS · intro animada de la propuesta (T-007 v0.6) · DS Cartesian + D-045 */
 
 .intro { position: relative; min-height: calc(100vh - 57px); display: flex; flex-direction: column; background: var(--c-color-bg); overflow: hidden; }
 .intro[hidden] { display: none !important; }
@@ -54,6 +53,22 @@ section[aria-labelledby="t-prop"] { display: none !important; } /* los principio
 .recorrido li.linea { position: absolute; top: 27px; left: 10%; height: 3px; width: 0; padding: 0; display: block; background: var(--c-color-fill-primary); }
 .diapo.activa .recorrido li.linea { animation: linea 1.6s .3s ease forwards; opacity: 1; transform: none; }
 .diapo-in { position: relative; z-index: 1; }
+/* Centrado seguro: si el contenido es más alto que la pantalla, arranca arriba y se puede scrollear (no se corta el título) */
+.diapo { justify-content: flex-start; }
+.diapo > .diapo-in { margin-top: auto; margin-bottom: auto; }
+.diapo h2.grande { font-size: 40px; line-height: 44px; }
+.tarjetas.cinco { grid-template-columns: repeat(5, 1fr); }
+.tarjetas.cinco .tarjeta { padding: var(--c-spacing-4); }
+/* Punto de partida: columnas por pantalla */
+.cat-col { display: grid; gap: var(--c-spacing-3); align-content: start; }
+.cat-head { display: flex; gap: var(--c-spacing-3); align-items: center; background: var(--c-color-surface-primary-subtle); border-radius: var(--c-border-radius-medium); padding: var(--c-spacing-3) var(--c-spacing-4); border-left: var(--c-border-width-strong) solid var(--c-color-border-primary); }
+.diapo.activa .cat-head { animation: subir .6s ease both; }
+.cat-num { width: 36px; height: 36px; flex: none; border-radius: var(--c-border-radius-xlarge); background: var(--c-color-fill-primary); color: var(--c-color-text-inverse); display: inline-flex; align-items: center; justify-content: center; font-family: var(--c-font-family-headline); font-weight: 700; font-size: 18px; }
+.cat-nom { display: flex; align-items: center; gap: var(--c-spacing-2); font-family: var(--c-font-family-headline); font-size: 20px; line-height: 24px; font-weight: 500; color: var(--c-color-text-strong); }
+.cat-nom .chip { background: var(--c-color-surface); color: var(--c-color-text-primary); }
+.cat-desc { display: block; font-size: 14px; line-height: 20px; color: var(--c-color-text-strong); }
+.cat-col .dolor { padding: var(--c-spacing-4); gap: var(--c-spacing-1); }
+.cat-col .dolor .que { font-size: 16px; line-height: 22px; }
 .diapo:focus { box-shadow: none; outline: none; }
 .recorrido li { position: relative; display: grid; justify-items: center; text-align: center; gap: var(--c-spacing-2); padding: 0 var(--c-spacing-2); }
 .recorrido .paso { width: 56px; height: 56px; border-radius: var(--c-border-radius-xlarge); background: var(--c-color-surface); border: var(--c-border-width-strong) solid var(--c-color-border-primary); color: var(--c-color-text-primary); display: inline-flex; align-items: center; justify-content: center; font-family: var(--c-font-family-headline); font-size: 20px; font-weight: 700; position: relative; z-index: 1; }
@@ -97,16 +112,17 @@ section[aria-labelledby="t-prop"] { display: none !important; } /* los principio
 @keyframes linea { to { width: 80%; } }
 
 @media (max-width: 1023px) {
-  .tarjetas, .dolores { grid-template-columns: 1fr 1fr; }
+  .tarjetas, .tarjetas.cinco, .dolores { grid-template-columns: 1fr 1fr; }
   .recorrido { grid-template-columns: 1fr; gap: var(--c-spacing-4); }
   .recorrido::before, .recorrido li.linea { display: none; }
   .titulo-hero { font-size: 36px; line-height: 40px; }
   .diapo { padding: var(--c-spacing-5); justify-content: flex-start; }
   .hero-deco { display: none; }
 }
-@media (max-width: 600px) { .tarjetas, .dolores { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .tarjetas, .tarjetas.cinco, .dolores { grid-template-columns: 1fr; } }
+@media (min-width: 1024px) and (max-width: 1279px) { .tarjetas.cinco { grid-template-columns: repeat(3, 1fr); } }
 @media (prefers-reduced-motion: reduce) {
-  .diapo.activa .anim, .diapo.activa .tarjeta, .diapo.activa .dolor, .diapo.activa .recorrido li { animation: none !important; }
+  .diapo.activa .anim, .diapo.activa .tarjeta, .diapo.activa .dolor, .diapo.activa .recorrido li, .diapo.activa .cat-head { animation: none !important; }
   .hero-deco .r, .tarjeta .ic svg .t { animation: none !important; stroke-dashoffset: 0 !important; }
   .diapo.activa .recorrido li.linea { animation: none !important; width: 80%; }
 }
