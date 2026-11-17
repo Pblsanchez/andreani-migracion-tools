@@ -1,4 +1,4 @@
-/* ABM Contratos DMS · prototipo de propuesta v0.2 (T-007, D-063 a D-071). Datos ficticios. */
+/* ABM Contratos DMS · prototipo de propuesta v0.6 (T-007, D-063 a D-075). Datos ficticios. */
 (function (g) {
   "use strict";
   var D = g.ABM_DATOS;
@@ -100,14 +100,19 @@
   function advertencias(b) {
     var a = [];
     var oc = opNivel("continente", b.niveles.continente), ol = opNivel("logistica", b.niveles.logistica), req = b.req || [];
-    if (oc && oc.frio && !b.cond.frio) a.push({ tipo: "warning", txt: "El tipo de carga es «" + oc.nombre + "» pero «Cadena de frío» está apagada. Revisá si corresponde activarla." });
-    if (oc && !oc.frio && b.cond.frio) a.push({ tipo: "caution", txt: "«Cadena de frío» está activa con tipo de carga «" + oc.nombre + "»." });
-    if (req.indexOf("valores") >= 0 && !b.cond.cobranza) a.push({ tipo: "warning", txt: "La condición de entrega retira valores pero «Gestión de cobranza» está apagada (Administrativas)." });
-    if (b.cond.cobranza && req.length && req.indexOf("valores") < 0) a.push({ tipo: "warning", txt: "«Gestión de cobranza» está activa pero la condición de entrega no retira valores." });
-    if (b.cond.remito === "Sin remito" && req.indexOf("fotoRemito") >= 0) a.push({ tipo: "warning", txt: "El remito es «Sin remito» pero la condición de entrega pide foto del remito." });
-    if (ol && ol.cod === "7" && !b.cond.cambio) a.push({ tipo: "caution", txt: "El tipo de operación es «Cambio» pero la condición «Cambio» está apagada. Hoy son dos datos que dicen lo mismo." });
-    if (b.cond.conservadora && !b.cond.frio) a.push({ tipo: "caution", txt: "«Conservadora cerrada por el cliente» suele ir con «Cadena de frío»." });
+    if (oc && oc.frio && !b.cond.frio) a.push({ tipo: "warning", txt: "El tipo de carga es «" + oc.nombre + "». Activá «Cadena de frío».", btn: "Activar cadena de frío", fix: { cond: "frio", val: true } });
+    if (oc && !oc.frio && b.cond.frio) a.push({ tipo: "caution", txt: "El tipo de carga «" + oc.nombre + "» no viaja en frío. Apagá «Cadena de frío».", btn: "Apagar cadena de frío", fix: { cond: "frio", val: false } });
+    if (req.indexOf("valores") >= 0 && !b.cond.cobranza) a.push({ tipo: "warning", txt: "La entrega retira valores. Activá «Gestión de cobranza».", btn: "Activar gestión de cobranza", fix: { cond: "cobranza", val: true } });
+    if (b.cond.cobranza && req.length && req.indexOf("valores") < 0) a.push({ tipo: "warning", txt: "Hay gestión de cobranza, pero la entrega no retira valores. Sumá «Valores» a la condición de entrega.", btn: "Sumar valores", fix: { reqAdd: "valores" } });
+    if (b.cond.remito === "Sin remito" && req.indexOf("fotoRemito") >= 0) a.push({ tipo: "warning", txt: "El contrato es «Sin remito». Sacá «Foto del remito» de la condición de entrega.", btn: "Sacar foto del remito", fix: { reqDel: "fotoRemito" } });
+    if (ol && ol.cod === "7" && !b.cond.cambio) a.push({ tipo: "caution", txt: "El tipo de operación es «Cambio». Activá la condición «Cambio».", btn: "Activar cambio", fix: { cond: "cambio", val: true } });
+    if (b.cond.conservadora && !b.cond.frio) a.push({ tipo: "caution", txt: "La conservadora cerrada suele viajar refrigerada. Si es así, activá «Cadena de frío».", btn: "Activar cadena de frío", fix: { cond: "frio", val: true } });
     return a;
+  }
+  function aplicarFix(b, fx) {
+    if (fx.cond) { b.cond[fx.cond] = fx.val; if (!fx.val) D.CONDICIONES.forEach(function (x) { if (x.depende === fx.cond) b.cond[x.id] = false; }); }
+    if (fx.reqAdd && b.req.indexOf(fx.reqAdd) < 0) b.req.push(fx.reqAdd);
+    if (fx.reqDel) b.req = b.req.filter(function (r) { return r !== fx.reqDel; });
   }
   function textoCond(c, v) { return c.tipo === "opciones" ? (v || "—") : (v ? "Sí" : "No"); }
   function filasResumen(b) {
@@ -138,7 +143,7 @@
     for (var i = 0; i < n.length; i++) if (a[i] && a[i].v !== n[i].v) m[n[i].sec + "|" + n[i].k] = a[i].v;
     return m;
   }
-  g.ABM_LOGICA = { formDe: formDe, formsCercanos: formsCercanos, nuevoBorrador: nuevoBorrador, faltantes: faltantes, advertencias: advertencias, clasesCubiertas: clasesCubiertas, filasResumen: filasResumen, diferencias: diferencias, domClave: domClave };
+  g.ABM_LOGICA = { aplicarFix: aplicarFix, formDe: formDe, formsCercanos: formsCercanos, nuevoBorrador: nuevoBorrador, faltantes: faltantes, advertencias: advertencias, clasesCubiertas: clasesCubiertas, filasResumen: filasResumen, diferencias: diferencias, domClave: domClave };
   if (typeof document === "undefined") return;
 
   /* ---------- estado de la interfaz ---------- */
@@ -182,25 +187,8 @@
         '<div class="menu" role="menu" hidden><button role="menuitem" data-acc="editar" data-nro="' + c.nro + '">Editar</button><button role="menuitem" data-acc="historial" data-nro="' + c.nro + '">Ver historial (auditoría)</button></div></div></td></tr>';
     });
     h += "</tbody></table></div></section>";
-    h += vPropuesta();
     return h;
   }
-  function vPropuesta() {
-    var h = '<section class="card" aria-labelledby="t-prop"><h3 id="t-prop">Principios de la propuesta</h3><div class="propuesta">';
-    [["Datos de SAP, no se tipean", "El contrato y el cliente se buscan en SAP y se muestran en solo lectura. Si algo está mal, se corrige en el origen."],
-     ["Cada dato tiene un consumidor", "Si ningún proceso (Mostrador, Mobile u otro) usa un dato, se cuestiona antes de pedirlo."],
-     ["Configura quien conoce el acuerdo", "No conviene derivar un requerimiento a un área que no le agrega valor. El control lo da la auditoría de DMS: quién cambió qué y cuándo."],
-     ["Los cambios rigen hacia adelante", "Cada alta o cambio tiene fecha de vigencia y no afecta a los envíos ya admitidos."]
-    ].forEach(function (p) { h += '<div class="prop"><span class="strong">' + p[0] + "</span><span>" + p[1] + "</span></div>"; });
-    h += '</div><h3>Fuera de este prototipo (propuesta de proceso)</h3><div class="propuesta">';
-    [["Maestro de ciclos de vida con nombre", "El contrato solo elige el ciclo por nombre; los ciclos se definen en un maestro aparte, con cada intento completo."],
-     ["Plantillas para generar ciclos", "Crear ciclos a partir de plantillas o Excel, no con un ABM pantalla por pantalla."],
-     ["Conversión de ciclos Integra → DMS", "Validar cuánto cubre el programa de Pablo Lugo antes de construir un ABM de ciclos."],
-     ["Alta de motivos", "Un motivo nuevo se crea indicando «se comporta igual que el motivo X»."]
-    ].forEach(function (p) { h += '<div class="prop"><span class="strong">' + p[0] + "</span><span>" + p[1] + "</span></div>"; });
-    return h + "</div></section>";
-  }
-
   /* ---------- wizard ---------- */
   var PASOS = [["Contrato SAP", "Buscar y confirmar"], ["Servicio", "Niveles, ciclo y condiciones"], ["Domicilios", "Clases y direcciones"], ["Resumen", "Revisar y guardar"]];
   function vWizard() {
@@ -256,10 +244,10 @@
       }).join("") + '</select><span class="ayuda" id="niv-' + n.id + '-a">' + (sel ? esc(sel.ayuda) : "&nbsp;") + "</span></div>";
     }).join("") + '</div><p class="caption">Nombre comercial con el valor real de DMS al lado. Hoy DMS concatena los niveles como «Nombre contrato DMS»; proponemos mostrarlos en el listado.</p></div>';
     h += '<div class="campo" style="gap:16px"><h3>Ciclo de vida</h3><fieldset class="opciones"><legend>Elegí el ciclo por nombre</legend>' + D.CICLOS.map(function (c) {
-      return '<label class="opcion grande"><input type="radio" name="ciclo" value="' + c.id + '"' + (b.ciclo === c.id ? " checked" : "") + '><span><span class="strong">' + esc(c.nombre) + '</span><span class="det">' + esc(c.codigo) + "</span></span></label>";
+      return '<label class="opcion grande"><input type="radio" name="ciclo" value="' + c.id + '"' + (b.ciclo === c.id ? " checked" : "") + '><span><span class="strong">' + esc(c.nombre) + (c.estandar ? ' <span class="chip">Estándar B2B · hoy en DMS</span>' : "") + '</span><span class="det">' + esc(c.codigo) + "</span></span></label>";
     }).join("") + '</fieldset><p class="caption">La lista sale del maestro de ciclos con nombre (propuesta, fuera de este prototipo). Hoy todos los contratos usan un único ciclo y no se puede elegir.</p></div></div>';
     h += vCondEntrega(b);
-    advertencias(b).forEach(function (a) { h += alerta(a.tipo, esc(a.txt)); });
+    advertencias(b).forEach(function (a, i) { h += alerta(a.tipo, esc(a.txt) + (a.btn ? ' <button class="btn btn-secondary btn-sm" style="margin-left:8px" data-acc="fix" data-i="' + i + '">' + esc(a.btn) + "</button>" : "")); });
     h += "<h3>Condiciones del servicio</h3><p class=\"small\">Los 16 interruptores de hoy, agrupados y explicados. Debajo de cada uno figura su nombre actual en DMS. Textos de ayuda de ejemplo, a validar con DMS.</p>";
     D.BLOQUES.forEach(function (bl, i) {
       var cs = D.CONDICIONES.filter(function (c) { return c.bloque === bl.id; });
@@ -457,6 +445,7 @@
     else if (a === "irPaso") irPaso(+t.getAttribute("data-paso"));
     else if (a === "elegirSap") { S.b.nro = nro; S.b.domicilios = []; S.errores = false; render("busqSap"); }
     else if (a === "agregarDom") agregarDom();
+    else if (a === "fix") { var adv = advertencias(S.b)[+t.getAttribute("data-i")]; if (adv) { aplicarFix(S.b, adv.fix); toast("Listo: " + adv.btn.toLowerCase() + "."); render("t-wiz"); } }
     else if (a === "usarForm") { var cod = t.getAttribute("data-cod"); D.FORMULARIOS.forEach(function (f) { if (f.cod === cod) S.b.req = f.req.slice(); }); render("req-" + S.b.req[0]); }
     else if (a === "quitarDom") { var id = t.getAttribute("data-id"); S.b.domicilios = S.b.domicilios.filter(function (d) { return d.id !== id; }); S.msgDom = ""; render(); }
   });
