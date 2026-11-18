@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Seguimiento de actividades · Portal de soluciones</title>
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="seguimiento.css?v=1.0">
+<link rel="stylesheet" href="seguimiento.css?v=1.1">
 </head>
 <body>
 <a class="saltar" href="#seg-main">Ir al contenido</a>
@@ -38,6 +38,11 @@
   <section id="seg-datos" hidden>
     <p class="leido" id="seg-leido"></p>
     <div id="seg-error" aria-live="polite"></div>
+    <div id="seg-filtros" class="filtros" role="group" aria-label="Filtros"></div>
+    <section id="seg-contadores" class="seccion seccion--contadores" aria-labelledby="seg-contadores-titulo"></section>
+    <section id="seg-ok" class="seccion seccion--ok" aria-labelledby="seg-ok-titulo"></section>
+    <section id="seg-frenadas" class="seccion" aria-labelledby="seg-frenadas-titulo"></section>
+    <section id="seg-actividad" class="seccion" aria-labelledby="seg-actividad-titulo"></section>
     <section id="seg-lista" class="seccion" aria-labelledby="seg-lista-titulo"></section>
   </section>
 
@@ -48,8 +53,9 @@
   <span>Los datos se leen en tu navegador con tu clave de GitHub y no se guardan acá.</span>
 </footer>
 
-<script src="seguimiento-lib.js?v=1.0"></script>
-<script src="seguimiento-gh.js?v=1.0"></script>
-<script src="seguimiento.js?v=1.0"></script>
+<script src="seguimiento-lib.js?v=1.1"></script>
+<script src="seguimiento-gh.js?v=1.1"></script>
+<script src="seguimiento-vistas.js?v=1.1"></script>
+<script src="seguimiento.js?v=1.1"></script>
 </body>
 </html>
