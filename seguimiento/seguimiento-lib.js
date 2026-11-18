@@ -1,4 +1,4 @@
-/* ==SEG-LIB== Seguimiento de actividades (T-017, D-081): lógica pura, sin DOM ni red.
+/* ==SEG-LIB== Seguimiento de actividades (T-017, D-081) v1.1: lógica pura, sin DOM ni red.
    Lee la tabla Markdown del índice de tareas y la convierte en una lista de tareas.
    Las columnas se reconocen por el nombre del encabezado: el orden no importa. */
 var SEG_LIB = (function () {
@@ -144,7 +144,61 @@ var SEG_LIB = (function () {
     return { tarea: null, que: m2 ? m2[1].trim() : l };
   }
 
-  return { CAMPOS: CAMPOS, ESTADOS: ESTADOS, VACIO: VACIO, normal: normal, celdas: celdas, tablas: tablas, mapaColumnas: mapaColumnas,
-    plano: plano, segmentos: segmentos, estadoDe: estadoDe, leerIndice: leerIndice, leerCommit: leerCommit, urlSegura: urlSegura };
+  /* ---------- E2: contadores, filtros y secciones ---------- */
+  function esPablo(t) { return normal(t.quien) === "pablo"; }
+  /* «Esperan tu OK» (D-081 punto 4, ajuste 2026-11-18): solo En curso o En revisión con Pablo en «Quién la tiene» */
+  function esperanOk(tareas) { return tareas.filter(function (t) { return (t.estado === "En curso" || t.estado === "En revisión") && esPablo(t); }); }
+  /* Bloqueadas y en pausa (el motivo es «Qué falta») */
+  function frenadas(tareas) { return tareas.filter(function (t) { return t.estado === "Bloqueada" || t.estado === "En pausa"; }); }
+  function contar(tareas) {
+    var c = {}; ESTADOS.forEach(function (e) { c[e] = 0; });
+    tareas.forEach(function (t) { if (t.estado) c[t.estado]++; });
+    return c;
+  }
+  var SIN_PROCESO = "(sin proceso)";
+  /* Procesos presentes en el índice, en orden de aparición */
+  function procesos(tareas) {
+    var out = []; tareas.forEach(function (t) { var p = t.proceso || SIN_PROCESO; if (out.indexOf(p) < 0) out.push(p); });
+    return out;
+  }
+  /* f = {proceso: "", estado: ""}; vacío = todos */
+  function filtrar(tareas, f) {
+    f = f || {};
+    return tareas.filter(function (t) {
+      if (f.proceso && (t.proceso || SIN_PROCESO) !== f.proceso) return false;
+      if (f.estado && t.estado !== f.estado) return false;
+      return true;
+    });
+  }
+  /* Filtros en el hash: #p=<proceso>&e=<estado> */
+  function filtroDeHash(h) {
+    var f = { proceso: "", estado: "" };
+    String(h || "").replace(/^#/, "").split("&").forEach(function (par) {
+      var i = par.indexOf("="); if (i < 0) return;
+      var k = par.slice(0, i), v; try { v = decodeURIComponent(par.slice(i + 1)); } catch (e) { return; }
+      if (k === "p") f.proceso = v;
+      if (k === "e" && ESTADOS.indexOf(v) >= 0) f.estado = v;
+    });
+    return f;
+  }
+  function hashDeFiltro(f) {
+    var p = [];
+    if (f.proceso) p.push("p=" + encodeURIComponent(f.proceso));
+    if (f.estado) p.push("e=" + encodeURIComponent(f.estado));
+    return p.length ? "#" + p.join("&") : "";
+  }
+  /* Fecha ISO de un commit → "dd/mm/aaaa hh:mm" en la hora del navegador */
+  function fechaHora(iso) {
+    var d = new Date(iso); if (!iso || isNaN(d.getTime())) return "";
+    function p(n) { return (n < 10 ? "0" : "") + n; }
+    return p(d.getDate()) + "/" + p(d.getMonth() + 1) + "/" + d.getFullYear() + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+  }
+  /* IDs de tarea de un texto "T-901, T-902" */
+  function idsTarea(s) { return (String(s || "").match(/T-\d{3,}/gi) || []).map(function (x) { return x.toUpperCase(); }); }
+
+  return { CAMPOS: CAMPOS, ESTADOS: ESTADOS, VACIO: VACIO, SIN_PROCESO: SIN_PROCESO, normal: normal, celdas: celdas, tablas: tablas, mapaColumnas: mapaColumnas,
+    plano: plano, segmentos: segmentos, estadoDe: estadoDe, leerIndice: leerIndice, leerCommit: leerCommit, urlSegura: urlSegura,
+    esPablo: esPablo, esperanOk: esperanOk, frenadas: frenadas, contar: contar, procesos: procesos, filtrar: filtrar,
+    filtroDeHash: filtroDeHash, hashDeFiltro: hashDeFiltro, fechaHora: fechaHora, idsTarea: idsTarea };
 })();
 if (typeof module !== "undefined" && module.exports) module.exports = SEG_LIB;
