@@ -54,7 +54,7 @@
 .diapo.activa .recorrido li.linea { animation: linea 1.6s .3s ease forwards; opacity: 1; transform: none; }
 .diapo-in { position: relative; z-index: 1; }
 /* Centrado seguro: si el contenido es más alto que la pantalla, arranca arriba y se puede scrollear (no se corta el título) */
-.diapo { justify-content: flex-start; }
+.diapo { justify-content: flex-start; overflow-x: hidden; }
 .diapo > .diapo-in { margin-top: auto; margin-bottom: auto; }
 .diapo h2.grande { font-size: 40px; line-height: 44px; }
 .tarjetas.cinco { grid-template-columns: repeat(5, 1fr); }
