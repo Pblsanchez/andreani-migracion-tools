@@ -1,11 +1,13 @@
 /* ==SEG-APP== Seguimiento de actividades (T-017, D-081): interfaz.
-   E1: conexión con la clave, lectura del índice y lista de tareas.
+   E1: conexión con la clave, lectura del índice y lista de tareas. E2 (v1.1): filtros, contadores, «Esperan tu OK»,
+   bloqueadas y en pausa y actividad reciente (seguimiento-vistas.js).
    Nada de la memoria se guarda en el navegador: se lee cada vez. Solo se guarda la clave (la misma de la Matriz). */
 var SEG_APP = (function () {
   "use strict";
   var L = SEG_LIB, G = SEG_GH;
   var doc = typeof document !== "undefined" ? document : null;
-  var est = { cli: null, usuario: null, datos: null, cargando: false, opciones: {} };
+  var est = { cli: null, usuario: null, datos: null, commits: null, errCommits: null, cargando: false, opciones: {}, filtro: { proceso: "", estado: "" } };
+  var V = null; /* vistas de E2 (seguimiento-vistas.js) */
 
   function $(id) { return doc.getElementById(id); }
   function el(tag, at, hijos) {
@@ -112,8 +114,11 @@ var SEG_APP = (function () {
     { c: "version", t: "Versión" }, { c: "falta", t: "Qué falta" }, { c: "quien", t: "Quién la tiene" },
     { c: "fecha", t: "Última actualización" }, { c: "herramienta", t: "Herramienta" }
   ];
+  function linkFicha(t) {
+    return t.ficha ? el("a", { href: t.ficha, target: "_blank", rel: "noopener noreferrer", "class": "id" }, [t.id, el("span", { "class": "sr-only", text: " (ficha, se abre en otra pestaña)" })]) : el("span", { "class": "id", text: t.id });
+  }
   function celdaTarea(t, c) {
-    if (c === "id") return t.ficha ? el("a", { href: t.ficha, target: "_blank", rel: "noopener noreferrer", "class": "id" }, [t.id, el("span", { "class": "sr-only", text: " (ficha, se abre en otra pestaña)" })]) : el("span", { "class": "id", text: t.id });
+    if (c === "id") return linkFicha(t);
     if (c === "titulo") return rico(t.titulo);
     if (c === "estado") return etiquetaEstado(t);
     if (c === "falta") return t.falta ? rico(t.falta) : doc.createTextNode(L.VACIO);
@@ -121,11 +126,13 @@ var SEG_APP = (function () {
     if (c === "quien") return t.quien ? el("span", { "class": "quien" + (L.normal(t.quien) === "pablo" ? " quien--pablo" : "") , text: t.quien }) : doc.createTextNode(L.VACIO);
     return doc.createTextNode(t[c] || L.VACIO);
   }
-  function renderLista(d) {
+  function renderLista(d, tareas) {
     var cont = vaciar($("seg-lista"));
+    tareas = tareas || d.tareas;
+    var total = d.tareas.length === 1 ? "1 tarea" : d.tareas.length + " tareas";
     var cab = el("div", { "class": "seccion__cab" }, [
       el("h2", { "class": "titulo-seccion", id: "seg-lista-titulo", text: "Tareas" }),
-      el("span", { "class": "contador", id: "seg-lista-total", text: d.tareas.length === 1 ? "1 tarea" : d.tareas.length + " tareas" })
+      el("span", { "class": "contador", id: "seg-lista-total", text: tareas.length === d.tareas.length ? total : tareas.length + " de " + total })
     ]);
     cont.appendChild(cab);
     if (d.faltan.length) {
@@ -133,8 +140,9 @@ var SEG_APP = (function () {
       cont.appendChild(alerta("info", ["Al índice le faltan columnas (" + d.faltan.map(function (c) { return nombres[c]; }).join(", ") + "). Se muestran como «—» hasta que se agreguen."]));
     }
     if (!d.tareas.length) { cont.appendChild(alerta("info", ["El índice no tiene tareas cargadas."])); return; }
+    if (!tareas.length) { cont.appendChild(el("p", { "class": "vacio", text: "No hay tareas con estos filtros." })); return; }
     var thead = el("thead", null, [el("tr", null, COLS.map(function (k) { return el("th", { scope: "col", text: k.t }); }))]);
-    var tbody = el("tbody", { id: "seg-lista-cuerpo" }, d.tareas.map(function (t) {
+    var tbody = el("tbody", { id: "seg-lista-cuerpo" }, tareas.map(function (t) {
       return el("tr", { "data-id": t.id, "data-estado": t.estado || "", "class": t.estado === "Cerrada" ? "fila--cerrada" : null },
         COLS.map(function (k, i) {
           var a = { "data-label": k.t, "class": "col-" + k.c };
@@ -144,11 +152,35 @@ var SEG_APP = (function () {
     cont.appendChild(el("div", { "class": "tabla-marco" }, [el("table", { "class": "tabla", "aria-labelledby": "seg-lista-titulo" }, [thead, tbody])]));
   }
 
+  function vistas() {
+    if (!V && typeof SEG_VISTAS === "function") V = SEG_VISTAS({ $: $, el: el, vaciar: vaciar, rico: rico, alerta: alerta, etiquetaEstado: etiquetaEstado, linkFicha: linkFicha });
+    return V;
+  }
+  /* Pinta todo con el filtro actual (sin volver a leer GitHub) */
+  function renderFiltrado() {
+    var d = est.datos; if (!d) return;
+    var f = est.filtro, filtradas = L.filtrar(d.tareas, f), v = vistas();
+    if (v) {
+      v.renderFiltros(d, f, cambiarFiltro);
+      v.renderContadores(d, f, cambiarFiltro);
+      v.renderOk(filtradas);
+      v.renderFrenadas(filtradas);
+    }
+    renderLista(d, filtradas);
+  }
+  function cambiarFiltro(f) {
+    est.filtro = { proceso: f.proceso || "", estado: f.estado || "" };
+    var h = L.hashDeFiltro(est.filtro);
+    try { if (typeof history !== "undefined" && history.replaceState) history.replaceState(null, "", h || location.pathname + location.search); } catch (e) { /* nada */ }
+    renderFiltrado();
+    var d = est.datos, n = L.filtrar(d.tareas, est.filtro).length;
+    anunciar(est.filtro.proceso || est.filtro.estado ? "Filtro aplicado: " + n + " de " + d.tareas.length + " tareas." : "Sin filtros: " + d.tareas.length + " tareas.");
+  }
   function renderDatos() {
     renderSesion();
-    var d = est.datos;
     var leido = $("seg-leido"); if (leido) leido.textContent = "Leído de GitHub a las " + horaLocal(new Date()) + ".";
-    renderLista(d);
+    renderFiltrado();
+    var v = vistas(); if (v) v.renderActividad(est.commits, est.errCommits, est.datos);
     mostrar("seg-datos");
   }
   function horaLocal(f) { function p(n) { return (n < 10 ? "0" : "") + n; } return p(f.getHours()) + ":" + p(f.getMinutes()); }
@@ -158,10 +190,15 @@ var SEG_APP = (function () {
     var btn = $("seg-actualizar");
     if (btn) btn.disabled = true;
     est.cargando = true;
-    return est.cli.indice().then(function (md) {
-      var d = L.leerIndice(md, G.URL_FICHAS);
+    /* Índice y últimos commits en paralelo; si fallan los commits, igual se muestran las tareas */
+    var pCommits = est.cli.commits().then(function (c) { return { c: c, e: null }; }, function (e) {
+      if (e.status === 401) throw e;
+      return { c: null, e: e && e.message ? e.message : String(e) };
+    });
+    return Promise.all([est.cli.indice(), pCommits]).then(function (r) {
+      var md = r[0], d = L.leerIndice(md, G.URL_FICHAS);
       if (!d) throw new Error("No se encontró la tabla de tareas en el índice (necesita al menos las columnas ID y Estado).");
-      est.datos = d; est.cargando = false;
+      est.datos = d; est.commits = r[1].c; est.errCommits = r[1].e; est.cargando = false;
       if (btn) btn.disabled = false;
       renderDatos();
       anunciar("Se cargaron " + d.tareas.length + " tareas.");
@@ -171,14 +208,14 @@ var SEG_APP = (function () {
       if (e.status === 401) { G.borrarClave(est.opciones.ls); est.datos = null; renderConexion(e.message); return null; }
       if (e.status === 404 || e.status === 403) { est.datos = null; renderSinAcceso({ usuario: est.usuario || "tu usuario", error: e.message }); return null; }
       var err = $("seg-error"); if (err) { vaciar(err).appendChild(alerta("error", [e.message || String(e)])); }
-      if (!est.datos) { vaciar($("seg-lista")); mostrar("seg-datos"); }
+      if (!est.datos) { limpiarSecciones(); mostrar("seg-datos"); }
       return null;
     });
   }
 
   function iniciar() {
     var token = G.leerClave(est.opciones.ls);
-    est.datos = null; vaciar($("seg-lista"));
+    est.datos = null; est.commits = null; limpiarSecciones();
     var err = $("seg-error"); if (err) vaciar(err);
     if (!token) { renderConexion(); return Promise.resolve(null); }
     est.cli = new G.Cliente(token, est.opciones.fetch);
@@ -222,8 +259,8 @@ var SEG_APP = (function () {
     var conf = est.opciones.confirmar || function (t) { return typeof confirm === "function" ? confirm(t) : true; };
     if (!conf("Se va a quitar la clave de este navegador. También deja de verse la Matriz de Envíos hasta que la conectes de nuevo. ¿Seguimos?")) return;
     G.borrarClave(est.opciones.ls);
-    est.cli = null; est.usuario = null; est.datos = null;
-    vaciar($("seg-lista"));
+    est.cli = null; est.usuario = null; est.datos = null; est.commits = null;
+    limpiarSecciones();
     renderConexion();
     anunciar("Se quitó la clave de este navegador.");
   }
@@ -231,12 +268,19 @@ var SEG_APP = (function () {
   /* opciones (pruebas): { fetch, ls, confirmar } */
   function arrancar(opciones) {
     est.opciones = opciones || {};
+    try { est.filtro = L.filtroDeHash(est.opciones.hash != null ? est.opciones.hash : (typeof location !== "undefined" ? location.hash : "")); } catch (e) { est.filtro = { proceso: "", estado: "" }; }
+    if (typeof window !== "undefined" && window.addEventListener && !est.opciones.fetch) window.addEventListener("hashchange", function () { est.filtro = L.filtroDeHash(location.hash); renderFiltrado(); });
     var a = $("seg-actualizar"); if (a) a.addEventListener("click", function () { var e = $("seg-error"); if (e) vaciar(e); cargar(); });
     var dsc = $("seg-desconectar"); if (dsc) dsc.addEventListener("click", desconectar);
     return iniciar();
   }
 
-  return { arrancar: arrancar, iniciar: iniciar, conectar: conectar, desconectar: desconectar, cargar: cargar, _est: est };
+  /* Sin clave no queda ningún dato en pantalla */
+  function limpiarSecciones() {
+    ["seg-filtros", "seg-contadores", "seg-ok", "seg-frenadas", "seg-actividad", "seg-lista"].forEach(function (id) { var n = $(id); if (n) vaciar(n); });
+  }
+
+  return { arrancar: arrancar, iniciar: iniciar, conectar: conectar, desconectar: desconectar, cargar: cargar, cambiarFiltro: cambiarFiltro, _est: est };
 })();
 if (typeof module !== "undefined" && module.exports) module.exports = SEG_APP;
 else if (typeof document !== "undefined") {
