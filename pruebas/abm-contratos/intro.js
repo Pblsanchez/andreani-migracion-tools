@@ -73,7 +73,7 @@
       '<li><span class="paso">4</span><h3>Resumen y guardado</h3><p>Se ve qué cambió y desde cuándo rige.</p></li></ol></div>' },
     { titulo: "Después de la demo", html:
       '<div class="diapo-in"><span class="eyebrow anim">Fuera de este prototipo · a resolver juntos</span><h2 class="grande anim">Lo que necesitamos</h2><div class="tarjetas cinco">' +
-      tarjeta(I.sap, "Integración DMS – SAP", "Que DMS tome de SAP los contratos ya dados de alta (número, cliente, solicitante y razón social) y los mantenga alineados. Es lo que hace posible que los datos de SAP no se tipeen.", "", true) +
+      tarjeta(I.sap, "Integración DMS – SAP", "Que DMS tome de SAP los contratos ya dados de alta (número, cliente, solicitante y razón social). Es lo que hace posible que los datos de SAP no se tipeen.", "", true) +
       tarjeta(I.ciclo, "Ciclos de vida con nombre", "Que cada ciclo tenga un nombre que se entienda y que el contrato solo tenga que elegirlo. Hoy los ciclos no tienen nombre y todos los contratos usan el mismo.", "", true) +
       tarjeta(I.flecha, "Cómo se crean y migran los ciclos a DMS", "Un ciclo en DMS no es un dato: son muchas reglas por estado, motivo, intento y días de custodia, y aplica a entrega, reenvío, devolución, rendición y siniestro. Necesitamos una forma de crearlos y de traerlos desde Integra sin cargarlos regla por regla.", "", true) +
       tarjeta(I.motivo, "Sumar motivos nuevos", "Agregar un motivo no debería obligar a revisar ciclo por ciclo, ni dejar intentos sin definir.", "", true) +
