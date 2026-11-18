@@ -1,4 +1,4 @@
-/* ABM Contratos DMS · prototipo de propuesta v0.6 (T-007, D-063 a D-075). Datos ficticios. */
+/* ABM Contratos DMS · prototipo de propuesta v0.7 (T-007, D-063 a D-078). Datos ficticios. Deshabilitar/habilitar: abm-estado.js */
 (function (g) {
   "use strict";
   var D = g.ABM_DATOS;
@@ -184,7 +184,7 @@
         "<td>" + (cv ? esc(cv.nombre) + '<br><span class="caption">' + esc(cv.codigo) + "</span>" : "—") + "</td>" +
         "<td>" + (c.vigencia ? "Desde " + fmtFecha(c.vigencia) : "—") + "</td><td>" + chipEstado(c) + "</td>" +
         '<td class="acc"><div class="kebab"><button class="btn btn-ghost btn-icon btn-sm" aria-haspopup="true" aria-expanded="false" data-acc="kebab" data-nro="' + c.nro + '" aria-label="Acciones del contrato ' + c.nro + '">' + ICO.kebab + "</button>" +
-        '<div class="menu" role="menu" hidden><button role="menuitem" data-acc="editar" data-nro="' + c.nro + '">Editar</button><button role="menuitem" data-acc="historial" data-nro="' + c.nro + '">Ver historial (auditoría)</button></div></div></td></tr>';
+        '<div class="menu" role="menu" hidden><button role="menuitem" data-acc="editar" data-nro="' + c.nro + '">Editar</button>' + (g.ABM_ESTADO ? g.ABM_ESTADO.itemMenu(c) : "") + '<button role="menuitem" data-acc="historial" data-nro="' + c.nro + '">Ver historial (auditoría)</button></div></div></td></tr>';
     });
     h += "</tbody></table></div></section>";
     return h;
@@ -195,6 +195,7 @@
     var s = sap(S.b.nro);
     var tit = S.modo === "alta" ? "Configurar contrato" : "Editar contrato " + S.b.nro;
     var h = '<section class="card" aria-labelledby="t-wiz"><div class="card-head"><h2 id="t-wiz">' + esc(tit) + "</h2>" + (s ? '<span class="chip chip-marca">' + esc(s.razon) + "</span>" : "") + "</div>";
+    if (S.modo === "edicion" && g.ABM_ESTADO) h += g.ABM_ESTADO.barra(S.b.nro);
     h += '<ol class="stepper">' + PASOS.map(function (p, i) {
       var n = i + 1, act = n === S.paso, hecho = n < S.paso;
       return '<li' + (act ? ' aria-current="step"' : "") + (hecho ? ' class="hecho"' : "") + '><span class="num">' + n + '</span><span>' + p[0] + '<span class="sub">' + (hecho ? "Completo · " : "") + p[1] + "</span></span></li>";
@@ -438,6 +439,7 @@
     if (a === "nuevo") iniciar("alta");
     else if (a === "editar") iniciar("edicion", nro);
     else if (a === "historial") abrirHistorial(nro);
+    else if (a === "estadoContrato" && g.ABM_ESTADO) g.ABM_ESTADO.abrir(nro);
     else if (a === "cancelar") { S.vista = "lista"; render("t-lista"); }
     else if (a === "anterior") irPaso(S.paso - 1);
     else if (a === "siguiente") siguiente();
@@ -491,6 +493,7 @@
   });
   raiz.addEventListener("toggle", function (e) { var d = e.target; if (d.matches && d.matches("details.bloque")) S.abiertos[d.getAttribute("data-bloque")] = d.open; }, true);
 
-  g.ABM_UI = { S: S, iniciar: iniciar, irPaso: irPaso, siguiente: siguiente, guardar: guardar, agregarDom: agregarDom, render: render };
+  g.ABM_UI = { S: S, iniciar: iniciar, irPaso: irPaso, siguiente: siguiente, guardar: guardar, agregarDom: agregarDom, render: render,
+    contrato: contrato, chipEstado: chipEstado, toast: toast, esc: esc, ahora: ahora, hoyISO: hoyISO, fmtFecha: fmtFecha };
   render();
 })(typeof window !== "undefined" ? window : globalThis);
