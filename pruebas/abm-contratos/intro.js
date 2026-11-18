@@ -56,7 +56,7 @@
       '<p class="bajada anim">Problemas que encontramos en la pantalla actual.</p>' +
       vDolores() + "</div>" },
     { titulo: "Principios", html:
-      '<div class="diapo-in"><span class="eyebrow anim">Principios de la propuesta</span><h2 class="grande anim">Ideas que ordenan todo el rediseño</h2><div class="tarjetas cinco">' +
+      '<div class="diapo-in"><span class="eyebrow anim">Principios de la propuesta</span><h2 class="grande anim">Ideas que propone el rediseño</h2><div class="tarjetas cinco">' +
       tarjeta(I.sap, "Datos de SAP, no se tipean", "El contrato y el cliente se buscan en SAP y se muestran en solo lectura. Si algo está mal, se corrige en el origen.", "se cargan a mano en DMS.") +
       tarjeta(I.dato, "Cada dato tiene un consumidor", "Si ningún proceso (Mostrador, Mobile u otro) usa un dato, el dato no se pide.", "hay campos que nadie consume.") +
       tarjeta(I.persona, "Configura quien conoce el acuerdo", "Dejar de solicitar un requerimiento a un área que no le agrega valor al proceso. El control lo da la auditoría de DMS: quién cambió qué y cuándo.", "") +
