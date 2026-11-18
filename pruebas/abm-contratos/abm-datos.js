@@ -65,7 +65,9 @@
   // cv-std = ciclo estándar B2B que hoy tienen todos los contratos en DMS (D-075)
   var CICLOS = [
     { id: "cv-std", codigo: "Alertran motives v4", nombre: "2 intentos de visita y devolución", estandar: true },
-    { id: "cv-01", codigo: "*B-3 , B-2 , CU-7-DES", nombre: "2 visitas + custodia de 7 días descentralizada" }
+    { id: "cv-01", codigo: "*B-3 , B-2 , CU-7-DES", nombre: "2 visitas + custodia de 7 días descentralizada" },
+    { id: "cv-02", codigo: "*CU-7-DES", nombre: "Retira en sucursal · custodia de 7 días descentralizada" },
+    { id: "cv-03", codigo: "*B-3 , B-2", nombre: "Retiro en domicilio · 2 visitas sin custodia" }
   ];
 
   // Condiciones: 16 interruptores de hoy agrupados en 3 bloques (D-067.1). "dms" = nombre actual en DMS.
