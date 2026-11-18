@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Portal de herramientas y prototipos de la migración Integra (B2C) a DMS (B2B+B2C) - Andreani">
-<title>Herramientas de migración Integra → DMS · Andreani</title>
+<meta name="description" content="Portal de soluciones del equipo: herramientas en uso y prototipos (migración Integra → DMS, alta de contratos en DMS y más) - Andreani">
+<title>Portal de soluciones · Andreani</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <style>
 /* Portal de lanzamiento (T-016) · Design System Cartesian + paleta D-045 · estética de la intro del ABM (T-007) */
@@ -174,6 +174,10 @@ main { max-width: 1200px; margin: 0 auto; padding: var(--c-spacing-7) var(--c-sp
 .b-repo { background: var(--c-color-surface-neutral); color: var(--c-color-text-strong); }
 .b-nuevo { background: var(--c-color-fill-primary); color: var(--c-color-text-inverse); }
 .tarjeta .desc { font-size: 14px; line-height: 20px; }
+.t-proc { display: block; font-size: 12px; line-height: 16px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--c-color-text-primary); margin-bottom: 2px; }
+.tarjeta.gris .t-proc { color: var(--c-color-text); }
+.chips.procs { flex-basis: 100%; }
+.chips.procs .chip { height: 36px; }
 .tarjeta .para { font-size: 13px; line-height: 18px; color: var(--c-color-text-strong); background: var(--c-color-surface-hover); border: 1px solid var(--c-color-surface-neutral); border-radius: var(--c-border-radius-small); padding: var(--c-spacing-2) var(--c-spacing-3); }
 .tarjeta .para b { color: var(--c-color-text-primary); font-weight: 500; }
 .t-meta { font-size: 12px; line-height: 16px; }
@@ -247,7 +251,7 @@ main { max-width: 1200px; margin: 0 auto; padding: var(--c-spacing-7) var(--c-sp
 <header class="header">
   <div class="header-in">
     <a class="logo" href="./" aria-label="Andreani, inicio del portal">Andreani</a>
-    <span class="ruta">Migración Integra → DMS · <strong>Portal del equipo</strong></span>
+    <span class="ruta"><strong>Portal de soluciones</strong></span>
     <nav aria-label="Secciones del portal">
       <a href="#lo-nuevo">Lo nuevo</a>
       <a href="#herramientas">Herramientas</a>
@@ -263,9 +267,9 @@ main { max-width: 1200px; margin: 0 auto; padding: var(--c-spacing-7) var(--c-sp
     <g class="g"><circle class="p" cx="300" cy="20" r="7"/><circle class="p" cx="510" cy="300" r="5"/><circle class="p" cx="160" cy="300" r="4"/></g>
   </svg>
   <div class="hero-in">
-    <span class="eyebrow anim">Migración Integra → DMS · Portal del equipo</span>
-    <h1 id="titulo-portal" class="anim">Todo lo que usamos para migrar, <em>en un solo lugar.</em></h1>
-    <p class="hero-bajada anim">Las herramientas que usamos día a día para preparar, auditar y seguir el paso de Integra (B2C) a DMS (B2B+B2C), y los prototipos con los que proponemos cómo debería funcionar lo que viene.</p>
+    <span class="eyebrow anim">Portal de soluciones · Andreani</span>
+    <h1 id="titulo-portal" class="anim">Las soluciones que armamos, <em>en un solo lugar.</em></h1>
+    <p class="hero-bajada anim">Las herramientas que usamos todos los días y los prototipos con los que proponemos cómo debería funcionar lo que viene: el seguimiento de la migración de Integra a DMS, el alta de contratos en DMS y lo que vaya apareciendo.</p>
     <div class="hero-cta anim">
       <a class="btn btn-primary btn-lg" href="#herramientas">Ver herramientas</a>
       <a class="btn btn-secondary btn-lg btn-claro" href="#lo-nuevo">Lo último: ABM Contratos</a>
@@ -280,7 +284,7 @@ main { max-width: 1200px; margin: 0 auto; padding: var(--c-spacing-7) var(--c-sp
     <div class="sec-head rev">
       <span class="eyebrow">Lo nuevo</span>
       <h2 id="titulo-nuevo">Una propuesta para el ABM de Contratos de DMS</h2>
-      <p>Armamos un prototipo navegable de cómo nos gustaría que el comercial configure un contrato en DMS. Arranca con una presentación corta y después podés recorrer la demo con datos de ejemplo.</p>
+      <p>Hoy los contratos se dan de alta en DMS con un proceso contingente. Armamos un prototipo navegable de cómo nos gustaría hacerlo por pantalla, para los contratos B2B de hoy y para los B2C cuando Integra migre a DMS. Arranca con una presentación corta y después podés recorrer la demo con datos de ejemplo.</p>
     </div>
     <article class="destacado rev">
       <div class="dest-txt">
@@ -314,7 +318,7 @@ main { max-width: 1200px; margin: 0 auto; padding: var(--c-spacing-7) var(--c-sp
     <div class="sec-head rev">
       <span class="eyebrow">Catálogo</span>
       <h2 id="titulo-herr">Herramientas y prototipos</h2>
-      <p>Buscá por nombre o filtrá por tipo. Las de este repositorio se abren acá; las del equipo, en una pestaña nueva.</p>
+      <p>Buscá por nombre o filtrá por estado y por proceso. Las que viven en otro repositorio se abren en una pestaña nueva.</p>
     </div>
     <div class="toolbar rev">
       <label class="buscar">
@@ -323,7 +327,8 @@ main { max-width: 1200px; margin: 0 auto; padding: var(--c-spacing-7) var(--c-sp
         <input type="search" id="buscar" placeholder="Buscar (matriz, contratos, normalizador…)" autocomplete="off">
         <kbd aria-hidden="true">/</kbd>
       </label>
-      <div class="chips" role="group" aria-label="Filtrar por tipo" id="chips"></div>
+      <div class="chips" role="group" aria-label="Filtrar por estado" id="chips"></div>
+      <div class="chips procs" role="group" aria-label="Filtrar por proceso" id="procs"></div>
     </div>
     <p class="sr" id="estado-filtro" aria-live="polite"></p>
     <div id="catalogo"></div>
@@ -344,7 +349,7 @@ main { max-width: 1200px; margin: 0 auto; padding: var(--c-spacing-7) var(--c-sp
         <div class="contacto">
           <h3>¿Se te ocurre algo o encontraste un error?</h3>
           <p>Estas herramientas las vamos armando sobre la marcha. Si algo no funciona o creés que falta algo, avisanos.</p>
-          <div><a class="btn btn-secondary btn-claro" href="mailto:psanchez@andreani.com?subject=Portal%20de%20migraci%C3%B3n%20Integra%20%E2%86%92%20DMS">Escribirle a Pablo Sánchez</a></div>
+          <div><a class="btn btn-secondary btn-claro" href="mailto:psanchez@andreani.com?subject=Portal%20de%20soluciones">Escribirle a Pablo Sánchez</a></div>
         </div>
       </div>
     </div>
@@ -353,7 +358,7 @@ main { max-width: 1200px; margin: 0 auto; padding: var(--c-spacing-7) var(--c-sp
 
 <footer class="footer">
   <div class="footer-in">
-    <span>Andreani · Equipo de migración Integra → DMS</span>
+    <span>Andreani · Portal de soluciones</span>
     <span>Última actualización del portal: <time datetime="2026-11-18">18/11/2026</time></span>
   </div>
 </footer>
@@ -361,18 +366,19 @@ main { max-width: 1200px; margin: 0 auto; padding: var(--c-spacing-7) var(--c-sp
 <script>
 /*
  * Catálogo del portal (D-008, T-016). Para sumar una herramienta, agregar un objeto a HERRAMIENTAS.
- *   tipo: "uso" (en uso, este repo) | "proto" (prototipo / propuesta) | "equipo" (otro repositorio)
- *   estado: "estable" | "beta" | "proto" | "repo"
+ *   tipo: "uso" (en uso) | "proto" (prototipo / propuesta) | "archivo" (en pausa)
+ *   proceso: id de PROCESOS (si aparece un proceso nuevo, sumarlo ahí)
+ *   estado: "estable" | "beta" | "proto" | "repo" | "pausa"
  *   actualizado: "AAAA-MM-DD" (con 7 días o menos aparece «Nuevo»)
  *   acciones: [{ texto, href, estilo: "primary"|"secondary"|"ghost", externo }]
  * Al publicar algo nuevo, sumarlo también a NOVEDADES.
  */
 var HERRAMIENTAS = [
   {
-    id: "matriz", tipo: "uso", estado: "beta", icono: "matriz",
+    id: "matriz", tipo: "uso", estado: "beta", icono: "matriz", proceso: "migracion",
     nombre: "Matriz de Envíos · universo B2C a migrar",
     descripcion: "Envíos por segmento, razón social, tipo de servicio, servicio y contrato, con el avance de la migración a DMS. Datos vivos: lo que se marca o se carga se guarda en GitHub y lo ve cualquiera.",
-    para: "Saber qué falta migrar, cuánto pesa cada cliente y armar el resumen ejecutivo en PDF.",
+    para: "Analizar la información y seguir la migración de Integra a DMS: qué falta, cuánto pesa cada cliente y el resumen ejecutivo en PDF.",
     version: "v1.9", actualizado: "2026-11-16",
     acciones: [
       { texto: "Abrir", href: "./matriz-envios/", estilo: "primary" },
@@ -380,10 +386,10 @@ var HERRAMIENTAS = [
     ]
   },
   {
-    id: "abm", tipo: "proto", estado: "proto", icono: "abm", destacado: true,
+    id: "abm", tipo: "proto", estado: "proto", icono: "abm", destacado: true, proceso: "contratos",
     nombre: "ABM Contratos DMS · propuesta",
-    descripcion: "Prototipo navegable de cómo nos gustaría que el comercial configure un contrato en DMS: datos de SAP sin tipear, servicio en lenguaje comercial, domicilios una sola vez y vigencia al guardar.",
-    para: "Presentar la propuesta de mejora a DMS. Usa datos de ejemplo y no guarda nada.",
+    descripcion: "Prototipo navegable de cómo nos gustaría dar de alta un contrato por pantalla en DMS: datos de SAP sin tipear, servicio en lenguaje comercial, domicilios una sola vez y vigencia al guardar.",
+    para: "Dejar atrás el proceso contingente: dar de alta por pantalla los contratos B2B de hoy y los B2C cuando Integra migre a DMS. Datos de ejemplo, no guarda nada.",
     version: "v0.6", actualizado: "2026-11-17",
     acciones: [
       { texto: "Ver la presentación", href: "./pruebas/abm-contratos/", estilo: "primary" },
@@ -391,20 +397,20 @@ var HERRAMIENTAS = [
     ]
   },
   {
-    id: "normalizer", tipo: "equipo", estado: "repo", icono: "normalizador",
+    id: "normalizer", tipo: "uso", estado: "repo", icono: "normalizador", proceso: "contratos",
     nombre: "DMS Contract Normalizer",
     descripcion: "Normaliza archivos .xlsx de alta de contratos DMS: valida campos, convierte fórmulas a valores y limpia direcciones vacías.",
-    para: "Preparar las cargas masivas de contratos antes de subirlas a DMS.",
+    para: "Es el proceso contingente de alta de contratos en DMS: lo usamos todos los días para los contratos B2B y hoy también para normalizar en masa los contratos de Cruz del Sur.",
     acciones: [
       { texto: "Abrir", href: "https://pblsanchez.github.io/dms-contract-normalizer/", estilo: "secondary", externo: true },
       { texto: "Ver repositorio", href: "https://github.com/Pblsanchez/dms-contract-normalizer", estilo: "ghost", externo: true }
     ]
   },
   {
-    id: "configurador", tipo: "equipo", estado: "repo", icono: "configurador",
+    id: "configurador", tipo: "archivo", estado: "pausa", icono: "configurador", proceso: "contratos",
     nombre: "Configurador de contratos DMS",
     descripcion: "Formulario web que valida en tiempo real y genera el Excel normalizado de contratos para DMS.",
-    para: "Armar un contrato de a uno, con validación mientras completás.",
+    para: "Fue un intento de automatizar el proceso contingente de alta. Quedó de lado porque con el normalizador alcanzó; lo dejamos como referencia.",
     acciones: [
       { texto: "Abrir", href: "https://pblsanchez.github.io/configurador-contratos-dms/", estilo: "secondary", externo: true },
       { texto: "Ver repositorio", href: "https://github.com/Pblsanchez/configurador-contratos-dms", estilo: "ghost", externo: true }
@@ -413,13 +419,19 @@ var HERRAMIENTAS = [
 ];
 
 var GRUPOS = [
-  { id: "uso", nombre: "En uso", desc: "Lo que usamos todos los días para seguir la migración." },
+  { id: "uso", nombre: "En uso", desc: "Lo que usamos todos los días." },
   { id: "proto", nombre: "Prototipos y propuestas", desc: "Ideas navegables para validar antes de pedir un desarrollo." },
-  { id: "equipo", nombre: "Herramientas del equipo", desc: "Publicadas en su propio repositorio; se abren en una pestaña nueva." }
+  { id: "archivo", nombre: "En pausa", desc: "Quedaron de lado; las dejamos a mano como referencia." }
+];
+
+/* Procesos que acompañan las soluciones (segundo filtro) */
+var PROCESOS = [
+  { id: "migracion", nombre: "Migración Integra → DMS" },
+  { id: "contratos", nombre: "Alta de contratos en DMS" }
 ];
 
 var NOVEDADES = [
-  { fecha: "2026-11-18", titulo: "Portal renovado", texto: "Nueva portada con buscador, filtros y el ABM de Contratos." },
+  { fecha: "2026-11-18", titulo: "Portal renovado", texto: "Ya no es solo de la migración: suma el alta de contratos en DMS, filtros por proceso y el ABM de Contratos." },
   { fecha: "2026-11-17", titulo: "ABM Contratos DMS · v0.6", texto: "Presentación animada, avisos que se arreglan en un clic y ciclo estándar B2B." },
   { fecha: "2026-11-16", titulo: "Matriz · Resumen ejecutivo simplificado", texto: "Una hoja A4 para presentar, aparte del resumen completo." },
   { fecha: "2026-11-13", titulo: "Matriz · v1.9", texto: "Resumen ejecutivo descargable en PDF." }
@@ -435,6 +447,7 @@ var ICONOS = {
   ok: '<path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2Z"/>',
   proto: '<path fill="currentColor" d="M7 2v2h1v6.3L3.3 19A2 2 0 0 0 5 22h14a2 2 0 0 0 1.7-3L16 10.3V4h1V2H7Zm3 2h4v6.8l2.3 4.2H7.7L10 10.8V4Z"/>',
   repo: '<path fill="currentColor" d="M4 4a2 2 0 0 1 2-2h12v16H6a1 1 0 0 0 0 2h12v2H6a3 3 0 0 1-3-3V4h1Zm4 1v2h8V5H8Z"/>',
+  pausa: '<path fill="currentColor" d="M6 5h4v14H6V5Zm8 0h4v14h-4V5Z"/>',
   nuevo: '<path fill="currentColor" d="m12 2 2.4 7.4H22l-6.2 4.5 2.4 7.4-6.2-4.6-6.2 4.6 2.4-7.4L2 9.4h7.6L12 2Z"/>',
   vacio: '<path fill="currentColor" d="M15.5 14h-.8l-.3-.3A6.5 6.5 0 1 0 14 15.5l.3.3v.8l5 5 1.5-1.5-5-5Zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z"/>'
 };
@@ -442,8 +455,11 @@ var ESTADOS = {
   estable: { clase: "b-ok", texto: "Estable", icono: "ok" },
   beta: { clase: "b-beta", texto: "Beta", icono: "beta" },
   proto: { clase: "b-proto", texto: "Prototipo", icono: "proto" },
-  repo: { clase: "b-repo", texto: "Otro repositorio", icono: "repo" }
+  repo: { clase: "b-repo", texto: "Otro repositorio", icono: "repo" },
+  pausa: { clase: "b-repo", texto: "En pausa", icono: "pausa" }
 };
+function procNombre(id) { var p = PROCESOS.filter(function (x) { return x.id === id; })[0]; return p ? p.nombre : ""; }
+var proc = "todos";
 var HOY = new Date();
 var filtro = "todas";
 
@@ -455,7 +471,7 @@ function badge(est) { var e = ESTADOS[est]; return '<span class="badge ' + e.cla
 function badges(h) { return (esNuevo(h.actualizado) ? '<span class="badge b-nuevo">' + svg("nuevo") + "Nuevo</span>" : "") + badge(h.estado); }
 function norm(s) { return String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
 function consulta() { return norm(document.getElementById("buscar").value.trim()); }
-function coincide(h, q) { return !q || norm(h.nombre + " " + h.descripcion + " " + h.para).indexOf(q) >= 0; }
+function coincide(h, q) { return (proc === "todos" || h.proceso === proc) && (!q || norm(h.nombre + " " + h.descripcion + " " + h.para + " " + procNombre(h.proceso)).indexOf(q) >= 0); }
 
 function tarjeta(h) {
   var acc = h.acciones.map(function (a) {
@@ -466,8 +482,8 @@ function tarjeta(h) {
   var meta = [];
   if (h.version) meta.push("Versión " + esc(h.version));
   if (h.actualizado) meta.push('Actualizado el <time datetime="' + h.actualizado + '">' + fecha(h.actualizado) + "</time>");
-  return '<li class="rev"><article class="tarjeta' + (h.tipo === "equipo" ? " gris" : "") + '">' +
-    '<div class="t-top"><span class="ic">' + svg(h.icono) + '</span><div><h4>' + esc(h.nombre) + '</h4><div class="badges">' + badges(h) + "</div></div></div>" +
+  return '<li class="rev"><article class="tarjeta' + (h.tipo === "archivo" ? " gris" : "") + '">' +
+    '<div class="t-top"><span class="ic">' + svg(h.icono) + '</span><div><span class="t-proc">' + esc(procNombre(h.proceso)) + '</span><h4>' + esc(h.nombre) + '</h4><div class="badges">' + badges(h) + "</div></div></div>" +
     '<p class="desc">' + esc(h.descripcion) + "</p>" +
     '<p class="para"><b>Para qué sirve:</b> ' + esc(h.para) + "</p>" +
     '<p class="t-meta">' + meta.join(" · ") + "</p>" +
@@ -481,6 +497,17 @@ function renderChips() {
     var n = HERRAMIENTAS.filter(function (h) { return (o.id === "todas" || h.tipo === o.id) && coincide(h, q); }).length;
     return '<button type="button" class="chip" data-f="' + o.id + '" aria-pressed="' + (filtro === o.id) + '">' + esc(o.nombre) + ' <span class="n">' + n + "</span></button>";
   }).join("");
+  var pops = [{ id: "todos", nombre: "Todos los procesos" }].concat(PROCESOS);
+  document.getElementById("procs").innerHTML = pops.map(function (o) {
+    var n = HERRAMIENTAS.filter(function (h) { return (o.id === "todos" || h.proceso === o.id) && (filtro === "todas" || h.tipo === filtro); }).length;
+    return '<button type="button" class="chip" data-p="' + o.id + '" aria-pressed="' + (proc === o.id) + '">' + esc(o.nombre) + ' <span class="n">' + n + "</span></button>";
+  }).join("");
+}
+function sincHash() {
+  var p = [];
+  if (filtro !== "todas") p.push("f-" + filtro);
+  if (proc !== "todos") p.push("p-" + proc);
+  history.replaceState(null, "", p.length ? "#" + p.join("&") : location.pathname);
 }
 
 function renderCatalogo() {
@@ -508,7 +535,7 @@ function renderTimeline() {
 
 function renderMeta() {
   var c = function (t) { return HERRAMIENTAS.filter(function (h) { return h.tipo === t; }).length; };
-  var datos = [[c("uso"), c("uso") === 1 ? "herramienta en uso" : "herramientas en uso"], [c("proto"), c("proto") === 1 ? "prototipo para validar" : "prototipos para validar"], [c("equipo"), "herramientas del equipo"]];
+  var datos = [[c("uso"), c("uso") === 1 ? "herramienta en uso" : "herramientas en uso"], [c("proto"), c("proto") === 1 ? "prototipo para validar" : "prototipos para validar"], [PROCESOS.length, "procesos que acompañamos"]];
   document.getElementById("hero-meta").innerHTML = datos.map(function (d) { return '<span><strong data-n="' + d[0] + '">' + d[0] + "</strong>" + d[1] + "</span>"; }).join("");
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (!reduce && window.requestAnimationFrame) {
@@ -538,9 +565,16 @@ function observar() {
 document.getElementById("chips").addEventListener("click", function (e) {
   var b = e.target.closest("[data-f]"); if (!b) return;
   filtro = b.getAttribute("data-f");
-  history.replaceState(null, "", filtro === "todas" ? location.pathname : "#f-" + filtro);
+  sincHash();
   renderCatalogo();
   var nb = document.querySelector('[data-f="' + filtro + '"]'); if (nb) nb.focus();
+});
+document.getElementById("procs").addEventListener("click", function (e) {
+  var b = e.target.closest("[data-p]"); if (!b) return;
+  proc = b.getAttribute("data-p");
+  sincHash();
+  renderCatalogo();
+  var nb = document.querySelector('[data-p="' + proc + '"]'); if (nb) nb.focus();
 });
 document.getElementById("buscar").addEventListener("input", renderCatalogo);
 document.addEventListener("keydown", function (e) {
@@ -549,8 +583,9 @@ document.addEventListener("keydown", function (e) {
   if (e.key === "Escape" && e.target.id === "buscar") { e.target.value = ""; renderCatalogo(); }
 });
 
-var hf = location.hash.match(/^#f-(uso|proto|equipo)$/);
+var hf = location.hash.match(/f-(uso|proto|archivo)/), hp = location.hash.match(/p-(migracion|contratos)/);
 if (hf) filtro = hf[1];
+if (hp) proc = hp[1];
 renderMeta();
 renderTimeline();
 renderCatalogo();
