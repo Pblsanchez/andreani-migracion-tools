@@ -157,6 +157,69 @@ code { font-family: ui-monospace, Consolas, monospace; font-size: 0.875em; backg
 .estado--cerrada { background: var(--c-color-success-subtle); border-color: var(--c-color-success); color: var(--c-color-success-strong); }
 .estado--otro { background: var(--c-color-surface); border-color: var(--c-color-border-subtle); color: var(--c-color-text); }
 
+/* ---------- E2 ---------- */
+.vacio { margin: 0; padding: var(--c-spacing-3) var(--c-spacing-4); background: var(--c-color-surface); border: var(--c-border-width-subtle) dashed var(--c-color-border-subtle); border-radius: var(--c-border-radius-small); }
+.version { font-size: 12px; line-height: 16px; color: var(--c-color-text); }
+
+/* Filtros */
+.filtros { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--c-spacing-4); margin-bottom: var(--c-spacing-5); }
+.campo--fila { margin: 0; }
+.select {
+  min-height: 40px; min-width: 220px; padding: 0 var(--c-spacing-3); font: 400 16px/24px var(--c-font-family-body);
+  color: var(--c-color-text-strong); background: var(--c-color-surface); border: var(--c-border-width-subtle) solid var(--c-color-border);
+  border-radius: var(--c-border-radius-small);
+}
+
+/* Contadores por estado (botones que filtran) */
+.seccion--contadores { margin-bottom: var(--c-spacing-5); }
+.contadores { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--c-spacing-3); }
+.contador-estado {
+  width: 100%; min-height: 88px; display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: var(--c-spacing-2);
+  padding: var(--c-spacing-3) var(--c-spacing-4); text-align: left; cursor: pointer; font: inherit; color: var(--c-color-text-strong);
+  background: var(--c-color-surface); border: var(--c-border-width-subtle) solid var(--c-color-border-neutral-subtle); border-radius: var(--c-border-radius-small);
+}
+.contador-estado:hover { border-color: var(--c-color-border-subtle); background: var(--c-color-surface-subtle); }
+.contador-estado.es-activo { border: var(--c-border-width-regular) solid var(--c-color-fill-primary); background: var(--c-color-surface-primary-subtle); }
+.contador-estado__n { font: 500 32px/36px var(--c-font-family-headline); color: var(--c-color-text-strong); }
+
+/* «Esperan tu OK»: el destacado de marca (R9) */
+.seccion--ok { background: var(--c-color-surface-primary-subtle); border-left: var(--c-border-width-strong) solid var(--c-color-fill-primary); border-radius: var(--c-border-radius-small); padding: var(--c-spacing-4) var(--c-spacing-5); }
+.seccion--ok .vacio { background: var(--c-color-surface); }
+.tarjetas { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--c-spacing-3); }
+.tarjeta { display: flex; flex-direction: column; gap: var(--c-spacing-2); padding: var(--c-spacing-4); background: var(--c-color-surface); border: var(--c-border-width-subtle) solid var(--c-color-border-neutral-subtle); border-radius: var(--c-border-radius-small); font-size: 14px; line-height: 20px; }
+.tarjeta__cab { display: flex; flex-wrap: wrap; align-items: center; gap: var(--c-spacing-2); }
+.tarjeta__titulo { margin: 0; font: 500 16px/24px var(--c-font-family-headline); color: var(--c-color-text-strong); }
+.tarjeta__falta { margin: 0; flex: 1; }
+.tarjeta__falta strong, .frenada__motivo strong { color: var(--c-color-text-strong); }
+.tarjeta__pie { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--c-spacing-2); margin-top: var(--c-spacing-1); }
+a.btn { text-decoration: none; }
+
+/* Bloqueadas y en pausa */
+.frenadas { list-style: none; margin: 0; padding: 0; background: var(--c-color-surface); border: var(--c-border-width-subtle) solid var(--c-color-border-neutral-subtle); border-radius: var(--c-border-radius-small); }
+.frenada { padding: var(--c-spacing-3) var(--c-spacing-4); border-bottom: var(--c-border-width-subtle) solid var(--c-color-border-neutral-subtle); font-size: 14px; line-height: 20px; }
+.frenada:last-child { border-bottom: 0; }
+.frenada__cab { display: flex; flex-wrap: wrap; align-items: center; gap: var(--c-spacing-2); }
+.frenada__titulo { color: var(--c-color-text-strong); font-weight: 500; }
+.frenada__motivo { margin: var(--c-spacing-1) 0; }
+.frenada .nota { margin: 0; }
+
+/* Actividad reciente */
+.seccion > .nota { margin: 0 0 var(--c-spacing-2); }
+.actividad { list-style: none; margin: 0; padding: 0; background: var(--c-color-surface); border: var(--c-border-width-subtle) solid var(--c-color-border-neutral-subtle); border-radius: var(--c-border-radius-small); }
+.actividad__item { display: grid; grid-template-columns: 150px 140px 1fr; gap: var(--c-spacing-3); padding: var(--c-spacing-2) var(--c-spacing-4); min-height: 40px; border-bottom: var(--c-border-width-subtle) solid var(--c-color-border-neutral-subtle); font-size: 14px; line-height: 20px; }
+.actividad__item:last-child { border-bottom: 0; }
+.actividad__fecha { color: var(--c-color-text); white-space: nowrap; }
+.actividad__que { color: var(--c-color-text-strong); }
+.actividad__link { white-space: nowrap; }
+
+@media (max-width: 1100px) { .contadores { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 600px) {
+  .contadores { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .actividad__item { grid-template-columns: 1fr; gap: var(--c-spacing-1); }
+  .select { min-width: 0; width: 100%; }
+  .filtros .campo--fila { flex: 1 1 100%; }
+}
+
 /* Móvil: tabla como tarjetas */
 @media (max-width: 900px) {
   .principal { padding: var(--c-spacing-4); }
