@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guía · Seguimiento de actividades · Portal de soluciones</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="seguimiento.css?v=1.2">
+</head>
+<body>
+<a class="saltar" href="#guia-main">Ir al contenido</a>
+<header class="cabecera">
+  <div class="cabecera__marca">
+    <a class="marca" href="../" aria-label="Portal de soluciones (inicio)">
+      <svg class="marca__logo" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M9 21l7-11 7 11" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="marca__txt">Portal de soluciones</span>
+    </a>
+    <span class="cabecera__sep" aria-hidden="true">/</span>
+    <h1 class="cabecera__titulo">Guía del Seguimiento de actividades</h1>
+  </div>
+  <div class="cabecera__sesion">
+    <a class="btn btn--primario btn--chico" href="./">Abrir el seguimiento</a>
+  </div>
+</header>
+
+<main id="guia-main" class="principal guia" tabindex="-1">
+  <p class="bajada">Una pantalla para ver en qué estamos, qué terminamos, qué está frenado y, sobre todo, qué espera tu OK.</p>
+
+  <section class="panel guia__bloque" aria-labelledby="g-entrar">
+    <h2 class="titulo-seccion" id="g-entrar">Cómo entrar</h2>
+    <ol class="pasos">
+      <li>Desde el <a href="../">Portal de soluciones</a>, en «En uso», tocá <strong>Abrir</strong> en la tarjeta «Seguimiento de actividades».</li>
+      <li>Si ya usás la Matriz de Envíos en este navegador, entra solo: usa la misma clave de GitHub.</li>
+      <li>Si te pide la clave, pegá la que usás en la Matriz. Tiene que tener sumado el repositorio <strong>Pblsanchez/agente-andreani-memoria</strong> con «Contents» al menos en <strong>Read-only</strong>. Si falta, la pantalla te dice qué cambiar.</li>
+    </ol>
+    <p>Sin clave no se ve nada. La página solo lee: no guarda las tareas en tu navegador ni cambia nada en GitHub.</p>
+  </section>
+
+  <section class="panel guia__bloque" aria-labelledby="g-que">
+    <h2 class="titulo-seccion" id="g-que">Qué vas a ver</h2>
+    <dl class="guia__lista">
+      <dt>Filtros</dt><dd>Por proceso y por estado. El filtro queda en el link, así que podés compartir la vista filtrada. «Limpiar filtros» vuelve a mostrar todo.</dd>
+      <dt>Contadores</dt><dd>Cuántas tareas hay en cada estado: En curso, En revisión, Bloqueada, En pausa y Cerrada. Tocá uno para ver solo ese estado; tocalo otra vez para sacar el filtro.</dd>
+      <dt>Esperan tu OK</dt><dd>Las tareas en curso o en revisión que dependen de vos: qué falta y el botón para probar la herramienta.</dd>
+      <dt>Bloqueadas y en pausa</dt><dd>Lo que está frenado y por qué. No esperan un OK: esperan datos, una charla o un acceso.</dd>
+      <dt>Actividad reciente</dt><dd>Los últimos cambios guardados, con fecha, tarea y qué cambió. No le aplican los filtros.</dd>
+      <dt>Tareas</dt><dd>La lista completa: título, proceso, estado, versión, qué falta, quién la tiene, última actualización y la herramienta. El ID abre la ficha de la tarea.</dd>
+    </dl>
+  </section>
+
+  <section class="panel guia__bloque" aria-labelledby="g-datos">
+    <h2 class="titulo-seccion" id="g-datos">De dónde salen los datos</h2>
+    <p>Del índice de tareas que mantiene el Agente Andreani y de los últimos cambios guardados. Cada vez que entrás o tocás <strong>Actualizar</strong> se lee de nuevo: si el índice cambia, lo ves sin que haya que tocar la página.</p>
+    <p>Si algo no coincide con lo que esperás, pedile al agente que actualice la tarea: el seguimiento muestra lo que dice el índice.</p>
+  </section>
+
+  <section class="panel guia__bloque" aria-labelledby="g-problemas">
+    <h2 class="titulo-seccion" id="g-problemas">Si algo no anda</h2>
+    <dl class="guia__lista">
+      <dt>«Falta un permiso en tu clave»</dt><dd>Sumá el repositorio de la memoria a la clave (los pasos están en la misma pantalla) y tocá «Probar de nuevo».</dd>
+      <dt>«La clave no es válida o venció»</dt><dd>Generá una nueva en GitHub y pegala. Sirve también para la Matriz.</dd>
+      <dt>Veo la versión anterior</dt><dd>Recargá con Ctrl+F5.</dd>
+      <dt>Desconectar</dt><dd>Quita la clave de este navegador. Ojo: también deja de verse la Matriz hasta que la conectes de nuevo.</dd>
+    </dl>
+  </section>
+</main>
+
+<footer class="pie">
+  <span>Los datos se leen en tu navegador con tu clave de GitHub y no se guardan acá.</span>
+</footer>
+</body>
+</html>
