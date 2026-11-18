@@ -220,6 +220,13 @@ a.btn { text-decoration: none; }
   .filtros .campo--fila { flex: 1 1 100%; }
 }
 
+/* Guía corta (E3) */
+.guia .panel { max-width: 880px; margin-bottom: var(--c-spacing-5); }
+.guia__lista { margin: 0; }
+.guia__lista dt { font-weight: 500; color: var(--c-color-text-strong); }
+.guia__lista dd { margin: 0 0 var(--c-spacing-3); }
+.bajada a { white-space: nowrap; }
+
 /* Móvil: tabla como tarjetas */
 @media (max-width: 900px) {
   .principal { padding: var(--c-spacing-4); }
