@@ -3,446 +3,557 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Portal de herramientas para la migración de datos Integra (B2C) a DMS (B2B+B2C) - Andreani">
+<meta name="description" content="Portal de herramientas y prototipos de la migración Integra (B2C) a DMS (B2B+B2C) - Andreani">
 <title>Herramientas de migración Integra → DMS · Andreani</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <style>
-/* ===== Design System Cartesian (Andreani) - tokens ===== */
+/* Portal de lanzamiento (T-016) · Design System Cartesian + paleta D-045 · estética de la intro del ABM (T-007) */
 :root {
-  /* Primitivos usados por tokens semánticos */
-  --c-red-50: #fbe8e9; --c-red-600: #d71920; --c-red-700: #b6040b; --c-red-800: #810f13;
-  --c-blue-50: #edeffb; --c-blue-600: #4e63d7; --c-blue-900: #1f2856;
-  --c-green-50: #ddf3ea; --c-green-900: #0c3224;
-  --c-orange-50: #fdefe9; --c-orange-900: #5d2810;
-  --c-gray-000: #ffffff; --c-gray-50: #fafafa; --c-gray-100: #dfe1e3; --c-gray-200: #c0c3c8;
-  --c-gray-600: #4e555e; --c-gray-700: #3a4046; --c-gray-800: #272a2f;
+  --c-red-50:#fbe8e9; --c-red-400:#e77579; --c-red-600:#d71920; --c-red-700:#b6040b; --c-red-800:#810f13;
+  --c-gray-000:#ffffff; --c-gray-50:#fafafa; --c-gray-100:#dfe1e3; --c-gray-200:#c0c3c8; --c-gray-300:#a0a6ac;
+  --c-gray-400:#818891; --c-gray-500:#616a75; --c-gray-600:#4e555e; --c-gray-700:#3a4046; --c-gray-800:#272a2f; --c-gray-900:#1d2023;
+  --c-green-50:#ddf3ea; --c-green-900:#0c3224; --c-blue-50:#edeffb; --c-blue-600:#4e63d7; --c-blue-900:#1f2856;
+  --c-orange-50:#fdefe9; --c-orange-600:#e86427; --c-orange-900:#5d2810;
 
-  /* Semánticos - fondo / superficie */
   --c-color-bg: var(--c-gray-50);
   --c-color-surface: var(--c-gray-000);
+  --c-color-surface-hover: var(--c-gray-50);
   --c-color-surface-neutral: var(--c-gray-100);
-  --c-color-surface-primary: var(--c-red-600);
+  --c-color-surface-primary-subtle: var(--c-red-50);
   --c-color-surface-info-subtle: var(--c-blue-50);
   --c-color-surface-success-subtle: var(--c-green-50);
   --c-color-surface-warning-subtle: var(--c-orange-50);
-
-  /* Semánticos - fill */
   --c-color-fill-primary: var(--c-red-600);
   --c-color-fill-primary-hover: var(--c-red-700);
   --c-color-fill-primary-pressed: var(--c-red-800);
-  --c-color-fill-primary-subtle: var(--c-red-50);
   --c-color-fill-neutral: var(--c-gray-100);
-
-  /* Semánticos - texto */
   --c-color-text-strong: var(--c-gray-800);
   --c-color-text: var(--c-gray-600);
   --c-color-text-inverse: var(--c-gray-000);
-  --c-color-text-primary: var(--c-red-600);
+  --c-color-text-primary: var(--c-red-700);
   --c-color-text-info-strong: var(--c-blue-900);
   --c-color-text-success-strong: var(--c-green-900);
-  --c-color-text-caution-strong: var(--c-orange-900);
-
-  /* Semánticos - borde */
+  --c-color-text-warning-strong: var(--c-orange-900);
   --c-color-border-subtle: var(--c-gray-200);
+  --c-color-border-strong: var(--c-gray-400);
+  --c-color-border-primary: var(--c-red-600);
   --c-color-border-info: var(--c-blue-600);
+  --c-color-border-warning: var(--c-orange-600);
 
-  /* Bordes */
-  --c-border-width-subtle: 1px;
-  --c-border-width-regular: 2px;
-  --c-border-width-strong: 3px;
-  --c-border-radius-xsmall: 4px;
-  --c-border-radius-small: 8px;
-  --c-border-radius-medium: 16px;
-  --c-border-radius-xlarge: 99px;
-
-  /* Espaciado */
-  --c-spacing-1: 4px; --c-spacing-2: 8px; --c-spacing-3: 12px; --c-spacing-4: 16px;
-  --c-spacing-5: 24px; --c-spacing-6: 32px; --c-spacing-7: 48px; --c-spacing-8: 64px;
-
-  /* Tipografía (Rubik/Roboto si están instaladas; sin CDN por regla de autocontención) */
-  --c-font-family-headline: "Rubik", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --c-font-family-title: "Rubik", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --c-font-family-body: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --c-font-family-label: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --c-font-family-caption: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --c-font-weight-regular: 400;
-  --c-font-weight-medium: 500;
-  --c-font-weight-bold: 700;
-
-  /* Sombras */
-  --c-shadow-bottom-subtle: 0 1px 2px #4e555e40;
-  /* PROVISORIO: el Design System no define el valor de shadow-focus-regular */
-  --c-shadow-focus-regular: 0 0 0 3px var(--c-blue-600);
-
-  --footer-height: 56px;
+  --c-border-width-subtle:1px; --c-border-width-regular:2px; --c-border-width-strong:3px;
+  --c-border-radius-xsmall:4px; --c-border-radius-small:8px; --c-border-radius-medium:16px; --c-border-radius-xlarge:99px;
+  --c-spacing-1:4px; --c-spacing-2:8px; --c-spacing-3:12px; --c-spacing-4:16px; --c-spacing-5:24px; --c-spacing-6:32px; --c-spacing-7:48px; --c-spacing-8:64px;
+  --c-font-family-headline: Rubik, "Segoe UI", system-ui, sans-serif;
+  --c-font-family-body: Roboto, "Segoe UI", system-ui, sans-serif;
+  --shadow-bottom-regular: 0 2px 2px #4e555e40;
+  --shadow-elevada: 0 8px 24px #1d202326;
+  --shadow-focus-regular: 0 0 0 2px #ffffff, 0 0 0 4px #1d2023;
 }
 
-/* ===== Base ===== */
 *, *::before, *::after { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; }
-body {
-  background: var(--c-color-bg);
-  color: var(--c-color-text);
-  font-family: var(--c-font-family-body);
-  font-size: 16px; line-height: 24px; /* bodymedium */
-  font-weight: var(--c-font-weight-regular);
-  min-height: 100vh;
-  padding-bottom: calc(var(--footer-height) + var(--c-spacing-5));
-}
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+html, body { margin: 0; }
+body { background: var(--c-color-bg); color: var(--c-color-text); font-family: var(--c-font-family-body); font-size: 16px; line-height: 24px; }
+h1, h2, h3, h4 { font-family: var(--c-font-family-headline); color: var(--c-color-text-strong); margin: 0; }
+p { margin: 0; }
 a { color: var(--c-color-text-primary); }
-a:focus-visible, button:focus-visible, main:focus-visible {
-  outline: 2px solid transparent; /* se mantiene visible en modo alto contraste */
-  box-shadow: var(--c-shadow-focus-regular);
-}
-.skip-link {
-  position: absolute; left: var(--c-spacing-4); top: -100px; z-index: 10;
-  background: var(--c-color-surface); color: var(--c-color-text-strong);
-  padding: var(--c-spacing-2) var(--c-spacing-4);
-  border-radius: var(--c-border-radius-small);
-}
+a:focus-visible, button:focus-visible, input:focus-visible, main:focus-visible { outline: 2px solid transparent; box-shadow: var(--shadow-focus-regular); }
+.skip-link { position: absolute; left: var(--c-spacing-4); top: -100px; z-index: 20; background: var(--c-color-surface); color: var(--c-color-text-strong); padding: var(--c-spacing-2) var(--c-spacing-4); border-radius: var(--c-border-radius-small); }
 .skip-link:focus { top: var(--c-spacing-2); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-/* ===== Header (logo siempre a la izquierda) ===== */
-.header {
-  background: var(--c-color-surface);
-  border-bottom: var(--c-border-width-strong) solid var(--c-color-surface-primary);
-  box-shadow: var(--c-shadow-bottom-subtle);
-}
-.header__inner {
-  max-width: 1200px; margin: 0 auto;
-  padding: var(--c-spacing-3) var(--c-spacing-5);
-  display: flex; align-items: center; gap: var(--c-spacing-4);
-}
-.brand {
-  font-family: var(--c-font-family-headline);
-  font-size: 24px; line-height: 28px; /* headline4 */
-  font-weight: var(--c-font-weight-bold);
-  color: var(--c-color-text-primary);
-  text-decoration: none;
-  border-radius: var(--c-border-radius-xsmall);
-}
-.header__divider { width: var(--c-border-width-subtle); height: 24px; background: var(--c-color-border-subtle); }
-.header__title {
-  font-family: var(--c-font-family-title);
-  font-size: 16px; line-height: 24px; /* titlemedium */
-  font-weight: var(--c-font-weight-medium);
-  color: var(--c-color-text-strong);
-  margin: 0;
-}
+/* Header (igual que la demo del ABM) */
+.header { position: sticky; top: 0; z-index: 10; background: var(--c-color-surface); border-bottom: var(--c-border-width-subtle) solid var(--c-color-surface-neutral); }
+.header-in { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: var(--c-spacing-4); padding: var(--c-spacing-3) var(--c-spacing-5); }
+.logo { font-family: var(--c-font-family-headline); font-weight: 700; font-size: 22px; color: var(--c-color-fill-primary); letter-spacing: .5px; text-decoration: none; border-radius: var(--c-border-radius-xsmall); }
+.ruta { font-size: 14px; line-height: 20px; border-left: 1px solid var(--c-color-border-subtle); padding-left: var(--c-spacing-4); }
+.ruta strong { color: var(--c-color-text-strong); font-weight: 500; }
+.header nav { margin-left: auto; display: flex; gap: var(--c-spacing-1); }
+.header nav a { font-size: 14px; line-height: 20px; color: var(--c-color-text-strong); text-decoration: none; padding: var(--c-spacing-2) var(--c-spacing-3); border-radius: var(--c-border-radius-xlarge); }
+.header nav a:hover { background: var(--c-color-fill-neutral); }
 
-/* ===== Layout ===== */
-main { max-width: 1200px; margin: 0 auto; padding: var(--c-spacing-6) var(--c-spacing-5); }
-.hero h1 {
-  font-family: var(--c-font-family-headline);
-  font-size: 32px; line-height: 36px; /* headline3 desktop */
-  font-weight: var(--c-font-weight-bold);
-  color: var(--c-color-text-strong);
-  margin: 0 0 var(--c-spacing-2);
-}
-.hero p { font-size: 18px; line-height: 28px; /* bodylarge */ margin: 0 0 var(--c-spacing-5); max-width: 760px; }
-section { margin-top: var(--c-spacing-6); }
-h2 {
-  font-family: var(--c-font-family-headline);
-  font-size: 20px; line-height: 24px; /* headline5 desktop */
-  font-weight: var(--c-font-weight-medium);
-  color: var(--c-color-text-strong);
-  margin: 0 0 var(--c-spacing-4);
-}
-.section-sub { margin: calc(-1 * var(--c-spacing-3)) 0 var(--c-spacing-4); font-size: 14px; line-height: 20px; max-width: 760px; }
+/* Botones */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--c-spacing-2); min-height: 40px; padding: 0 var(--c-spacing-5); border-radius: var(--c-border-radius-xlarge); font-family: var(--c-font-family-body); font-size: 16px; line-height: 24px; font-weight: 500; text-decoration: none; cursor: pointer; border: var(--c-border-width-regular) solid transparent; transition: background-color .15s, color .15s, border-color .15s; white-space: nowrap; }
+.btn svg { width: 18px; height: 18px; flex: none; }
+.btn-primary { background: var(--c-color-fill-primary); color: var(--c-color-text-inverse); }
+.btn-primary:hover { background: var(--c-color-fill-primary-hover); }
+.btn-primary:active { background: var(--c-color-fill-primary-pressed); }
+.btn-secondary { background: transparent; color: var(--c-color-text-primary); border-color: var(--c-color-fill-primary); }
+.btn-secondary:hover { background: var(--c-color-surface-primary-subtle); color: var(--c-color-fill-primary-hover); border-color: var(--c-color-fill-primary-hover); }
+.btn-ghost { background: transparent; color: var(--c-color-text-strong); }
+.btn-ghost:hover { background: var(--c-color-fill-neutral); }
+.btn-lg { min-height: 48px; padding: 0 var(--c-spacing-6); font-size: 18px; }
+.btn-claro { color: var(--c-gray-000); border-color: var(--c-gray-500); }
+.btn-claro:hover { background: var(--c-gray-800); color: var(--c-gray-000); border-color: var(--c-gray-300); }
 
-/* ===== Alert inline (info) - icono + texto ===== */
-.alert {
-  display: flex; gap: var(--c-spacing-3); align-items: flex-start;
-  background: var(--c-color-surface-info-subtle);
-  border: var(--c-border-width-subtle) solid var(--c-color-border-info);
-  border-left-width: var(--c-border-width-strong);
-  border-radius: var(--c-border-radius-small);
-  padding: var(--c-spacing-4);
-  color: var(--c-color-text-info-strong);
-  font-size: 14px; line-height: 20px; /* bodysmall */
-  max-width: 760px;
-}
-.alert svg { flex: 0 0 auto; }
-.alert strong { font-weight: var(--c-font-weight-bold); }
-.alert a { color: var(--c-color-text-info-strong); }
+/* Hero en grafito */
+.hero { position: relative; overflow: hidden; background: var(--c-gray-900); color: var(--c-gray-200); }
+.hero-in { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: var(--c-spacing-8) var(--c-spacing-5) var(--c-spacing-7); display: grid; gap: var(--c-spacing-5); }
+.eyebrow { font-size: 14px; line-height: 20px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--c-color-text-primary); }
+.hero .eyebrow, .dest-vis .eyebrow { color: var(--c-red-400); }
+.hero h1 { font-size: 56px; line-height: 60px; font-weight: 500; color: var(--c-gray-000); max-width: 820px; }
+.hero h1 em { font-style: normal; color: var(--c-red-400); }
+.hero-bajada { font-size: 20px; line-height: 30px; max-width: 720px; }
+.hero-cta { display: flex; flex-wrap: wrap; gap: var(--c-spacing-3); }
+.hero-meta { display: flex; flex-wrap: wrap; gap: var(--c-spacing-6); font-size: 14px; line-height: 20px; margin-top: var(--c-spacing-3); padding-top: var(--c-spacing-5); border-top: 1px solid var(--c-gray-800); max-width: 720px; }
+.hero-meta strong { display: block; font-family: var(--c-font-family-headline); font-size: 40px; line-height: 44px; color: var(--c-gray-000); font-weight: 500; }
+.hero-deco { position: absolute; right: -140px; top: 50%; width: 600px; height: 600px; transform: translateY(-50%); pointer-events: none; }
+.hero-deco circle { fill: none; stroke: var(--c-gray-800); stroke-width: 2; }
+.hero-deco .r { stroke: var(--c-red-600); stroke-width: 3; stroke-dasharray: 1100; stroke-dashoffset: 1100; animation: trazo 2.4s .4s ease forwards; }
+.hero-deco .g { transform-origin: 300px 300px; animation: girar 60s linear infinite; }
+.hero-deco .p { fill: var(--c-red-600); stroke: none; }
 
-/* ===== Cards ===== */
-.grid {
-  display: grid; gap: var(--c-spacing-4);
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  list-style: none; margin: 0; padding: 0;
-}
-.card {
-  background: var(--c-color-surface);
-  border: var(--c-border-width-subtle) solid var(--c-color-border-subtle);
-  border-radius: var(--c-border-radius-medium);
-  padding: var(--c-spacing-5);
-  display: flex; flex-direction: column; gap: var(--c-spacing-3);
-  box-shadow: var(--c-shadow-bottom-subtle);
-  height: 100%;
-}
-.card h3 {
-  font-family: var(--c-font-family-title);
-  font-size: 18px; line-height: 28px; /* titlelarge */
-  font-weight: var(--c-font-weight-medium);
-  color: var(--c-color-text-strong);
-  margin: 0;
-}
-.card p { margin: 0; font-size: 14px; line-height: 20px; flex: 1; }
-.card__meta { display: flex; flex-wrap: wrap; gap: var(--c-spacing-2); }
-.card__acciones { display: flex; flex-wrap: wrap; gap: var(--c-spacing-2); align-items: center; }
+/* Layout */
+main { max-width: 1200px; margin: 0 auto; padding: var(--c-spacing-7) var(--c-spacing-5); display: grid; gap: var(--c-spacing-8); }
+.sec-head { display: grid; gap: var(--c-spacing-2); margin-bottom: var(--c-spacing-5); }
+.sec-head h2 { font-size: 32px; line-height: 36px; font-weight: 500; }
+.sec-head p { font-size: 18px; line-height: 28px; max-width: 760px; }
 
-/* Badge de estado (pill): siempre icono + texto, nunca solo color */
-.badge {
-  display: inline-flex; align-items: center; gap: var(--c-spacing-1);
-  padding: var(--c-spacing-1) var(--c-spacing-3);
-  border-radius: var(--c-border-radius-xlarge);
-  font-family: var(--c-font-family-caption);
-  font-size: 12px; line-height: 16px; /* caption */
-  font-weight: var(--c-font-weight-medium);
-}
-.badge--ok   { background: var(--c-color-surface-success-subtle); color: var(--c-color-text-success-strong); }
-.badge--beta { background: var(--c-color-surface-warning-subtle); color: var(--c-color-text-caution-strong); }
-.badge--repo { background: var(--c-color-surface-neutral);        color: var(--c-color-text-strong); }
+/* Destacado */
+.destacado { display: grid; grid-template-columns: 1.15fr 1fr; background: var(--c-color-surface); border-radius: var(--c-border-radius-medium); box-shadow: var(--shadow-elevada); overflow: hidden; border-top: var(--c-border-width-strong) solid var(--c-color-border-primary); }
+.dest-txt { padding: var(--c-spacing-6); display: grid; gap: var(--c-spacing-4); align-content: center; }
+.dest-txt h3 { font-size: 28px; line-height: 34px; font-weight: 500; }
+.dest-txt ul { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--c-spacing-2); font-size: 14px; line-height: 20px; color: var(--c-color-text-strong); }
+.dest-txt li { display: flex; gap: var(--c-spacing-2); align-items: flex-start; }
+.dest-txt li svg { width: 20px; height: 20px; flex: none; color: var(--c-color-fill-primary); }
+.dest-acc { display: flex; flex-wrap: wrap; gap: var(--c-spacing-3); }
+.dest-vis { background: var(--c-gray-900); padding: var(--c-spacing-6); display: grid; gap: var(--c-spacing-4); align-content: center; }
+.mock { background: var(--c-gray-000); color: var(--c-color-text); border-radius: var(--c-border-radius-medium); padding: var(--c-spacing-4); display: grid; gap: var(--c-spacing-3); box-shadow: var(--shadow-elevada); }
+.mock-pasos { display: grid; grid-template-columns: repeat(4, 1fr); position: relative; }
+.mock-pasos::before { content: ""; position: absolute; left: 12%; right: 12%; top: 15px; height: 3px; background: var(--c-color-surface-neutral); }
+.mock-pasos .linea { position: absolute; left: 12%; top: 15px; height: 3px; width: 0; background: var(--c-color-fill-primary); }
+.vis.on .mock-pasos .linea { animation: linea76 1.8s .3s ease forwards; }
+.mock-pasos span { position: relative; z-index: 1; display: grid; justify-items: center; gap: var(--c-spacing-1); font-size: 12px; line-height: 16px; color: var(--c-color-text-strong); text-align: center; }
+.mock-pasos b { width: 32px; height: 32px; border-radius: 99px; display: inline-flex; align-items: center; justify-content: center; background: var(--c-gray-000); border: 3px solid var(--c-color-border-primary); color: var(--c-color-text-primary); font-family: var(--c-font-family-headline); }
+.vis.on .mock-pasos b { animation: llenar .4s ease forwards; }
+.vis.on .mock-pasos span:nth-child(2) b { animation-delay: .3s; } .vis.on .mock-pasos span:nth-child(3) b { animation-delay: .8s; }
+.vis.on .mock-pasos span:nth-child(4) b { animation-delay: 1.3s; } .vis.on .mock-pasos span:nth-child(5) b { animation-delay: 1.8s; }
+.mock-aviso { display: flex; gap: var(--c-spacing-2); align-items: center; flex-wrap: wrap; background: var(--c-color-surface-warning-subtle); color: var(--c-color-text-warning-strong); border-left: 3px solid var(--c-color-border-warning); border-radius: var(--c-border-radius-small); padding: var(--c-spacing-2) var(--c-spacing-3); font-size: 13px; line-height: 18px; }
+.mock-aviso .mini { margin-left: auto; font-weight: 500; font-size: 12px; border: 2px solid var(--c-orange-900); border-radius: 99px; padding: 0 var(--c-spacing-3); }
+.mock-fila { display: flex; justify-content: space-between; gap: var(--c-spacing-2); font-size: 13px; line-height: 18px; border-top: 1px solid var(--c-color-surface-neutral); padding-top: var(--c-spacing-2); }
+.mock-fila b { color: var(--c-color-text-strong); font-weight: 500; text-align: right; }
+.vis .mock-aviso { opacity: 0; }
+.vis.on .mock-aviso { animation: subir .5s 2.1s ease both; }
 
-/* Botones: pill (xlarge), 40px desktop; Large 48px y 90% en mobile */
-.btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: var(--c-spacing-2);
-  min-height: 40px; padding: 0 var(--c-spacing-5);
-  border-radius: var(--c-border-radius-xlarge);
-  font-family: var(--c-font-family-label);
-  font-size: 16px; line-height: 24px; /* labelmedium */
-  font-weight: var(--c-font-weight-medium);
-  text-decoration: none; cursor: pointer;
-  border: var(--c-border-width-regular) solid transparent;
-  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
-  align-self: flex-start;
-}
-.btn--secondary {
-  background: transparent; color: var(--c-color-text-primary);
-  border-color: var(--c-color-fill-primary);
-}
-.btn--secondary:hover { color: var(--c-color-fill-primary-hover); border-color: var(--c-color-fill-primary-hover); background: var(--c-color-fill-primary-subtle); }
-.btn--secondary:active { color: var(--c-color-fill-primary-pressed); border-color: var(--c-color-fill-primary-pressed); }
-.btn--ghost { background: transparent; color: var(--c-color-text-strong); }
-.btn--ghost:hover { background: var(--c-color-fill-neutral); }
-.btn svg { flex: 0 0 auto; }
+/* Buscador y filtros */
+.toolbar { display: flex; flex-wrap: wrap; gap: var(--c-spacing-3); align-items: center; margin-bottom: var(--c-spacing-5); }
+.buscar { position: relative; flex: 1 1 280px; max-width: 420px; }
+.buscar svg { position: absolute; left: 14px; top: 12px; width: 20px; height: 20px; color: var(--c-color-text); pointer-events: none; }
+.buscar input { width: 100%; height: 44px; border: 1px solid var(--c-color-border-strong); border-radius: var(--c-border-radius-xlarge); padding: 0 48px 0 44px; font: inherit; color: var(--c-color-text-strong); background: var(--c-color-surface); }
+.buscar input:hover { border-color: var(--c-gray-600); }
+.buscar kbd { position: absolute; right: 12px; top: 10px; font: 12px/20px var(--c-font-family-body); border: 1px solid var(--c-color-border-subtle); border-radius: 6px; padding: 0 6px; color: var(--c-color-text); background: var(--c-color-surface-hover); }
+.chips { display: flex; flex-wrap: wrap; gap: var(--c-spacing-2); }
+.chip { height: 40px; padding: 0 var(--c-spacing-4); border-radius: var(--c-border-radius-xlarge); border: 1px solid var(--c-color-border-subtle); background: var(--c-color-surface); color: var(--c-color-text-strong); font: 500 14px/20px var(--c-font-family-body); cursor: pointer; display: inline-flex; align-items: center; gap: var(--c-spacing-2); }
+.chip:hover { border-color: var(--c-color-border-strong); }
+.chip[aria-pressed="true"] { background: var(--c-gray-800); color: var(--c-gray-000); border-color: var(--c-gray-800); }
+.chip .n { font-size: 12px; min-width: 22px; height: 22px; border-radius: 99px; display: inline-flex; align-items: center; justify-content: center; background: var(--c-color-surface-neutral); color: var(--c-color-text-strong); padding: 0 6px; }
+.chip[aria-pressed="true"] .n { background: var(--c-gray-600); color: var(--c-gray-000); }
 
-/* Estado vacío */
-.empty {
-  background: var(--c-color-surface);
-  border: var(--c-border-width-regular) dashed var(--c-color-border-subtle);
-  border-radius: var(--c-border-radius-medium);
-  padding: var(--c-spacing-6) var(--c-spacing-5);
-  text-align: center;
-}
-.empty svg { color: var(--c-color-text); }
-.empty h3 {
-  font-family: var(--c-font-family-title);
-  font-size: 18px; line-height: 28px; /* titlelarge */
-  font-weight: var(--c-font-weight-medium);
-  color: var(--c-color-text-strong);
-  margin: var(--c-spacing-3) 0 var(--c-spacing-1);
-}
-.empty p { margin: 0; font-size: 14px; line-height: 20px; }
+/* Grupos y tarjetas */
+.grupo { display: grid; gap: var(--c-spacing-4); margin-bottom: var(--c-spacing-6); }
+.grupo-head { display: flex; gap: var(--c-spacing-3); align-items: center; background: var(--c-color-surface-primary-subtle); border-left: var(--c-border-width-strong) solid var(--c-color-border-primary); border-radius: var(--c-border-radius-medium); padding: var(--c-spacing-3) var(--c-spacing-4); }
+.grupo-num { width: 36px; height: 36px; flex: none; border-radius: 99px; background: var(--c-color-fill-primary); color: var(--c-color-text-inverse); display: inline-flex; align-items: center; justify-content: center; font-family: var(--c-font-family-headline); font-weight: 700; font-size: 18px; }
+.grupo-head h3 { font-size: 20px; line-height: 24px; font-weight: 500; }
+.grupo-head p { font-size: 14px; line-height: 20px; color: var(--c-color-text-strong); }
+.grilla { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--c-spacing-4); }
+.tarjeta { height: 100%; background: var(--c-color-surface); border-radius: var(--c-border-radius-medium); box-shadow: var(--shadow-bottom-regular); padding: var(--c-spacing-5); display: grid; grid-template-rows: auto auto 1fr auto auto; gap: var(--c-spacing-3); border-top: var(--c-border-width-strong) solid var(--c-color-border-primary); transition: transform .2s, box-shadow .2s; }
+.tarjeta:hover { transform: translateY(-3px); box-shadow: var(--shadow-elevada); }
+.tarjeta.gris { border-top-color: var(--c-gray-500); }
+.t-top { display: flex; align-items: flex-start; gap: var(--c-spacing-3); }
+.ic { width: 48px; height: 48px; flex: none; border-radius: 99px; background: var(--c-color-surface-primary-subtle); color: var(--c-color-text-primary); display: inline-flex; align-items: center; justify-content: center; }
+.ic svg { width: 26px; height: 26px; }
+.tarjeta.gris .ic { background: var(--c-color-surface-neutral); color: var(--c-color-text-strong); }
+.tarjeta h4 { font-size: 18px; line-height: 22px; font-weight: 500; }
+.badges { display: flex; flex-wrap: wrap; gap: var(--c-spacing-1); margin-top: var(--c-spacing-1); }
+.badge { display: inline-flex; align-items: center; gap: var(--c-spacing-1); padding: 2px var(--c-spacing-2); border-radius: 99px; font-size: 12px; line-height: 16px; font-weight: 500; }
+.badge svg { width: 14px; height: 14px; }
+.b-beta { background: var(--c-color-surface-warning-subtle); color: var(--c-color-text-warning-strong); }
+.b-proto { background: var(--c-color-surface-primary-subtle); color: var(--c-color-text-primary); }
+.b-ok { background: var(--c-color-surface-success-subtle); color: var(--c-color-text-success-strong); }
+.b-repo { background: var(--c-color-surface-neutral); color: var(--c-color-text-strong); }
+.b-nuevo { background: var(--c-color-fill-primary); color: var(--c-color-text-inverse); }
+.tarjeta .desc { font-size: 14px; line-height: 20px; }
+.tarjeta .para { font-size: 13px; line-height: 18px; color: var(--c-color-text-strong); background: var(--c-color-surface-hover); border: 1px solid var(--c-color-surface-neutral); border-radius: var(--c-border-radius-small); padding: var(--c-spacing-2) var(--c-spacing-3); }
+.tarjeta .para b { color: var(--c-color-text-primary); font-weight: 500; }
+.t-meta { font-size: 12px; line-height: 16px; }
+.t-acc { display: flex; flex-wrap: wrap; gap: var(--c-spacing-2); }
+.vacio { background: var(--c-color-surface); border: 2px dashed var(--c-color-border-subtle); border-radius: var(--c-border-radius-medium); padding: var(--c-spacing-6); text-align: center; display: grid; gap: var(--c-spacing-2); justify-items: center; }
+.vacio h3 { font-size: 18px; line-height: 22px; font-weight: 500; }
 
-/* ===== Footer (anclado abajo) ===== */
-.footer {
-  position: fixed; left: 0; right: 0; bottom: 0;
-  min-height: var(--footer-height);
-  background: var(--c-color-surface);
-  border-top: var(--c-border-width-subtle) solid var(--c-color-border-subtle);
-  display: flex; align-items: center;
-}
-.footer__inner {
-  width: 100%; max-width: 1200px; margin: 0 auto;
-  padding: var(--c-spacing-2) var(--c-spacing-5);
-  display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--c-spacing-2);
-  font-family: var(--c-font-family-caption);
-  font-size: 12px; line-height: 16px; /* caption */
-  color: var(--c-color-text);
-}
+/* Novedades */
+.novedades { display: grid; grid-template-columns: 1fr 1fr; gap: var(--c-spacing-6); align-items: start; }
+.timeline { list-style: none; margin: 0; padding: 0 0 0 var(--c-spacing-5); position: relative; display: grid; gap: var(--c-spacing-4); }
+.timeline::before { content: ""; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 2px; background: var(--c-color-surface-neutral); }
+.timeline li { position: relative; display: grid; gap: 2px; }
+.timeline li::before { content: ""; position: absolute; left: -23px; top: 2px; width: 12px; height: 12px; border-radius: 99px; background: var(--c-gray-000); border: 3px solid var(--c-color-border-primary); }
+.timeline li:first-child::before { background: var(--c-color-fill-primary); }
+.timeline time { font-size: 12px; line-height: 16px; font-weight: 700; letter-spacing: 1px; color: var(--c-color-text-primary); }
+.timeline b { font-family: var(--c-font-family-headline); font-weight: 500; color: var(--c-color-text-strong); }
+.timeline span { font-size: 14px; line-height: 20px; }
+.lado { display: grid; gap: var(--c-spacing-4); }
+.alert { display: flex; gap: var(--c-spacing-3); align-items: flex-start; background: var(--c-color-surface-info-subtle); border: 1px solid var(--c-color-border-info); border-left-width: 3px; border-radius: var(--c-border-radius-small); padding: var(--c-spacing-4); color: var(--c-color-text-info-strong); font-size: 14px; line-height: 20px; }
+.alert svg { flex: none; width: 20px; height: 20px; }
+.contacto { background: var(--c-gray-900); color: var(--c-gray-200); border-radius: var(--c-border-radius-medium); padding: var(--c-spacing-5); display: grid; gap: var(--c-spacing-3); }
+.contacto h3 { color: var(--c-gray-000); font-size: 20px; line-height: 24px; font-weight: 500; }
+.contacto p { font-size: 14px; line-height: 20px; }
 
-/* ===== Responsive ===== */
+/* Footer */
+.footer { border-top: 1px solid var(--c-color-border-subtle); background: var(--c-color-surface); }
+.footer-in { max-width: 1200px; margin: 0 auto; padding: var(--c-spacing-4) var(--c-spacing-5); display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--c-spacing-2); font-size: 12px; line-height: 16px; }
+
+/* Animaciones */
+.js .rev { opacity: 0; }
+.rev.on { animation: subir .6s ease both; }
+.hero .anim { animation: subir .7s ease both; }
+.hero .anim:nth-child(2) { animation-delay: .05s; } .hero .anim:nth-child(3) { animation-delay: .2s; }
+.hero .anim:nth-child(4) { animation-delay: .35s; } .hero .anim:nth-child(5) { animation-delay: .5s; } .hero .anim:nth-child(6) { animation-delay: .65s; }
+@keyframes subir { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes trazo { to { stroke-dashoffset: 0; } }
+@keyframes girar { to { transform: rotate(360deg); } }
+@keyframes linea76 { to { width: 76%; } }
+@keyframes llenar { to { background: var(--c-red-600); color: #fff; } }
+
+/* Responsive */
 @media (max-width: 1023px) {
-  .hero h1 { font-size: 24px; line-height: 28px; } /* headline3 mobile */
-  h2 { font-size: 18px; line-height: 22px; }        /* headline5 mobile */
-  .brand { font-size: 20px; line-height: 24px; }    /* headline4 mobile */
+  .hero h1 { font-size: 36px; line-height: 40px; }
+  .hero-deco { opacity: .35; right: -260px; }
+  .destacado, .novedades { grid-template-columns: 1fr; }
+  .grilla { grid-template-columns: 1fr 1fr; }
+  .header nav { display: none; }
 }
 @media (max-width: 599px) {
-  main { padding: var(--c-spacing-5) var(--c-spacing-4); }
-  .header__inner { padding: var(--c-spacing-3) var(--c-spacing-4); }
-  .header__divider, .header__title { display: none; }
-  .btn { min-height: 48px; width: 90%; align-self: center; }
-  .card__acciones { flex-direction: column; }
-  .footer__inner { padding: var(--c-spacing-2) var(--c-spacing-4); }
+  .hero-in, main { padding-left: var(--c-spacing-4); padding-right: var(--c-spacing-4); }
+  .ruta { display: none; }
+  .grilla { grid-template-columns: 1fr; }
+  .sec-head h2 { font-size: 24px; line-height: 28px; }
+  .btn { min-height: 48px; }
+  .dest-txt, .dest-vis { padding: var(--c-spacing-5); }
 }
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { transition: none !important; animation: none !important; }
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .js .rev, .vis .mock-aviso { opacity: 1; }
+  .hero-deco .r { stroke-dashoffset: 0; }
+  .mock-pasos .linea { width: 76%; }
+  .mock-pasos b { background: var(--c-red-600); color: #fff; }
 }
 </style>
+<script>document.documentElement.className += " js";</script>
 </head>
 <body>
 <a class="skip-link" href="#contenido">Saltar al contenido</a>
 
 <header class="header">
-  <div class="header__inner">
-    <a class="brand" href="./" aria-label="Andreani, inicio del portal">Andreani</a>
-    <span class="header__divider" aria-hidden="true"></span>
-    <p class="header__title">Migración Integra → DMS</p>
+  <div class="header-in">
+    <a class="logo" href="./" aria-label="Andreani, inicio del portal">Andreani</a>
+    <span class="ruta">Migración Integra → DMS · <strong>Portal del equipo</strong></span>
+    <nav aria-label="Secciones del portal">
+      <a href="#lo-nuevo">Lo nuevo</a>
+      <a href="#herramientas">Herramientas</a>
+      <a href="#novedades">Novedades</a>
+    </nav>
   </div>
 </header>
 
-<main id="contenido" tabindex="-1">
-  <div class="hero">
-    <h1>Herramientas de migración</h1>
-    <p>Soluciones para preparar, auditar y monitorear la migración de datos desde Integra (B2C) hacia DMS (B2B+B2C).</p>
-    <div class="alert" role="note" aria-label="Dónde se guardan los datos">
-      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 15h-2v-6h2v6Zm0-8h-2V7h2v2Z"/></svg>
-      <div><strong>Dónde se guardan los datos.</strong> Las herramientas procesan los archivos en tu navegador. Excepción: la <strong>Matriz de Envíos</strong> guarda su base y el avance de la migración en la rama <code>datos</code> de este repositorio (público), para que todos vean la información al día.</div>
+<section class="hero" aria-labelledby="titulo-portal">
+  <svg class="hero-deco" viewBox="0 0 600 600" aria-hidden="true" focusable="false">
+    <circle cx="300" cy="300" r="280"/><circle cx="300" cy="300" r="210"/><circle cx="300" cy="300" r="140"/>
+    <circle class="r" cx="300" cy="300" r="175"/>
+    <g class="g"><circle class="p" cx="300" cy="20" r="7"/><circle class="p" cx="510" cy="300" r="5"/><circle class="p" cx="160" cy="300" r="4"/></g>
+  </svg>
+  <div class="hero-in">
+    <span class="eyebrow anim">Migración Integra → DMS · Portal del equipo</span>
+    <h1 id="titulo-portal" class="anim">Todo lo que usamos para migrar, <em>en un solo lugar.</em></h1>
+    <p class="hero-bajada anim">Las herramientas que usamos día a día para preparar, auditar y seguir el paso de Integra (B2C) a DMS (B2B+B2C), y los prototipos con los que proponemos cómo debería funcionar lo que viene.</p>
+    <div class="hero-cta anim">
+      <a class="btn btn-primary btn-lg" href="#herramientas">Ver herramientas</a>
+      <a class="btn btn-secondary btn-lg btn-claro" href="#lo-nuevo">Lo último: ABM Contratos</a>
     </div>
+    <div class="hero-meta anim" id="hero-meta"></div>
   </div>
+</section>
 
-  <section aria-labelledby="titulo-herramientas">
-    <h2 id="titulo-herramientas">Herramientas disponibles</h2>
-    <div id="lista-herramientas"></div>
+<main id="contenido" tabindex="-1">
+
+  <section id="lo-nuevo" aria-labelledby="titulo-nuevo">
+    <div class="sec-head rev">
+      <span class="eyebrow">Lo nuevo</span>
+      <h2 id="titulo-nuevo">Una propuesta para el ABM de Contratos de DMS</h2>
+      <p>Armamos un prototipo navegable de cómo nos gustaría que el comercial configure un contrato en DMS. Arranca con una presentación corta y después podés recorrer la demo con datos de ejemplo.</p>
+    </div>
+    <article class="destacado rev">
+      <div class="dest-txt">
+        <div class="badges" id="dest-badges"></div>
+        <h3>ABM Contratos DMS · prototipo de propuesta</h3>
+        <p>Pensado para el usuario comercial: lo que ya está en SAP no se vuelve a tipear, el servicio se arma en lenguaje comercial y la pantalla te avisa qué falta y cómo resolverlo.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2Z"/></svg>Once problemas del ABM actual, ordenados por pantalla</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2Z"/></svg>Cinco principios y el recorrido de la demo</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2Z"/></svg>Wizard de 4 pasos con avisos que se arreglan en un clic</li>
+        </ul>
+        <div class="dest-acc">
+          <a class="btn btn-primary" href="./pruebas/abm-contratos/">Ver la presentación</a>
+          <a class="btn btn-secondary" href="./pruebas/abm-contratos/#demo">Ir directo a la demo</a>
+        </div>
+      </div>
+      <div class="dest-vis vis" aria-hidden="true">
+        <span class="eyebrow">Así se ve la demo</span>
+        <div class="mock">
+          <div class="mock-pasos"><i class="linea"></i><span><b>1</b>Datos</span><span><b>2</b>Servicio</span><span><b>3</b>Domicilios</span><span><b>4</b>Guardado</span></div>
+          <div class="mock-fila"><span>Tipo de operación</span><b>Entrega</b></div>
+          <div class="mock-fila"><span>Tipo de carga</span><b>Refrigerado (2 a 8 °C)</b></div>
+          <div class="mock-fila"><span>Ciclo de vida</span><b>2 intentos de visita y devolución</b></div>
+          <div class="mock-aviso">Activá «Cadena de frío». <span class="mini">Activar</span></div>
+        </div>
+      </div>
+    </article>
   </section>
 
-  <section aria-labelledby="titulo-relacionados">
-    <h2 id="titulo-relacionados">Otras herramientas del equipo</h2>
-    <p class="section-sub">Se publican en su propio repositorio. «Abrir» las usa en una pestaña nueva; «Ver repositorio» muestra el código.</p>
-    <ul class="grid" id="lista-relacionados"></ul>
+  <section id="herramientas" aria-labelledby="titulo-herr">
+    <div class="sec-head rev">
+      <span class="eyebrow">Catálogo</span>
+      <h2 id="titulo-herr">Herramientas y prototipos</h2>
+      <p>Buscá por nombre o filtrá por tipo. Las de este repositorio se abren acá; las del equipo, en una pestaña nueva.</p>
+    </div>
+    <div class="toolbar rev">
+      <label class="buscar">
+        <span class="sr">Buscar herramienta</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M15.5 14h-.8l-.3-.3A6.5 6.5 0 1 0 14 15.5l.3.3v.8l5 5 1.5-1.5-5-5Zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z"/></svg>
+        <input type="search" id="buscar" placeholder="Buscar (matriz, contratos, normalizador…)" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </label>
+      <div class="chips" role="group" aria-label="Filtrar por tipo" id="chips"></div>
+    </div>
+    <p class="sr" id="estado-filtro" aria-live="polite"></p>
+    <div id="catalogo"></div>
+  </section>
+
+  <section id="novedades" aria-labelledby="titulo-nov">
+    <div class="sec-head rev">
+      <span class="eyebrow">Qué cambió</span>
+      <h2 id="titulo-nov">Novedades</h2>
+    </div>
+    <div class="novedades">
+      <ol class="timeline rev" id="timeline"></ol>
+      <div class="lado rev">
+        <div class="alert" role="note">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 15h-2v-6h2v6Zm0-8h-2V7h2v2Z"/></svg>
+          <div><strong>Dónde se guardan los datos.</strong> Las herramientas procesan los archivos en tu navegador. Excepción: la <strong>Matriz de Envíos</strong> guarda su base y el avance de la migración en GitHub para que todos vean la información al día. Los prototipos usan datos de ejemplo.</div>
+        </div>
+        <div class="contacto">
+          <h3>¿Se te ocurre algo o encontraste un error?</h3>
+          <p>Estas herramientas las vamos armando sobre la marcha. Si algo no funciona o creés que falta algo, avisanos.</p>
+          <div><a class="btn btn-secondary btn-claro" href="mailto:psanchez@andreani.com?subject=Portal%20de%20migraci%C3%B3n%20Integra%20%E2%86%92%20DMS">Escribirle a Pablo Sánchez</a></div>
+        </div>
+      </div>
+    </div>
   </section>
 </main>
 
 <footer class="footer">
-  <div class="footer__inner">
+  <div class="footer-in">
     <span>Andreani · Equipo de migración Integra → DMS</span>
-    <span>Última actualización del portal: <time datetime="2026-10-30">30/10/2026</time></span>
+    <span>Última actualización del portal: <time datetime="2026-11-18">18/11/2026</time></span>
   </div>
 </footer>
 
 <script>
 /*
- * Catálogo de herramientas de este repositorio (D-008).
- * Para publicar una nueva: crear la carpeta /<id>/index.html y agregar un objeto acá.
- * estado: "estable" | "beta"
+ * Catálogo del portal (D-008, T-016). Para sumar una herramienta, agregar un objeto a HERRAMIENTAS.
+ *   tipo: "uso" (en uso, este repo) | "proto" (prototipo / propuesta) | "equipo" (otro repositorio)
+ *   estado: "estable" | "beta" | "proto" | "repo"
+ *   actualizado: "AAAA-MM-DD" (con 7 días o menos aparece «Nuevo»)
+ *   acciones: [{ texto, href, estilo: "primary"|"secondary"|"ghost", externo }]
+ * Al publicar algo nuevo, sumarlo también a NOVEDADES.
  */
 var HERRAMIENTAS = [
-  { id: "matriz-envios", nombre: "Matriz de Envíos · universo B2C a migrar", descripcion: "Envíos por segmento, razón social, tipo de servicio, servicio y contrato, con el avance de la migración a DMS. Datos vivos: lo que se marca o se carga se guarda en GitHub y lo ve cualquiera.", estado: "beta" }
-];
-
-/* Herramientas publicadas en otros repositorios de Pblsanchez (T-004): app = GitHub Pages, url = código */
-var RELACIONADOS = [
   {
-    nombre: "DMS Contract Normalizer",
-    descripcion: "Normaliza archivos .xlsx de alta de contratos DMS: valida campos, convierte fórmulas a valores y limpia direcciones vacías.",
-    app: "https://pblsanchez.github.io/dms-contract-normalizer/",
-    url: "https://github.com/Pblsanchez/dms-contract-normalizer"
+    id: "matriz", tipo: "uso", estado: "beta", icono: "matriz",
+    nombre: "Matriz de Envíos · universo B2C a migrar",
+    descripcion: "Envíos por segmento, razón social, tipo de servicio, servicio y contrato, con el avance de la migración a DMS. Datos vivos: lo que se marca o se carga se guarda en GitHub y lo ve cualquiera.",
+    para: "Saber qué falta migrar, cuánto pesa cada cliente y armar el resumen ejecutivo en PDF.",
+    version: "v1.9", actualizado: "2026-11-16",
+    acciones: [
+      { texto: "Abrir", href: "./matriz-envios/", estilo: "primary" },
+      { texto: "Guía de uso", href: "./matriz-envios/guia.html", estilo: "ghost" }
+    ]
   },
   {
+    id: "abm", tipo: "proto", estado: "proto", icono: "abm", destacado: true,
+    nombre: "ABM Contratos DMS · propuesta",
+    descripcion: "Prototipo navegable de cómo nos gustaría que el comercial configure un contrato en DMS: datos de SAP sin tipear, servicio en lenguaje comercial, domicilios una sola vez y vigencia al guardar.",
+    para: "Presentar la propuesta de mejora a DMS. Usa datos de ejemplo y no guarda nada.",
+    version: "v0.6", actualizado: "2026-11-17",
+    acciones: [
+      { texto: "Ver la presentación", href: "./pruebas/abm-contratos/", estilo: "primary" },
+      { texto: "Ir a la demo", href: "./pruebas/abm-contratos/#demo", estilo: "ghost" }
+    ]
+  },
+  {
+    id: "normalizer", tipo: "equipo", estado: "repo", icono: "normalizador",
+    nombre: "DMS Contract Normalizer",
+    descripcion: "Normaliza archivos .xlsx de alta de contratos DMS: valida campos, convierte fórmulas a valores y limpia direcciones vacías.",
+    para: "Preparar las cargas masivas de contratos antes de subirlas a DMS.",
+    acciones: [
+      { texto: "Abrir", href: "https://pblsanchez.github.io/dms-contract-normalizer/", estilo: "secondary", externo: true },
+      { texto: "Ver repositorio", href: "https://github.com/Pblsanchez/dms-contract-normalizer", estilo: "ghost", externo: true }
+    ]
+  },
+  {
+    id: "configurador", tipo: "equipo", estado: "repo", icono: "configurador",
     nombre: "Configurador de contratos DMS",
     descripcion: "Formulario web que valida en tiempo real y genera el Excel normalizado de contratos para DMS.",
-    app: "https://pblsanchez.github.io/configurador-contratos-dms/",
-    url: "https://github.com/Pblsanchez/configurador-contratos-dms"
+    para: "Armar un contrato de a uno, con validación mientras completás.",
+    acciones: [
+      { texto: "Abrir", href: "https://pblsanchez.github.io/configurador-contratos-dms/", estilo: "secondary", externo: true },
+      { texto: "Ver repositorio", href: "https://github.com/Pblsanchez/configurador-contratos-dms", estilo: "ghost", externo: true }
+    ]
   }
+];
+
+var GRUPOS = [
+  { id: "uso", nombre: "En uso", desc: "Lo que usamos todos los días para seguir la migración." },
+  { id: "proto", nombre: "Prototipos y propuestas", desc: "Ideas navegables para validar antes de pedir un desarrollo." },
+  { id: "equipo", nombre: "Herramientas del equipo", desc: "Publicadas en su propio repositorio; se abren en una pestaña nueva." }
+];
+
+var NOVEDADES = [
+  { fecha: "2026-11-18", titulo: "Portal renovado", texto: "Nueva portada con buscador, filtros y el ABM de Contratos." },
+  { fecha: "2026-11-17", titulo: "ABM Contratos DMS · v0.6", texto: "Presentación animada, avisos que se arreglan en un clic y ciclo estándar B2B." },
+  { fecha: "2026-11-16", titulo: "Matriz · Resumen ejecutivo simplificado", texto: "Una hoja A4 para presentar, aparte del resumen completo." },
+  { fecha: "2026-11-13", titulo: "Matriz · v1.9", texto: "Resumen ejecutivo descargable en PDF." }
 ];
 
 var ICONOS = {
-  ok: "M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2Z",
-  beta: "M1 21h22L12 2 1 21Zm12-3h-2v-2h2v2Zm0-4h-2v-4h2v4Z",
-  repo: "M4 4a2 2 0 0 1 2-2h12v16H6a1 1 0 0 0 0 2h12v2H6a3 3 0 0 1-3-3V4h1Zm4 1v2h8V5H8Z",
-  externo: "M14 3v2h3.6l-9.8 9.8 1.4 1.4L19 6.4V10h2V3h-7ZM5 5h6v2H5v12h12v-6h2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z",
-  vacio: "M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Zm-6 14h-2v-4H7v-2h4V7h2v4h4v2h-4v4Z"
+  matriz: '<path fill="currentColor" d="M3 3h8v8H3V3Zm2 2v4h4V5H5Zm8-2h8v8h-8V3Zm2 2v4h4V5h-4ZM3 13h8v8H3v-8Zm2 2v4h4v-4H5Zm8-2h8v8h-8v-8Zm2 2v4h4v-4h-4Z"/>',
+  abm: '<path fill="currentColor" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Zm4 18H6V4h7v5h5v11ZM8 12h8v2H8v-2Zm0 4h5v2H8v-2Z"/>',
+  normalizador: '<path fill="currentColor" d="M3 5h18v2H3V5Zm3 6h12v2H6v-2Zm3 6h6v2H9v-2Z"/>',
+  configurador: '<path fill="currentColor" d="M3 17v4h4l11-11-4-4L3 17Zm17.7-10.3a1 1 0 0 0 0-1.4l-2-2a1 1 0 0 0-1.4 0L15.6 5l4 4 1.1-1.3Z"/>',
+  externo: '<path fill="currentColor" d="M14 3v2h3.6l-9.8 9.8 1.4 1.4L19 6.4V10h2V3h-7ZM5 5h6v2H5v12h12v-6h2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"/>',
+  beta: '<path fill="currentColor" d="M1 21h22L12 2 1 21Zm12-3h-2v-2h2v2Zm0-4h-2v-4h2v4Z"/>',
+  ok: '<path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2Z"/>',
+  proto: '<path fill="currentColor" d="M7 2v2h1v6.3L3.3 19A2 2 0 0 0 5 22h14a2 2 0 0 0 1.7-3L16 10.3V4h1V2H7Zm3 2h4v6.8l2.3 4.2H7.7L10 10.8V4Z"/>',
+  repo: '<path fill="currentColor" d="M4 4a2 2 0 0 1 2-2h12v16H6a1 1 0 0 0 0 2h12v2H6a3 3 0 0 1-3-3V4h1Zm4 1v2h8V5H8Z"/>',
+  nuevo: '<path fill="currentColor" d="m12 2 2.4 7.4H22l-6.2 4.5 2.4 7.4-6.2-4.6-6.2 4.6 2.4-7.4L2 9.4h7.6L12 2Z"/>',
+  vacio: '<path fill="currentColor" d="M15.5 14h-.8l-.3-.3A6.5 6.5 0 1 0 14 15.5l.3.3v.8l5 5 1.5-1.5-5-5Zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z"/>'
 };
-
 var ESTADOS = {
-  estable: { clase: "badge--ok",   texto: "Estable", icono: ICONOS.ok },
-  beta:    { clase: "badge--beta", texto: "Beta",    icono: ICONOS.beta }
+  estable: { clase: "b-ok", texto: "Estable", icono: "ok" },
+  beta: { clase: "b-beta", texto: "Beta", icono: "beta" },
+  proto: { clase: "b-proto", texto: "Prototipo", icono: "proto" },
+  repo: { clase: "b-repo", texto: "Otro repositorio", icono: "repo" }
 };
+var HOY = new Date();
+var filtro = "todas";
 
-function el(tag, attrs, text) {
-  var n = document.createElement(tag);
-  if (attrs) { Object.keys(attrs).forEach(function (k) { n.setAttribute(k, attrs[k]); }); }
-  if (text) { n.textContent = text; }
-  return n;
+function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+function svg(n) { return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + (ICONOS[n] || "") + "</svg>"; }
+function fecha(iso) { var p = iso.split("-"); return p[2] + "/" + p[1] + "/" + p[0]; }
+function esNuevo(iso) { if (!iso) return false; var d = (HOY - new Date(iso + "T12:00:00")) / 86400000; return d >= -1 && d <= 7; }
+function badge(est) { var e = ESTADOS[est]; return '<span class="badge ' + e.clase + '">' + svg(e.icono) + e.texto + "</span>"; }
+function badges(h) { return (esNuevo(h.actualizado) ? '<span class="badge b-nuevo">' + svg("nuevo") + "Nuevo</span>" : "") + badge(h.estado); }
+function norm(s) { return String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
+function consulta() { return norm(document.getElementById("buscar").value.trim()); }
+function coincide(h, q) { return !q || norm(h.nombre + " " + h.descripcion + " " + h.para).indexOf(q) >= 0; }
+
+function tarjeta(h) {
+  var acc = h.acciones.map(function (a) {
+    var ext = a.externo ? ' target="_blank" rel="noopener noreferrer"' : "";
+    var aria = a.texto + ": " + h.nombre + (a.externo ? " (se abre en una pestaña nueva)" : "");
+    return '<a class="btn btn-' + (a.estilo || "secondary") + '" href="' + esc(a.href) + '"' + ext + ' aria-label="' + esc(aria) + '">' + (a.externo ? svg("externo") : "") + esc(a.texto) + "</a>";
+  }).join("");
+  var meta = [];
+  if (h.version) meta.push("Versión " + esc(h.version));
+  if (h.actualizado) meta.push('Actualizado el <time datetime="' + h.actualizado + '">' + fecha(h.actualizado) + "</time>");
+  return '<li class="rev"><article class="tarjeta' + (h.tipo === "equipo" ? " gris" : "") + '">' +
+    '<div class="t-top"><span class="ic">' + svg(h.icono) + '</span><div><h4>' + esc(h.nombre) + '</h4><div class="badges">' + badges(h) + "</div></div></div>" +
+    '<p class="desc">' + esc(h.descripcion) + "</p>" +
+    '<p class="para"><b>Para qué sirve:</b> ' + esc(h.para) + "</p>" +
+    '<p class="t-meta">' + meta.join(" · ") + "</p>" +
+    '<div class="t-acc">' + acc + "</div></article></li>";
 }
 
-function icono(path, size) {
-  var ns = "http://www.w3.org/2000/svg";
-  var s = String(size || 14);
-  var svg = document.createElementNS(ns, "svg");
-  svg.setAttribute("width", s); svg.setAttribute("height", s);
-  svg.setAttribute("viewBox", "0 0 24 24");
-  svg.setAttribute("aria-hidden", "true"); svg.setAttribute("focusable", "false");
-  var p = document.createElementNS(ns, "path");
-  p.setAttribute("fill", "currentColor"); p.setAttribute("d", path);
-  svg.appendChild(p);
-  return svg;
+function renderChips() {
+  var q = consulta();
+  var ops = [{ id: "todas", nombre: "Todas" }].concat(GRUPOS);
+  document.getElementById("chips").innerHTML = ops.map(function (o) {
+    var n = HERRAMIENTAS.filter(function (h) { return (o.id === "todas" || h.tipo === o.id) && coincide(h, q); }).length;
+    return '<button type="button" class="chip" data-f="' + o.id + '" aria-pressed="' + (filtro === o.id) + '">' + esc(o.nombre) + ' <span class="n">' + n + "</span></button>";
+  }).join("");
 }
 
-function badge(clase, path, texto) {
-  var b = el("span", { "class": "badge " + clase });
-  b.appendChild(icono(path));
-  b.appendChild(document.createTextNode(texto));
-  return b;
-}
-
-/* acciones: [{ texto, href, aria, externo, clase }] */
-function tarjeta(titulo, badgeEl, descripcion, acciones) {
-  var li = el("li");
-  var card = el("article", { "class": "card" });
-  card.appendChild(el("h3", null, titulo));
-  var meta = el("div", { "class": "card__meta" });
-  meta.appendChild(badgeEl);
-  card.appendChild(meta);
-  card.appendChild(el("p", null, descripcion));
-  var box = el("div", { "class": "card__acciones" });
-  acciones.forEach(function (a) {
-    var attrs = { "class": "btn " + (a.clase || "btn--secondary"), href: a.href, "aria-label": a.aria };
-    if (a.externo) { attrs.target = "_blank"; attrs.rel = "noopener noreferrer"; }
-    var link = el("a", attrs);
-    if (a.externo) { link.appendChild(icono(ICONOS.externo, 16)); }
-    link.appendChild(document.createTextNode(a.texto));
-    box.appendChild(link);
+function renderCatalogo() {
+  var q = consulta(), html = "", total = 0, num = 0;
+  GRUPOS.forEach(function (g) {
+    if (filtro !== "todas" && filtro !== g.id) return;
+    var items = HERRAMIENTAS.filter(function (h) { return h.tipo === g.id && coincide(h, q); });
+    if (!items.length) return;
+    num++; total += items.length;
+    html += '<div class="grupo"><div class="grupo-head"><span class="grupo-num" aria-hidden="true">' + num + '</span><div><h3>' + esc(g.nombre) +
+      ' <span class="sr">(' + items.length + ")</span></h3><p>" + esc(g.desc) + '</p></div></div><ul class="grilla">' + items.map(tarjeta).join("") + "</ul></div>";
   });
-  card.appendChild(box);
-  li.appendChild(card);
-  return li;
+  if (!total) html = '<div class="vacio">' + svg("vacio").replace("<svg", '<svg width="32" height="32"') + "<h3>No encontramos nada con esa búsqueda</h3><p>Probá con otra palabra o elegí «Todas».</p></div>";
+  document.getElementById("catalogo").innerHTML = html;
+  document.getElementById("estado-filtro").textContent = total + (total === 1 ? " resultado" : " resultados");
+  renderChips();
+  observar();
 }
 
-function renderHerramientas() {
-  var cont = document.getElementById("lista-herramientas");
-  if (!HERRAMIENTAS.length) {
-    var vacio = el("div", { "class": "empty" });
-    vacio.appendChild(icono(ICONOS.vacio, 32));
-    vacio.appendChild(el("h3", null, "Todavía no hay herramientas publicadas"));
-    vacio.appendChild(el("p", null, "Las soluciones del equipo de migración van a aparecer acá a medida que se publiquen."));
-    cont.appendChild(vacio);
-    return;
+function renderTimeline() {
+  document.getElementById("timeline").innerHTML = NOVEDADES.map(function (n) {
+    return '<li><time datetime="' + n.fecha + '">' + fecha(n.fecha) + "</time><b>" + esc(n.titulo) + "</b><span>" + esc(n.texto) + "</span></li>";
+  }).join("");
+}
+
+function renderMeta() {
+  var c = function (t) { return HERRAMIENTAS.filter(function (h) { return h.tipo === t; }).length; };
+  var datos = [[c("uso"), c("uso") === 1 ? "herramienta en uso" : "herramientas en uso"], [c("proto"), c("proto") === 1 ? "prototipo para validar" : "prototipos para validar"], [c("equipo"), "herramientas del equipo"]];
+  document.getElementById("hero-meta").innerHTML = datos.map(function (d) { return '<span><strong data-n="' + d[0] + '">' + d[0] + "</strong>" + d[1] + "</span>"; }).join("");
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduce && window.requestAnimationFrame) {
+    Array.prototype.forEach.call(document.querySelectorAll("#hero-meta strong"), function (el) {
+      var fin = +el.getAttribute("data-n"), t0 = null;
+      el.textContent = "0";
+      function paso(t) { if (!t0) t0 = t; var p = Math.min(1, (t - t0) / 1200); el.textContent = Math.round(fin * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(paso); }
+      setTimeout(function () { requestAnimationFrame(paso); }, 700);
+    });
   }
-  var ul = el("ul", { "class": "grid" });
-  HERRAMIENTAS.forEach(function (h) {
-    var est = ESTADOS[h.estado] || ESTADOS.beta;
-    ul.appendChild(tarjeta(h.nombre, badge(est.clase, est.icono, est.texto), h.descripcion, [
-      { texto: "Abrir", href: "./" + encodeURIComponent(h.id) + "/", aria: "Abrir " + h.nombre }
-    ]));
-  });
-  cont.appendChild(ul);
+  var d = HERRAMIENTAS.filter(function (h) { return h.destacado; })[0];
+  if (d) document.getElementById("dest-badges").innerHTML = badges(d) + '<span class="badge b-repo">' + esc(d.version) + " · " + fecha(d.actualizado) + "</span>";
 }
 
-function renderRelacionados() {
-  var ul = document.getElementById("lista-relacionados");
-  RELACIONADOS.forEach(function (r) {
-    var acciones = [];
-    if (r.app) { acciones.push({ texto: "Abrir", href: r.app, aria: "Abrir " + r.nombre + " (se abre en una pestaña nueva)", externo: true }); }
-    acciones.push({ texto: "Ver repositorio", href: r.url, aria: "Ver repositorio de " + r.nombre + " (se abre en una pestaña nueva)", externo: true, clase: "btn--ghost" });
-    ul.appendChild(tarjeta(r.nombre, badge("badge--repo", ICONOS.repo, "Otro repositorio"), r.descripcion, acciones));
+/* Aparición al hacer scroll */
+var io = ("IntersectionObserver" in window) ? new IntersectionObserver(function (es) {
+  es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("on"); io.unobserve(e.target); } });
+}, { threshold: 0.1 }) : null;
+function observar() {
+  Array.prototype.forEach.call(document.querySelectorAll(".rev:not(.on), .vis:not(.on)"), function (el, i) {
+    if (!io) { el.classList.add("on"); return; }
+    if (el.tagName === "LI") el.style.animationDelay = (i % 3) * 0.12 + "s";
+    io.observe(el);
   });
 }
 
-renderHerramientas();
-renderRelacionados();
+document.getElementById("chips").addEventListener("click", function (e) {
+  var b = e.target.closest("[data-f]"); if (!b) return;
+  filtro = b.getAttribute("data-f");
+  history.replaceState(null, "", filtro === "todas" ? location.pathname : "#f-" + filtro);
+  renderCatalogo();
+  var nb = document.querySelector('[data-f="' + filtro + '"]'); if (nb) nb.focus();
+});
+document.getElementById("buscar").addEventListener("input", renderCatalogo);
+document.addEventListener("keydown", function (e) {
+  var t = e.target.tagName;
+  if (e.key === "/" && t !== "INPUT" && t !== "TEXTAREA") { e.preventDefault(); var i = document.getElementById("buscar"); i.focus(); i.scrollIntoView({ block: "center" }); }
+  if (e.key === "Escape" && e.target.id === "buscar") { e.target.value = ""; renderCatalogo(); }
+});
+
+var hf = location.hash.match(/^#f-(uso|proto|equipo)$/);
+if (hf) filtro = hf[1];
+renderMeta();
+renderTimeline();
+renderCatalogo();
 </script>
 </body>
 </html>
