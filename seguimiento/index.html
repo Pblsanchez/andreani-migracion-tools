@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Seguimiento de actividades · Portal de soluciones</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="seguimiento.css?v=1.0">
+</head>
+<body>
+<a class="saltar" href="#seg-main">Ir al contenido</a>
+<header class="cabecera">
+  <div class="cabecera__marca">
+    <a class="marca" href="../" aria-label="Portal de soluciones (inicio)">
+      <svg class="marca__logo" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M9 21l7-11 7 11" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="marca__txt">Portal de soluciones</span>
+    </a>
+    <span class="cabecera__sep" aria-hidden="true">/</span>
+    <h1 class="cabecera__titulo">Seguimiento de actividades</h1>
+  </div>
+  <div class="cabecera__sesion" id="seg-sesion" hidden>
+    <span class="usuario" id="seg-usuario"></span>
+    <button type="button" class="btn btn--secundario btn--chico" id="seg-actualizar">Actualizar</button>
+    <button type="button" class="btn btn--fantasma btn--chico" id="seg-desconectar">Desconectar</button>
+  </div>
+</header>
+
+<main id="seg-main" class="principal" tabindex="-1">
+  <p class="bajada">En qué estamos, qué terminamos y qué espera tu OK. Se lee del índice de tareas cada vez que entrás.</p>
+
+  <section id="seg-conexion" class="panel" aria-labelledby="seg-conexion-titulo">
+    <noscript><p>Esta página necesita JavaScript.</p></noscript>
+  </section>
+
+  <section id="seg-sin-acceso" class="panel" hidden></section>
+
+  <section id="seg-datos" hidden>
+    <p class="leido" id="seg-leido"></p>
+    <div id="seg-error" aria-live="polite"></div>
+    <section id="seg-lista" class="seccion" aria-labelledby="seg-lista-titulo"></section>
+  </section>
+
+  <div id="seg-anuncio" class="sr-only" aria-live="polite"></div>
+</main>
+
+<footer class="pie">
+  <span>Los datos se leen en tu navegador con tu clave de GitHub y no se guardan acá.</span>
+</footer>
+
+<script src="seguimiento-lib.js?v=1.0"></script>
+<script src="seguimiento-gh.js?v=1.0"></script>
+<script src="seguimiento.js?v=1.0"></script>
+</body>
+</html>
