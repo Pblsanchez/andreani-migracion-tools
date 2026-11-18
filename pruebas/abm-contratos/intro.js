@@ -22,7 +22,7 @@
     ["Datos", "Campos que nadie usa", "Póliza, tipo de envío, tipo de entrega vacíos, y fin de validez 31/12/9999 en todos. Los pedimos igual, sin saber quién los consume."],
     ["Servicio", "16 interruptores en una sola lista", "Sin agrupar, sin ayuda y con nombres técnicos. Hay dos de gestión telefónica que parecen decir lo mismo."],
     ["Servicio", "El remito es sí o no", "En la operación hay remito digital, físico o directamente no hay. La pantalla no lo distingue."],
-    ["Servicio", "Datos que se contradicen y nadie avisa", "Container refrigerado con cadena de frío apagada, retiro parcial de valores sin cobranza. La pantalla lo deja pasar."],
+    ["Servicio", "Datos que se contradicen y nadie avisa", "Contenedor refrigerado con cadena de frío apagada, retiro parcial de valores sin cobranza. La pantalla lo deja pasar."],
     ["Servicio", "Un solo ciclo de vida para todos", "El contrato no permite elegir el ciclo: todos usan el mismo, «Alertran motives v4» (2 intentos de visita y devolución), y los ciclos no tienen un nombre que se entienda."],
     ["Domicilios", "Domicilios por número", "«Tipo 1», «Tipo 2»… No dice qué clase es cada uno ni cuáles faltan cargar."],
     ["Domicilios", "El mismo domicilio, cargado muchas veces", "Hay que repetirlo en cada clase, y muchas veces termina escrito de formas distintas."],
@@ -53,13 +53,13 @@
       '<div class="hero-meta anim"><span><strong>4</strong>pasos guiados</span><span><strong>0</strong>datos de SAP tipeados a mano</span><span><strong>100 %</strong>de los cambios con fecha y auditoría</span></div></div>' },
     { titulo: "Punto de partida", html:
       '<div class="diapo-in"><span class="eyebrow anim">El punto de partida · ABM de contratos actual</span><h2 class="grande anim">Lo que hoy hace difícil configurar un contrato</h2>' +
-      '<p class="bajada anim">Once problemas que encontramos en la pantalla actual, ordenados según el paso donde aparecen.</p>' +
+      '<p class="bajada anim">Problemas que encontramos en la pantalla actual.</p>' +
       vDolores() + "</div>" },
     { titulo: "Principios", html:
-      '<div class="diapo-in"><span class="eyebrow anim">Principios de la propuesta</span><h2 class="grande anim">Cinco ideas que ordenan todo el rediseño</h2><div class="tarjetas cinco">' +
+      '<div class="diapo-in"><span class="eyebrow anim">Principios de la propuesta</span><h2 class="grande anim">Ideas que ordenan todo el rediseño</h2><div class="tarjetas cinco">' +
       tarjeta(I.sap, "Datos de SAP, no se tipean", "El contrato y el cliente se buscan en SAP y se muestran en solo lectura. Si algo está mal, se corrige en el origen.", "se cargan a mano en DMS.") +
-      tarjeta(I.dato, "Cada dato tiene un consumidor", "Si ningún proceso (Mostrador, Mobile u otro) usa un dato, se cuestiona antes de pedirlo.", "hay campos que nadie consume.") +
-      tarjeta(I.persona, "Configura quien conoce el acuerdo", "No conviene derivar un requerimiento a un área que no le agrega valor. El control lo da la auditoría de DMS: quién cambió qué y cuándo.", "") +
+      tarjeta(I.dato, "Cada dato tiene un consumidor", "Si ningún proceso (Mostrador, Mobile u otro) usa un dato, el dato no se pide.", "hay campos que nadie consume.") +
+      tarjeta(I.persona, "Configura quien conoce el acuerdo", "Dejar de solicitar un requerimiento a un área que no le agrega valor al proceso. El control lo da la auditoría de DMS: quién cambió qué y cuándo.", "") +
       tarjeta(I.reloj, "Los cambios rigen hacia adelante", "Cada alta o cambio tiene fecha de vigencia y no afecta a los envíos ya admitidos.", "los cambios aplican al instante.") +
       tarjeta(I.guia, "La pantalla te guía", "Marca desde el principio qué es obligatorio y, si falta algo, te dice qué y cómo completarlo. Si dos datos no cierran, te propone el arreglo.", "") +
       "</div></div>" },
