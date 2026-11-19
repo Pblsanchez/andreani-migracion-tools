@@ -1,4 +1,4 @@
-/* ABM Contratos DMS · intro animada de la propuesta (T-007 v0.6, D-072 a D-075). Sin datos de clientes. */
+/* ABM Contratos DMS · intro animada de la propuesta (T-007 v0.6, D-072 a D-075; textos v0.8, parte 5). Sin datos de clientes. */
 (function () {
   "use strict";
   var I = {
@@ -60,24 +60,25 @@
       tarjeta(I.sap, "Datos de SAP, no se tipean", "El contrato y el cliente se buscan en SAP y se muestran en solo lectura. Si algo está mal, se corrige en el origen.", "se cargan a mano en DMS.") +
       tarjeta(I.dato, "Cada dato tiene un consumidor", "Si ningún proceso (Mostrador, Mobile u otro) usa un dato, el dato no se pide.", "hay campos que nadie consume.") +
       tarjeta(I.persona, "Configura quien conoce el acuerdo", "Dejar de solicitar un requerimiento a un área que no le agrega valor al proceso. El control lo da la auditoría de DMS: quién cambió qué y cuándo.", "") +
-      tarjeta(I.reloj, "Los cambios rigen hacia adelante", "Cada alta o cambio tiene fecha de vigencia y no afecta a los envíos ya admitidos.", "los cambios aplican al instante.") +
+      tarjeta(I.reloj, "Los cambios rigen hacia adelante", "Cada alta o cambio tiene una fecha desde la que rige y, si hace falta, una fecha de fin. No afecta a los envíos ya admitidos.", "los cambios aplican al instante.") +
       tarjeta(I.guia, "La pantalla te guía", "Marca desde el principio qué es obligatorio y, si falta algo, te dice qué y cómo completarlo. Si dos datos no cierran, te propone el arreglo.", "") +
       "</div></div>" },
     { titulo: "Recorrido de la demo", html:
       '<div class="diapo-in"><span class="eyebrow anim">Lo que vamos a ver</span><h2 class="grande anim">Un recorrido guiado en 4 pasos</h2>' +
       '<ol class="recorrido"><li class="linea" aria-hidden="true"></li>' +
-      '<li><span class="paso" aria-hidden="true">◎</span><h3>Listado</h3><p>Cada contrato con sus niveles de esfuerzo, ciclo, vigencia y estado.</p></li>' +
-      '<li><span class="paso">1</span><h3>Contrato SAP</h3><p>Se busca el contrato ya creado; los datos no se editan.</p></li>' +
-      '<li><span class="paso">2</span><h3>Servicio</h3><p>Niveles en lenguaje comercial, condición de entrega por requisitos, ciclo por nombre y condiciones agrupadas.</p></li>' +
-      '<li><span class="paso">3</span><h3>Domicilios</h3><p>Todas las clases a la vista; un domicilio sirve para varias.</p></li>' +
-      '<li><span class="paso">4</span><h3>Resumen y guardado</h3><p>Se ve qué cambió y desde cuándo rige.</p></li></ol></div>' },
+      '<li><span class="paso" aria-hidden="true">◎</span><h3>Listado</h3><p>Solo los contratos de tu cartera, con canal, niveles, ciclo, vigencia y estado. Desde acá se editan, habilitan o deshabilitan.</p></li>' +
+      '<li><span class="paso">1</span><h3>Contrato SAP</h3><p>Aparecen solo los contratos de tu cartera que todavía no están en DMS; los datos de SAP no se editan.</p></li>' +
+      '<li><span class="paso">2</span><h3>Servicio</h3><p>Niveles en lenguaje comercial, protocolo de entrega para elegir y comparar, ciclo por nombre y condiciones agrupadas.</p></li>' +
+      '<li><span class="paso">3</span><h3>Domicilios</h3><p>Cada domicilio se carga una vez y se le asignan sus clases; la rendición puede venir del contrato agrupador.</p></li>' +
+      '<li><span class="paso">4</span><h3>Resumen y guardado</h3><p>Se ve qué cambió, desde cuándo rige y, si tiene, hasta cuándo.</p></li></ol></div>' },
     { titulo: "Después de la demo", html:
-      '<div class="diapo-in"><span class="eyebrow anim">Fuera de este prototipo · a resolver juntos</span><h2 class="grande anim">Lo que necesitamos</h2><div class="tarjetas cinco">' +
+      '<div class="diapo-in"><span class="eyebrow anim">Fuera de este prototipo · a resolver juntos</span><h2 class="grande anim">Lo que necesitamos</h2><div class="tarjetas seis">' +
       tarjeta(I.sap, "Integración DMS – SAP", "Que DMS tome de SAP los contratos ya dados de alta (número, cliente, solicitante y razón social). Es lo que hace posible que los datos de SAP no se tipeen.", "", true) +
+      tarjeta(I.persona, "Cartera de cada comercial", "Que DMS sepa qué clientes atiende cada comercial, para que cada uno vea y configure solo sus contratos.", "", true) +
       tarjeta(I.ciclo, "Ciclos de vida con nombre", "Que cada ciclo tenga un nombre que se entienda y que el contrato solo tenga que elegirlo. Hoy los ciclos no tienen nombre y todos los contratos usan el mismo.", "", true) +
       tarjeta(I.flecha, "Cómo se crean y migran los ciclos a DMS", "Un ciclo en DMS no es un dato: son muchas reglas por estado, motivo, intento y días de custodia, y aplica a entrega, reenvío, devolución, rendición y siniestro. Necesitamos una forma de crearlos y de traerlos desde Integra sin cargarlos regla por regla.", "", true) +
       tarjeta(I.motivo, "Sumar motivos nuevos", "Agregar un motivo no debería obligar a revisar ciclo por ciclo, ni dejar intentos sin definir.", "", true) +
-      tarjeta(I.dato, "Datos sin dueño claro", "Clases de domicilio, póliza, tipo de envío, fin de validez: necesitamos que DMS confirme cuáles se usan, quién los consume y cuáles son obligatorios.", "", true) +
+      tarjeta(I.dato, "Clases de domicilio por confirmar", "Necesitamos que DMS confirme qué clases se usan, a qué «Tipo N» de hoy corresponde cada una y cuáles son obligatorias.", "", true) +
       '</div><div class="cta anim"><button class="btn btn-primary btn-lg" data-intro="demo">Ver la demo</button><span class="small">Datos ficticios · no se conecta con DMS ni con SAP.</span></div></div>' }
   ];
 

@@ -121,6 +121,13 @@
 }
 @media (max-width: 600px) { .tarjetas, .tarjetas.cinco, .dolores { grid-template-columns: 1fr; } }
 @media (min-width: 1024px) and (max-width: 1279px) { .tarjetas.cinco { grid-template-columns: repeat(3, 1fr); } }
+/* v0.8 parte 5: «Lo que necesitamos» con 6 tarjetas en 2 filas de 3 */
+.tarjetas.seis { grid-template-columns: repeat(3, 1fr); }
+.tarjetas.seis .tarjeta { padding: var(--c-spacing-4); }
+.diapo.activa .tarjetas .tarjeta:nth-child(5) { animation-delay: .95s; }
+.diapo.activa .tarjetas .tarjeta:nth-child(6) { animation-delay: 1.1s; }
+@media (max-width: 1023px) { .tarjetas.seis { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .tarjetas.seis { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) {
   .diapo.activa .anim, .diapo.activa .tarjeta, .diapo.activa .dolor, .diapo.activa .recorrido li, .diapo.activa .cat-head { animation: none !important; }
   .hero-deco .r, .tarjeta .ic svg .t { animation: none !important; stroke-dashoffset: 0 !important; }
