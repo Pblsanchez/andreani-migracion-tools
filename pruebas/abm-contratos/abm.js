@@ -1,7 +1,7 @@
-/* ABM Contratos DMS · prototipo de propuesta v0.8 (T-007, D-063 a D-078). Datos ficticios. Deshabilitar/habilitar: abm-estado.js */
+/* ABM Contratos DMS · prototipo de propuesta v0.8 (T-007, D-063 a D-095). Datos ficticios. Deshabilitar/habilitar: abm-estado.js · protocolo, póliza y contactos: abm-servicio.js */
 (function (g) {
   "use strict";
-  var D = g.ABM_DATOS;
+  var D = g.ABM_DATOS, P = g.ABM_SERVICIO;
 
   /* ---------- utilidades ---------- */
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
@@ -17,21 +17,7 @@
   function condDef(id) { for (var i = 0; i < D.CONDICIONES.length; i++) if (D.CONDICIONES[i].id === id) return D.CONDICIONES[i]; return null; }
   function nivel(id) { for (var i = 0; i < D.NIVELES.length; i++) if (D.NIVELES[i].id === id) return D.NIVELES[i]; return null; }
   function opNivel(id, cod) { var n = nivel(id); if (!n) return null; for (var i = 0; i < n.opciones.length; i++) if (n.opciones[i].cod === cod) return n.opciones[i]; return null; }
-  function reqNombre(id) { for (var i = 0; i < D.REQUISITOS.length; i++) if (D.REQUISITOS[i].id === id) return D.REQUISITOS[i].nombre; return id; }
-  function mismoSet(a, b) { if (a.length !== b.length) return false; for (var i = 0; i < a.length; i++) if (b.indexOf(a[i]) < 0) return false; return true; }
-  function formDe(req) { req = req || []; for (var i = 0; i < D.FORMULARIOS.length; i++) if (mismoSet(D.FORMULARIOS[i].req, req)) return D.FORMULARIOS[i]; return null; }
-  function formsCercanos(req) {
-    req = req || [];
-    return D.FORMULARIOS.map(function (f) {
-      var falta = f.req.filter(function (r) { return req.indexOf(r) < 0; }).length, sobra = req.filter(function (r) { return f.req.indexOf(r) < 0; }).length;
-      return { f: f, d: falta + sobra * 2 };
-    }).sort(function (a, b) { return a.d - b.d; }).slice(0, 3).map(function (x) { return x.f; });
-  }
-  function textoReq(req) {
-    var p = (req || []).filter(function (r) { return reqGrupo(r) === "pide"; }).map(reqNombre), r = (req || []).filter(function (x) { return reqGrupo(x) === "retira"; }).map(reqNombre);
-    return (p.length ? "Pide: " + p.join(", ") : "") + (p.length && r.length ? " · " : "") + (r.length ? "Retira: " + r.join(", ") : "");
-  }
-  function reqGrupo(id) { for (var i = 0; i < D.REQUISITOS.length; i++) if (D.REQUISITOS[i].id === id) return D.REQUISITOS[i].grupo; return ""; }
+  function esFrio(b) { var o = opNivel("continente", b.niveles.continente); return !!(o && o.frio); }
   function domTexto(d) { return d.calle + " " + d.numero + ", " + d.localidad + ", " + d.provincia + " (CP " + d.cp + ")"; }
   function domClave(d) { return [d.calle, d.numero, d.localidad, d.provincia, d.cp].join("|").toLowerCase().replace(/\s+/g, " ").trim(); }
 
@@ -62,8 +48,8 @@
   function nuevoBorrador() {
     var cond = {};
     D.CONDICIONES.forEach(function (c) { cond[c.id] = c.tipo === "opciones" ? "" : false; });
-    return { nro: "", niveles: { logistica: "", continente: "", sla: "" }, req: [], ciclo: "", cond: cond,
-      agrupador: "", poliza: "",
+    return { nro: "", niveles: { logistica: "", continente: "", sla: "" }, form: "", ciclo: "", cond: cond,
+      agrupador: "", poliza: "", contactos: [],
       domicilios: [], estado: "", vigencia: "" };
   }
   function clasesCubiertas(b) {
@@ -80,8 +66,7 @@
     }
     if (paso === 2) {
       D.NIVELES.forEach(function (n) { if (!b.niveles[n.id]) f.push("Elegir «" + n.nombre + "»"); });
-      if (!b.req.length) f.push("Marcar qué se pide o se retira al entregar («Condición de entrega»)");
-      else if (!formDe(b.req)) f.push("La combinación marcada en «Condición de entrega» no existe hoy en DMS: elegí una de las sugeridas");
+      if (!b.form) f.push("Elegir el protocolo de entrega");
       if (!b.ciclo) f.push("Elegir el ciclo de vida");
       if (!b.cond.remito) f.push("Indicar cómo viaja el remito (Admisión)");
     }
@@ -99,21 +84,25 @@
     return f;
   }
   function advertencias(b) {
-    var a = [];
-    var oc = opNivel("continente", b.niveles.continente), ol = opNivel("logistica", b.niveles.logistica), req = b.req || [];
-    if (oc && oc.frio && !b.cond.frio) a.push({ tipo: "warning", txt: "El tipo de carga es «" + oc.nombre + "». Activá «Cadena de frío».", btn: "Activar cadena de frío", fix: { cond: "frio", val: true } });
-    if (oc && !oc.frio && b.cond.frio) a.push({ tipo: "caution", txt: "El tipo de carga «" + oc.nombre + "» no viaja en frío. Apagá «Cadena de frío».", btn: "Apagar cadena de frío", fix: { cond: "frio", val: false } });
-    if (req.indexOf("valores") >= 0 && !b.cond.cobranza) a.push({ tipo: "warning", txt: "La entrega retira valores. Activá «Gestión de cobranza».", btn: "Activar gestión de cobranza", fix: { cond: "cobranza", val: true } });
-    if (b.cond.cobranza && req.length && req.indexOf("valores") < 0) a.push({ tipo: "warning", txt: "Hay gestión de cobranza, pero la entrega no retira valores. Sumá «Valores» a la condición de entrega.", btn: "Sumar valores", fix: { reqAdd: "valores" } });
-    if (b.cond.remito === "Sin remito" && req.indexOf("fotoRemito") >= 0) a.push({ tipo: "warning", txt: "El contrato es «Sin remito». Sacá «Foto del remito» de la condición de entrega.", btn: "Sacar foto del remito", fix: { reqDel: "fotoRemito" } });
+    var a = [], alt;
+    var oc = opNivel("continente", b.niveles.continente), ol = opNivel("logistica", b.niveles.logistica), req = P.reqDe(b.form), pn = b.form ? "Protocolo " + b.form : "";
+    if (req.indexOf("valores") >= 0 && !b.cond.cobranza) a.push({ tipo: "warning", txt: "El " + pn + " cobra valores al entregar. Activá «Gestión de cobranza».", btn: "Activar gestión de cobranza", fix: { cond: "cobranza", val: true } });
+    if (b.cond.cobranza && b.form && req.indexOf("valores") < 0 && (alt = P.cercano(b.form, "valores", null))) a.push({ tipo: "warning", txt: "Hay gestión de cobranza, pero el " + pn + " no cobra valores. Usá un protocolo que cobre.", btn: "Usar Protocolo " + alt.cod + " (" + alt.nombre + ")", fix: { form: alt.cod } });
+    if (b.cond.remito === "Sin remito" && req.indexOf("fotoRemito") >= 0) a.push({ tipo: "warning", txt: "El contrato es «Sin remito», pero el " + pn + " pide foto del remito. Si el remito viaja, indicá cómo.", btn: "Pasar a remito digital", fix: { cond: "remito", val: "Digital" } });
+    if (req.indexOf("insumo") >= 0 && oc && !oc.frio && (alt = P.cercano(b.form, null, "insumo"))) a.push({ tipo: "caution", txt: "El " + pn + " retira insumo (conservadora retornable), pero el tipo de carga «" + oc.nombre + "» no es de frío. Elegí un tipo de carga de frío o un protocolo sin insumo.", btn: "Usar Protocolo " + alt.cod + " (sin insumo)", fix: { form: alt.cod } });
     if (ol && ol.cod === "7" && !b.cond.cambio) a.push({ tipo: "caution", txt: "El tipo de operación es «Cambio». Activá la condición «Cambio».", btn: "Activar cambio", fix: { cond: "cambio", val: true } });
-    if (b.cond.conservadora && !b.cond.frio) a.push({ tipo: "caution", txt: "La conservadora cerrada suele viajar refrigerada. Si es así, activá «Cadena de frío».", btn: "Activar cadena de frío", fix: { cond: "frio", val: true } });
     return a;
   }
   function aplicarFix(b, fx) {
     if (fx.cond) { b.cond[fx.cond] = fx.val; if (!fx.val) D.CONDICIONES.forEach(function (x) { if (x.depende === fx.cond) b.cond[x.id] = false; }); }
-    if (fx.reqAdd && b.req.indexOf(fx.reqAdd) < 0) b.req.push(fx.reqAdd);
-    if (fx.reqDel) b.req = b.req.filter(function (r) { return r !== fx.reqDel; });
+    if (fx.form) b.form = fx.form;
+  }
+  /* D-084: sin tipo de carga de frío no existen las opciones de frío; devuelve true si había alguna activa */
+  function limpiarFrio(b) {
+    if (esFrio(b)) return false;
+    var hubo = false;
+    D.CONDICIONES.forEach(function (c) { if (c.bloque === "frio") { if (b.cond[c.id]) hubo = true; b.cond[c.id] = false; } });
+    return hubo;
   }
   function textoCond(c, v) { return c.tipo === "opciones" ? (v || "—") : (v ? "Sí" : "No"); }
   function filasResumen(b) {
@@ -124,12 +113,16 @@
     add("sap", "Canal", C ? C.canal(b.nro) : "—");
     add("sap", "Contrato agrupador", b.agrupador ? b.agrupador + " (hereda el domicilio de rendición)" : "Sin agrupador");
     D.NIVELES.forEach(function (n) { var o = opNivel(n.id, b.niveles[n.id]); add("servicio", n.nombre, o ? o.nombre + " (DMS " + n.dmsNombre + " " + o.cod + ")" : "—"); });
-    var fm = formDe(b.req); add("servicio", "Condición de entrega", b.req && b.req.length ? textoReq(b.req) + (fm ? " (" + fm.dms + ")" : " (combinación inexistente)") : "—");
+    add("servicio", "Cadena de frío", esFrio(b) ? "Sí (la da el tipo de carga)" : "No");
+    var fm = P.proto(b.form); add("servicio", "Protocolo de entrega", fm ? P.nombreProto(fm) + " (DMS " + fm.dms + ")" : "—");
     var cv = ciclo(b.ciclo); add("servicio", "Ciclo de vida", cv ? cv.codigo + " · " + cv.nombre : "—");
     D.CONDICIONES.forEach(function (c) {
+      if (c.bloque === "frio" && !esFrio(b)) return;
       if (c.depende && !b.cond[c.depende]) add("cond-" + c.bloque, c.nombre, "No aplica (requiere " + condDef(c.depende).nombre + ")");
       else add("cond-" + c.bloque, c.nombre, textoCond(c, b.cond[c.id]));
     });
+    add("cond-admin", "Número de póliza", b.poliza ? b.poliza : "Sin póliza");
+    add("cond-admin", "Contactos", P.textoContactos(b.contactos));
     var cub = clasesCubiertas(b);
     D.CLASES.forEach(function (c) {
       var d = null; b.domicilios.forEach(function (x) { if (x.id === cub[c.id]) d = x; });
@@ -140,12 +133,13 @@
   }
   function diferencias(orig, b) {
     if (!orig) return {};
-    var a = filasResumen(orig), n = filasResumen(b), m = {};
-    for (var i = 0; i < n.length; i++) if (a[i] && a[i].v !== n[i].v) m[n[i].sec + "|" + n[i].k] = a[i].v;
+    var a = {}, m = {};
+    filasResumen(orig).forEach(function (f) { a[f.sec + "|" + f.k] = f.v; });
+    filasResumen(b).forEach(function (f) { var k = f.sec + "|" + f.k; if (!a.hasOwnProperty(k)) m[k] = "No existía"; else if (a[k] !== f.v) m[k] = a[k]; });
     return m;
   }
   var C = g.ABM_CARTERA;
-  var L = g.ABM_LOGICA = { rendicion: function () { return null; }, aplicarFix: aplicarFix, formDe: formDe, formsCercanos: formsCercanos, nuevoBorrador: nuevoBorrador, faltantes: faltantes, advertencias: advertencias, clasesCubiertas: clasesCubiertas, filasResumen: filasResumen, diferencias: diferencias, domClave: domClave };
+  var L = g.ABM_LOGICA = { rendicion: function () { return null; }, aplicarFix: aplicarFix, limpiarFrio: limpiarFrio, esFrio: esFrio, nuevoBorrador: nuevoBorrador, faltantes: faltantes, advertencias: advertencias, clasesCubiertas: clasesCubiertas, filasResumen: filasResumen, diferencias: diferencias, domClave: domClave };
   if (typeof document === "undefined") return;
 
   /* ---------- estado de la interfaz ---------- */
@@ -183,7 +177,7 @@
       var s = sap(c.nro) || {}; var cv = ciclo(c.ciclo);
       h += "<tr><td>" + esc(s.razon) + "</td><td><span class=\"strong\">" + esc(c.nro) + "</span> " + C.chipCanal(c.nro) + (c.agrupador ? ' <span class="chip" title="Hereda la rendición de ' + esc(c.agrupador) + '">Agrupador ' + esc(c.agrupador) + "</span>" : "") + '<br><span class="caption">' + esc(s.desc) + "</span></td><td>" + esc(s.solicitante) + "</td>" +
         '<td><div class="chips">' + D.NIVELES.map(function (n) { var o = opNivel(n.id, c.niveles[n.id]); return '<span class="chip" title="' + esc(n.nombre) + (o ? " · DMS " + n.dmsNombre + " " + o.cod : "") + '">' + esc(o ? o.nombre : "—") + "</span>"; }).join("") +
-        (function () { var fm = formDe(c.req); return fm ? '<span class="chip" title="Condición de entrega: ' + esc(textoReq(c.req)) + '">' + esc(fm.dms.replace("Formulario ", "Form. ")) + "</span>" : ""; })() + "</div></td>" +
+        (function () { var fm = P.proto(c.form); return fm ? '<span class="chip" title="' + esc(P.nombreProto(fm) + " · " + P.textoProto(fm.cod)) + '">Protocolo ' + esc(fm.cod) + "</span>" : ""; })() + "</div></td>" +
         "<td>" + (cv ? esc(cv.nombre) + '<br><span class="caption">' + esc(cv.codigo) + "</span>" : "—") + "</td>" +
         "<td>" + (c.vigencia ? "Desde " + fmtFecha(c.vigencia) : "—") + "</td><td>" + chipEstado(c) + "</td>" +
         '<td class="acc"><div class="kebab"><button class="btn btn-ghost btn-icon btn-sm" aria-haspopup="true" aria-expanded="false" data-acc="kebab" data-nro="' + c.nro + '" aria-label="Acciones del contrato ' + c.nro + '">' + ICO.kebab + "</button>" +
@@ -255,34 +249,21 @@
     h += '<div class="campo" style="gap:16px"><h3>Ciclo de vida</h3><fieldset class="opciones"><legend>Elegí el ciclo por nombre</legend>' + D.CICLOS.map(function (c) {
       return '<label class="opcion grande"><input type="radio" name="ciclo" value="' + c.id + '"' + (b.ciclo === c.id ? " checked" : "") + '><span><span class="strong">' + esc(c.nombre) + (c.estandar ? ' <span class="chip">Estándar B2B · hoy en DMS</span>' : "") + '</span><span class="det">' + esc(c.codigo) + "</span></span></label>";
     }).join("") + '</fieldset><p class="caption">La lista sale del maestro de ciclos con nombre (propuesta, fuera de este prototipo). Hoy todos los contratos usan un único ciclo y no se puede elegir.</p></div></div>';
-    h += vCondEntrega(b);
+    h += P.vProtocolo(b);
     advertencias(b).forEach(function (a, i) { h += alerta(a.tipo, esc(a.txt) + (a.btn ? ' <button class="btn btn-secondary btn-sm" style="margin-left:8px" data-acc="fix" data-i="' + i + '">' + esc(a.btn) + "</button>" : "")); });
-    h += "<h3>Condiciones del servicio</h3><p class=\"small\">Los 16 interruptores de hoy, agrupados y explicados. Debajo de cada uno figura su nombre actual en DMS. Textos de ayuda de ejemplo, a validar con DMS.</p>";
+    h += "<h3>Condiciones del servicio</h3><p class=\"small\">Las condiciones de hoy, agrupadas y explicadas. Debajo de cada una figura su nombre actual en DMS. Textos de ayuda de ejemplo, a validar con DMS.</p>";
+    if (S.msgFrio) h += S.msgFrio;
+    var oc = opNivel("continente", b.niveles.continente);
     D.BLOQUES.forEach(function (bl, i) {
+      if (bl.soloFrio && !esFrio(b)) return;
       var cs = D.CONDICIONES.filter(function (c) { return c.bloque === bl.id; });
       var act = cs.filter(function (c) { return c.tipo === "opciones" ? false : !!b.cond[c.id] && (!c.depende || b.cond[c.depende]); }).length;
       var bin = cs.filter(function (c) { return c.tipo !== "opciones"; }).length;
-      h += '<details class="bloque" data-bloque="' + bl.id + '"' + (S.abiertos[bl.id] ? " open" : "") + '><summary>' + ICO.flecha + '<span><span class="strong">' + bl.nombre + '</span><br><span class="caption">' + bl.desc + '</span></span><span class="chip resumen-b">' + act + " de " + bin + " activas</span></summary><div class=\"condiciones\">";
+      h += '<details class="bloque" data-bloque="' + bl.id + '"' + (S.abiertos[bl.id] ? " open" : "") + '><summary>' + ICO.flecha + '<span><span class="strong">' + bl.nombre + '</span><br><span class="caption">' + (bl.soloFrio ? "El tipo de carga «" + esc(oc.nombre) + "» viaja con cadena de frío: estas opciones solo existen en contratos de frío." : bl.desc) + '</span></span><span class="chip resumen-b">' + act + " de " + bin + " activas</span></summary><div class=\"condiciones\">";
       cs.forEach(function (c) { h += vCond(c, b); });
-      h += "</div></details>";
+      h += "</div>" + (bl.id === "admin" ? P.vAdmin(b) : "") + "</details>";
     });
     return h;
-  }
-  function vCondEntrega(b) {
-    var fm = formDe(b.req);
-    var h = '<div class="campo" style="gap:12px"><h3>Condición de entrega <span class="caption">(DMS: Formulario Mobile)</span></h3><p class="small">Marcá qué hace el repartidor al entregar. DMS elige el formulario Mobile que corresponde.</p><div class="grid-2">';
-    [["pide", "Al entregar, pide"], ["retira", "Además, retira"]].forEach(function (g2) {
-      h += '<fieldset class="opciones" style="display:grid;gap:0"><legend>' + g2[1] + "</legend>" + D.REQUISITOS.filter(function (r) { return r.grupo === g2[0]; }).map(function (r) {
-        return '<label class="chk"><input type="checkbox" id="req-' + r.id + '" data-req="' + r.id + '"' + (b.req.indexOf(r.id) >= 0 ? " checked" : "") + ">" + esc(r.nombre) + "</label>";
-      }).join("") + "</fieldset>";
-    });
-    h += "</div>";
-    if (!b.req.length) h += alerta("info", "Todavía no marcaste requisitos.");
-    else if (fm) h += alerta("success", "<strong>Corresponde a " + esc(fm.dms) + "</strong> (código DMS " + fm.cod + "). " + esc(textoReq(fm.req)) + ".");
-    else h += alerta("warning", "<strong>Esta combinación no existe hoy en DMS.</strong> Combinaciones disponibles más parecidas:<ul>" + formsCercanos(b.req).map(function (f) {
-      return '<li>' + esc(textoReq(f.req)) + ' (' + esc(f.dms) + ') <button class="btn btn-ghost btn-sm" data-acc="usarForm" data-cod="' + f.cod + '">Usar esta</button></li>';
-    }).join("") + "</ul>");
-    return h + "</div>";
   }
   function vCond(c, b) {
     var idA = "ay-" + c.id;
@@ -351,6 +332,7 @@
     secs.push(["domicilios", "Domicilios por clase", 3]);
     h += '<div class="resumen">' + secs.map(function (sc) {
       var fs = filas.filter(function (f) { return f.sec === sc[0]; });
+      if (!fs.length) return "";
       var nc = fs.filter(function (f) { return dif.hasOwnProperty(f.sec + "|" + f.k); }).length;
       return '<div class="res-sec"><h4>' + sc[1] + (nc ? ' <span class="chip chip-cambio">' + nc + " cambio" + (nc === 1 ? "" : "s") + "</span>" : "") + ('<button class="btn btn-ghost btn-sm" data-acc="irPaso" data-paso="' + sc[2] + '">Editar</button>') + "</h4>" +
         fs.map(function (f) {
@@ -390,16 +372,16 @@
   function iniciar(modo, nro) {
     S.modo = modo; S.vista = "wizard"; S.paso = 1; S.errores = false; S.busqSap = ""; S.msgDom = "";
     S.nuevoDom = { calle: "", numero: "", localidad: "", provincia: "", cp: "" }; S.nuevoClases = [];
-    S.abiertos = { admision: true, acciones: false, admin: false };
+    S.abiertos = { admision: true, frio: true, acciones: false, admin: false }; S.msgFrio = ""; if (P.reset) P.reset();
     if (modo === "alta") { S.b = nuevoBorrador(); S.orig = null; }
     else {
       var c = contrato(nro);
-      S.b = { nro: c.nro, niveles: clon(c.niveles), req: clon(c.req || []), ciclo: c.ciclo, cond: clon(c.cond), agrupador: c.agrupador || "", poliza: c.poliza || "", domicilios: clon(c.domicilios), estado: "", vigencia: "" };
+      S.b = { nro: c.nro, niveles: clon(c.niveles), form: c.form || "", ciclo: c.ciclo, cond: clon(c.cond), agrupador: c.agrupador || "", poliza: c.poliza || "", contactos: clon(c.contactos || []), domicilios: clon(c.domicilios), estado: "", vigencia: "" };
       S.orig = clon(S.b);
     }
     render("t-wiz"); window.scrollTo(0, 0);
   }
-  function irPaso(n) { S.paso = n; S.errores = false; S.msgDom = ""; render("t-wiz"); window.scrollTo(0, 0); }
+  function irPaso(n) { S.paso = n; S.errores = false; S.msgDom = ""; S.msgFrio = ""; render("t-wiz"); window.scrollTo(0, 0); }
   function siguiente() {
     var f = faltantes(S.paso, S.b, ctx);
     if (f.length) { S.errores = true; render("err"); return; }
@@ -411,12 +393,12 @@
     var b = S.b, vig = b.estado === "habilitado" ? hoyISO() : b.estado === "programado" ? b.vigencia : "";
     var detEstado = b.estado === "habilitado" ? "Habilitado desde " + fmtFecha(vig) : b.estado === "programado" ? "Vigente desde " + fmtFecha(vig) : "Deshabilitado";
     if (S.modo === "alta") {
-      S.contratos.unshift({ nro: b.nro, niveles: b.niveles, req: b.req, ciclo: b.ciclo, cond: b.cond, agrupador: b.agrupador, poliza: b.poliza, domicilios: b.domicilios, estado: b.estado, vigencia: vig,
+      S.contratos.unshift({ nro: b.nro, niveles: b.niveles, form: b.form, ciclo: b.ciclo, cond: b.cond, agrupador: b.agrupador, poliza: b.poliza, contactos: b.contactos, domicilios: b.domicilios, estado: b.estado, vigencia: vig,
         historial: [{ fecha: ahora(), usuario: "comercial.ejemplo", accion: "Alta", detalle: "Contrato creado · " + detEstado }] });
       toast("Contrato " + b.nro + " creado · " + detEstado);
     } else {
       var c = contrato(b.nro), dif = diferencias(S.orig, b), ks = Object.keys(dif);
-      c.niveles = b.niveles; c.req = b.req; c.ciclo = b.ciclo; c.cond = b.cond; c.agrupador = b.agrupador; c.poliza = b.poliza; c.domicilios = b.domicilios; c.estado = b.estado; c.vigencia = vig;
+      c.niveles = b.niveles; c.form = b.form; c.ciclo = b.ciclo; c.cond = b.cond; c.agrupador = b.agrupador; c.poliza = b.poliza; c.contactos = b.contactos; c.domicilios = b.domicilios; c.estado = b.estado; c.vigencia = vig;
       c.historial.push({ fecha: ahora(), usuario: "comercial.ejemplo", accion: "Modificación (versión " + (c.historial.length + 1) + ")",
         detalle: (ks.length ? ks.map(function (k) { return k.split("|")[1]; }).join(", ") : "Sin cambios de configuración") + " · " + detEstado });
       toast("Cambios guardados · " + detEstado);
@@ -459,7 +441,6 @@
     else if (a === "elegirSap") { S.b.nro = nro; S.b.domicilios = []; S.b.agrupador = ""; S.errores = false; render("busqSap"); }
     else if (a === "agregarDom") agregarDom();
     else if (a === "fix") { var adv = advertencias(S.b)[+t.getAttribute("data-i")]; if (adv) { aplicarFix(S.b, adv.fix); toast("Listo: " + adv.btn.toLowerCase() + "."); render("t-wiz"); } }
-    else if (a === "usarForm") { var cod = t.getAttribute("data-cod"); D.FORMULARIOS.forEach(function (f) { if (f.cod === cod) S.b.req = f.req.slice(); }); render("req-" + S.b.req[0]); }
     else if (a === "quitarDom") { var id = t.getAttribute("data-id"); S.b.domicilios = S.b.domicilios.filter(function (d) { return d.id !== id; }); S.msgDom = ""; render(); }
   });
   function cerrarMenus() { var ms = raiz.querySelectorAll(".menu"); for (var i = 0; i < ms.length; i++) { ms[i].hidden = true; var b = ms[i].previousElementSibling; if (b) b.setAttribute("aria-expanded", "false"); } }
@@ -478,9 +459,12 @@
     var t = e.target, id = t.id || "";
     if (id === "filtro") { S.filtro = t.value; render("filtro"); }
     else if (id === "agrupador") { C.aplicarAgrupador(S.b, t.value); render("agrupador"); }
-    else if (id.indexOf("niv-") === 0) { S.b.niveles[id.slice(4)] = t.value; render(id); }
+    else if (id.indexOf("niv-") === 0) {
+      S.b.niveles[id.slice(4)] = t.value;
+      if (id === "niv-continente") { S.msgFrio = limpiarFrio(S.b) ? alerta("info", "Sacamos las opciones de cadena de frío: el tipo de carga elegido no es de frío.") : ""; if (esFrio(S.b)) S.abiertos.frio = true; }
+      render(id);
+    }
     else if (t.name === "ciclo") { S.b.ciclo = t.value; render(); }
-    else if (t.hasAttribute("data-req")) { var rq = t.getAttribute("data-req"); S.b.req = S.b.req.filter(function (x) { return x !== rq; }); if (t.checked) S.b.req.push(rq); render(t.id); }
     else if (t.hasAttribute("data-cond")) {
       var c = t.getAttribute("data-cond"); S.b.cond[c] = t.checked;
       D.CONDICIONES.forEach(function (x) { if (x.depende === c && !t.checked) S.b.cond[x.id] = false; });
