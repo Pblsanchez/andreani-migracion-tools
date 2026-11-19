@@ -56,17 +56,27 @@ var SEG_GH = (function () {
   Cliente.prototype.indice = function () {
     return this.get("/contents/" + CFG.indice.split("/").map(encodeURIComponent).join("/") + "?ref=" + encodeURIComponent(CFG.rama), true);
   };
-  /* Últimos commits de la memoria: [{sha, fecha, mensaje, url}] (E2) */
+  /* Commits automáticos que no son actividad (v1.3, D-082): las capturas que deja github-actions[bot] en ojos/ */
+  var BOTS = ["github-actions[bot]"];
+  function esBot(c) {
+    var cm = (c && c.commit) || {};
+    var n = [c && c.author && c.author.login, c && c.committer && c.committer.login, cm.author && cm.author.name, cm.committer && cm.committer.name];
+    return n.some(function (x) { return x && BOTS.indexOf(x) >= 0; });
+  }
+  /* Últimos commits de la memoria, sin los del bot: [{sha, fecha, mensaje, url}] (E2; filtro v1.3).
+     Pide 3 veces más (mín. 30, máx. 100) para que, sacando los del bot, igual queden n. */
   Cliente.prototype.commits = function (n) {
-    return this.get("/commits?sha=" + encodeURIComponent(CFG.rama) + "&per_page=" + (n || CFG.commits)).then(function (l) {
-      return (Array.isArray(l) ? l : []).map(function (c) {
+    n = n || CFG.commits;
+    var pedir = Math.min(100, Math.max(30, n * 3));
+    return this.get("/commits?sha=" + encodeURIComponent(CFG.rama) + "&per_page=" + pedir).then(function (l) {
+      return (Array.isArray(l) ? l : []).filter(function (c) { return !esBot(c); }).slice(0, n).map(function (c) {
         var cm = c.commit || {};
         return { sha: c.sha, fecha: (cm.committer && cm.committer.date) || (cm.author && cm.author.date) || "", mensaje: cm.message || "", url: c.html_url || "" };
       });
     });
   };
 
-  return { CFG: CFG, REPO_TXT: REPO_TXT, LS_TOKEN: LS_TOKEN, URL_FICHAS: URL_FICHAS, Cliente: Cliente, mensajeError: mensajeError,
+  return { CFG: CFG, REPO_TXT: REPO_TXT, LS_TOKEN: LS_TOKEN, URL_FICHAS: URL_FICHAS, Cliente: Cliente, mensajeError: mensajeError, esBot: esBot,
     leerClave: leerClave, guardarClave: guardarClave, borrarClave: borrarClave };
 })();
 if (typeof module !== "undefined" && module.exports) module.exports = SEG_GH;
