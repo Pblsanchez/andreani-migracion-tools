@@ -5,27 +5,34 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Guía · Seguimiento de actividades · Portal de soluciones</title>
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="seguimiento.css?v=1.3">
+<link rel="stylesheet" href="../portal.css?v=2.2">
+<link rel="stylesheet" href="seguimiento.css?v=1.4">
 </head>
 <body>
-<a class="saltar" href="#guia-main">Ir al contenido</a>
-<header class="cabecera">
-  <div class="cabecera__marca">
-    <a class="marca" href="../" aria-label="Portal de soluciones (inicio)">
-      <svg class="marca__logo" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M9 21l7-11 7 11" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span class="marca__txt">Portal de soluciones</span>
-    </a>
-    <span class="cabecera__sep" aria-hidden="true">/</span>
-    <h1 class="cabecera__titulo">Guía del Seguimiento de actividades</h1>
-  </div>
-  <div class="cabecera__sesion">
-    <a class="btn btn--primario btn--chico" href="./">Abrir el seguimiento</a>
+<a class="skip-link" href="#guia-main">Saltar al contenido</a>
+
+<header class="header">
+  <div class="header-in">
+    <a class="logo" href="../" aria-label="Andreani, ir al Portal de soluciones">Andreani</a>
+    <span class="ruta"><a href="../">Portal de soluciones</a><span class="ruta__sep" aria-hidden="true">/</span><a href="./">Seguimiento de actividades</a><span class="ruta__sep" aria-hidden="true">/</span><strong>Guía</strong></span>
   </div>
 </header>
 
-<main id="guia-main" class="principal guia" tabindex="-1">
-  <p class="bajada">Una pantalla para ver en qué estamos, qué terminamos, qué está frenado y, sobre todo, qué espera tu OK.</p>
+<section class="hero hero--seg" aria-labelledby="guia-titulo">
+  <svg class="hero-deco" viewBox="0 0 600 600" aria-hidden="true" focusable="false">
+    <circle cx="300" cy="300" r="280"/><circle cx="300" cy="300" r="210"/><circle cx="300" cy="300" r="140"/>
+    <circle class="r" cx="300" cy="300" r="175"/>
+    <g class="g"><circle class="p" cx="300" cy="20" r="7"/><circle class="p" cx="510" cy="300" r="5"/><circle class="p" cx="160" cy="300" r="4"/></g>
+  </svg>
+  <div class="hero-in">
+    <span class="eyebrow anim">Guía de uso</span>
+    <h1 id="guia-titulo" class="anim">Cómo usar el <em>Seguimiento de actividades.</em></h1>
+    <p class="hero-bajada anim">Una pantalla para ver en qué estamos, qué terminamos, qué está frenado y, sobre todo, qué espera tu OK.</p>
+    <div class="hero-cta anim"><a class="btn btn-primary" href="./">Abrir el seguimiento</a></div>
+  </div>
+</section>
 
+<main id="guia-main" class="principal guia" tabindex="-1">
   <section class="panel guia__bloque" aria-labelledby="g-entrar">
     <h2 class="titulo-seccion" id="g-entrar">Cómo entrar</h2>
     <ol class="pasos">
@@ -57,7 +64,8 @@
   <section class="panel guia__bloque" aria-labelledby="g-problemas">
     <h2 class="titulo-seccion" id="g-problemas">Si algo no anda</h2>
     <dl class="guia__lista">
-      <dt>«Falta un permiso en tu clave»</dt><dd>Sumá el repositorio de la memoria a la clave (los pasos están en la misma pantalla) y tocá «Probar de nuevo».</dd>
+      <dt>Me pide la clave aunque ya la había cargado</dt><dd>Este navegador no la tiene guardada: puede haber vencido (GitHub la rechaza y la página la quita), haberse tocado «Desconectar» o estar en otro navegador o perfil. Pegala de nuevo.</dd>
+      <dt>«Falta un permiso en tu clave»</dt><dd>Sumá el repositorio de la memoria a la clave (los pasos están en la misma pantalla) y tocá «Probar de nuevo». Si la clave dice «All repositories», revisá que el dueño («Resource owner») sea Pblsanchez.</dd>
       <dt>«La clave no es válida o venció»</dt><dd>Generá una nueva en GitHub y pegala. Sirve también para la Matriz.</dd>
       <dt>Veo la versión anterior</dt><dd>Recargá con Ctrl+F5.</dd>
       <dt>Desconectar</dt><dd>Quita la clave de este navegador. Ojo: también deja de verse la Matriz hasta que la conectes de nuevo.</dd>
@@ -65,8 +73,11 @@
   </section>
 </main>
 
-<footer class="pie">
-  <span>Los datos se leen en tu navegador con tu clave de GitHub y no se guardan acá.</span>
+<footer class="footer">
+  <div class="footer-in">
+    <span>Andreani · Portal de soluciones · Seguimiento de actividades</span>
+    <span>Los datos se leen en tu navegador con tu clave de GitHub y no se guardan acá.</span>
+  </div>
 </footer>
 </body>
 </html>
