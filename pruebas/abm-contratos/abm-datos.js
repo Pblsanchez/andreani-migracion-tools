@@ -34,7 +34,7 @@
     ] }
   ];
 
-  // Nivel 4: «Condición de entrega» = Formulario Mobile B2B, armado por requisitos (D-071). El B2B 9 no se ofrece (no se migrará).
+  // Nivel 4: «Condición de entrega» = Formulario Mobile B2B, armado por requisitos (D-071; pasa a select en la v0.8 parte 2, D-091). El B2B 9 no se ofrece (no se migrará).
   var REQUISITOS = [
     { id: "dni", grupo: "pide", nombre: "DNI de quien recibe" },
     { id: "firmaSello", grupo: "pide", nombre: "Firma y sello en el remito" },
@@ -106,16 +106,26 @@
     { id: "DEVOLUCION_COBROS", nombre: "Devolución de cobros", obligatoria: false }
   ];
 
+  // Usuario comercial de ejemplo y su cartera (D-088). De dónde sale la cartera lo define el desarrollo de DMS.
+  var COMERCIAL = { usuario: "comercial.ejemplo", nombre: "Usuario comercial (ejemplo)",
+    solicitantes: ["1000045871", "1000051230", "1000060044", "1000081122", "1000092200"] };
+
   // Contratos dados de alta en SAP (ficticios). Se buscan, no se tipean (D-063.1).
+  // B2C: 10 dígitos (4000…). B2B: 9 dígitos, empiezan con 35100 (D-090, D-032).
   var SAP = [
     { nro: "4000100231", desc: "Encomienda Pyme – Estándar", solicitante: "1000045871", razon: "Comercio Ejemplo Uno S.A.", alta: "2026-10-02" },
     { nro: "4000100232", desc: "Encomienda Pyme – Cobranza", solicitante: "1000045871", razon: "Comercio Ejemplo Uno S.A.", alta: "2026-10-02" },
+    { nro: "4000100233", desc: "Encomienda Pyme – Devoluciones", solicitante: "1000045871", razon: "Comercio Ejemplo Uno S.A.", alta: "2026-11-12" },
     { nro: "4000100417", desc: "Encomienda Corporativa – Refrigerado", solicitante: "1000051230", razon: "Laboratorio Demo S.R.L.", alta: "2026-10-15" },
+    { nro: "351000215", desc: "Distribución B2B – Refrigerado", solicitante: "1000051230", razon: "Laboratorio Demo S.R.L.", alta: "2026-11-11" },
     { nro: "4000100502", desc: "E-commerce – Entrega directa", solicitante: "1000060044", razon: "Tienda Ficticia S.A.", alta: "2026-10-28" },
     { nro: "4000100503", desc: "E-commerce – Cambio", solicitante: "1000060044", razon: "Tienda Ficticia S.A.", alta: "2026-10-28" },
-    { nro: "4000100611", desc: "Encomienda Pyme – Estándar", solicitante: "1000070310", razon: "Distribuidora Modelo S.A.", alta: "2026-11-05" },
+    { nro: "4000100610", desc: "Encomienda Pyme – Estándar", solicitante: "1000070310", razon: "Distribuidora Modelo S.A.", alta: "2026-10-20" },
+    { nro: "4000100611", desc: "Encomienda Pyme – Cobranza", solicitante: "1000070310", razon: "Distribuidora Modelo S.A.", alta: "2026-11-05" },
     { nro: "4000100720", desc: "Encomienda Corporativa – Estándar", solicitante: "1000081122", razon: "Industrias Prueba S.A.", alta: "2026-11-10" },
-    { nro: "4000100721", desc: "Encomienda Corporativa – Cobranza", solicitante: "1000081122", razon: "Industrias Prueba S.A.", alta: "2026-11-10" }
+    { nro: "4000100721", desc: "Encomienda Corporativa – Cobranza", solicitante: "1000081122", razon: "Industrias Prueba S.A.", alta: "2026-11-10" },
+    { nro: "351000101", desc: "Distribución B2B – Estándar", solicitante: "1000092200", razon: "Mayorista Ejemplo S.A.", alta: "2026-09-15" },
+    { nro: "351000102", desc: "Distribución B2B – Pallet", solicitante: "1000092200", razon: "Mayorista Ejemplo S.A.", alta: "2026-11-14" }
   ];
 
   function condBase(extra) {
@@ -127,30 +137,43 @@
   }
   var DOMI_A = { calle: "Av. Siempre Viva", numero: "742", localidad: "Ciudad Ejemplo", provincia: "Buenos Aires", cp: "1000" };
   var DOMI_B = { calle: "Calle Falsa", numero: "123", localidad: "Villa Demo", provincia: "Córdoba", cp: "5000" };
+  var DOMI_C = { calle: "Ruta Ficticia", numero: "4500", localidad: "Parque Industrial Demo", provincia: "Santa Fe", cp: "2000" };
+  var DOMI_D = { calle: "Pasaje Modelo", numero: "88", localidad: "Pueblo Ejemplo", provincia: "Mendoza", cp: "5500" };
 
-  // Contratos ya configurados en DMS (ficticios)
+  // Contratos ya configurados en DMS (ficticios). agrupador = contrato del mismo solicitante del que se hereda la rendición (D-089).
   var CONTRATOS = [
     { nro: "4000100231", niveles: { logistica: "1", continente: "3", sla: "1" }, req: ["dni", "fotoRemito"], ciclo: "cv-std",
-      cond: condBase({}), analizar: { poliza: "", tipoEnvio: "", tipoEntrega: "", agrupador: "", finValidez: "9999-12-31" },
+      cond: condBase({}), agrupador: "", poliza: "",
       domicilios: [{ id: "d1", dom: DOMI_A, clases: ["DEVOLUCION", "DEVOLUCION_REMITOS", "REENVIO"] }],
       estado: "habilitado", vigencia: "2026-10-05",
       historial: [{ fecha: "2026-10-05 10:12", usuario: "comercial.ejemplo", accion: "Alta", detalle: "Contrato creado · Habilitado desde 05/10/2026" }] },
     { nro: "4000100232", niveles: { logistica: "1", continente: "3", sla: "1" }, req: ["dni", "fotoRemito", "valores"], ciclo: "cv-std",
-      cond: condBase({ cobranza: true, retiroParcial: true, remito: "Físico" }), analizar: { poliza: "", tipoEnvio: "", tipoEntrega: "", agrupador: "", finValidez: "9999-12-31" },
-      domicilios: [{ id: "d2", dom: DOMI_A, clases: ["DEVOLUCION", "DEVOLUCION_REMITOS", "DEVOLUCION_COBROS"] }],
+      cond: condBase({ cobranza: true, retiroParcial: true, remito: "Físico" }), agrupador: "4000100231", poliza: "",
+      domicilios: [{ id: "d2", dom: DOMI_A, clases: ["DEVOLUCION", "DEVOLUCION_COBROS"] }],
       estado: "habilitado", vigencia: "2026-10-05",
-      historial: [{ fecha: "2026-10-05 10:30", usuario: "comercial.ejemplo", accion: "Alta", detalle: "Contrato creado · Habilitado desde 05/10/2026" }] },
+      historial: [{ fecha: "2026-10-05 10:30", usuario: "comercial.ejemplo", accion: "Alta", detalle: "Contrato creado · Agrupador 4000100231 (hereda la rendición) · Habilitado desde 05/10/2026" }] },
     { nro: "4000100417", niveles: { logistica: "1", continente: "1", sla: "3" }, req: ["dni", "fotoRemito", "insumo"], ciclo: "cv-std",
-      cond: condBase({ frio: true, conservadora: true, aforo: true, remito: "Digital" }), analizar: { poliza: "", tipoEnvio: "", tipoEntrega: "", agrupador: "", finValidez: "9999-12-31" },
+      cond: condBase({ frio: true, conservadora: true, aforo: true, remito: "Digital" }), agrupador: "", poliza: "",
       domicilios: [{ id: "d3", dom: DOMI_B, clases: ["DEVOLUCION", "DEVOLUCION_REMITOS"] }],
       estado: "programado", vigencia: "2026-12-01",
       historial: [{ fecha: "2026-11-12 16:02", usuario: "comercial.demo", accion: "Alta", detalle: "Contrato creado · Vigente desde 01/12/2026" }] },
     { nro: "4000100502", niveles: { logistica: "1", continente: "7", sla: "2" }, req: ["firmaSello", "fotoRemito"], ciclo: "cv-std",
-      cond: condBase({ parcial: true, remito: "Digital" }), analizar: { poliza: "", tipoEnvio: "", tipoEntrega: "", agrupador: "", finValidez: "9999-12-31" },
+      cond: condBase({ parcial: true, remito: "Digital" }), agrupador: "", poliza: "",
       domicilios: [{ id: "d4", dom: DOMI_B, clases: ["DEVOLUCION"] }],
       estado: "deshabilitado", vigencia: "",
-      historial: [{ fecha: "2026-11-03 09:45", usuario: "comercial.demo", accion: "Alta", detalle: "Contrato creado · Deshabilitado (falta domicilio de rendición)" }] }
+      historial: [{ fecha: "2026-11-03 09:45", usuario: "comercial.demo", accion: "Alta", detalle: "Contrato creado · Deshabilitado (falta domicilio de rendición)" }] },
+    { nro: "351000101", niveles: { logistica: "1", continente: "4", sla: "1" }, req: ["firmaSello", "fotoRemito"], ciclo: "cv-std",
+      cond: condBase({ aforo: true, remito: "Físico" }), agrupador: "", poliza: "",
+      domicilios: [{ id: "d5", dom: DOMI_C, clases: ["DEVOLUCION", "DEVOLUCION_REMITOS", "REENVIO"] }],
+      estado: "habilitado", vigencia: "2026-09-20",
+      historial: [{ fecha: "2026-09-20 11:05", usuario: "comercial.ejemplo", accion: "Alta", detalle: "Contrato creado · Habilitado desde 20/09/2026" }] },
+    // Fuera de la cartera del comercial de ejemplo: no se ve en el listado (D-088)
+    { nro: "4000100610", niveles: { logistica: "1", continente: "3", sla: "1" }, req: ["dni", "fotoRemito"], ciclo: "cv-std",
+      cond: condBase({}), agrupador: "", poliza: "",
+      domicilios: [{ id: "d6", dom: DOMI_D, clases: ["DEVOLUCION", "DEVOLUCION_REMITOS"] }],
+      estado: "habilitado", vigencia: "2026-10-22",
+      historial: [{ fecha: "2026-10-22 15:40", usuario: "comercial.otro", accion: "Alta", detalle: "Contrato creado · Habilitado desde 22/10/2026" }] }
   ];
 
-  g.ABM_DATOS = { NIVELES: NIVELES, REQUISITOS: REQUISITOS, FORMULARIOS: FORMULARIOS, CICLOS: CICLOS, BLOQUES: BLOQUES, CONDICIONES: CONDICIONES, CLASES: CLASES, SAP: SAP, CONTRATOS: CONTRATOS };
+  g.ABM_DATOS = { NIVELES: NIVELES, REQUISITOS: REQUISITOS, FORMULARIOS: FORMULARIOS, CICLOS: CICLOS, BLOQUES: BLOQUES, CONDICIONES: CONDICIONES, CLASES: CLASES, COMERCIAL: COMERCIAL, SAP: SAP, CONTRATOS: CONTRATOS };
 })(typeof window !== "undefined" ? window : globalThis);
