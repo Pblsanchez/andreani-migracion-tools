@@ -1,4 +1,4 @@
-/* ABM Contratos DMS · v0.8 parte 4 · Vigencia hasta y vencimiento (D-086). Datos ficticios. */
+/* ABM Contratos DMS · v0.8 parte 4 · Vigencia hasta y vencimiento (D-086) · parte 5: «Vigente desde» se habilita solo al llegar la fecha (D-097). Datos ficticios. */
 (function (g) {
   "use strict";
   var D = g.ABM_DATOS;
@@ -23,9 +23,23 @@
   }
   function texto(b) { return b.estado === "deshabilitado" ? "No aplica (queda deshabilitado)" : b.hasta ? "Vence el " + fmt(b.hasta) : "Sin vencimiento"; }
   function vencido(c, h) { return !!c.hasta && c.hasta <= (h || hoy()); }
-  /* Contratos con «Vigencia hasta» cumplida quedan deshabilitados, con registro en el historial. Devuelve los que cambió. */
+  /* Contratos «Vigente desde» (programados) cuya fecha llegó pasan solos a habilitados, con registro en el historial. Devuelve los que cambió. */
+  function activar(contratos, h) {
+    h = h || hoy(); var out = [];
+    contratos.forEach(function (c) {
+      if (c.estado !== "programado" || !c.vigencia || c.vigencia > h) return;
+      c.estado = "habilitado";
+      c.historial.push({ fecha: c.vigencia + " 00:00", usuario: "DMS (automático)", accion: "Habilitado por vigencia",
+        detalle: "Empezó a regir el " + fmt(c.vigencia) + " (estaba programado «Vigente desde»)." });
+      out.push(c.nro);
+    });
+    return out;
+  }
+  /* Primero activa los programados cuya fecha llegó; después, los que cumplieron «Vigencia hasta» quedan deshabilitados,
+     con registro en el historial. Devuelve los que venció. */
   function vencer(contratos, h) {
     h = h || hoy(); var out = [];
+    activar(contratos, h);
     contratos.forEach(function (c) {
       if (!vencido(c, h) || c.estado === "deshabilitado") return;
       c.estado = "deshabilitado"; c.vigencia = "";
@@ -48,17 +62,18 @@
   /* Al volver a habilitar (D-078): si la fecha ya pasó, se quita */
   function alHabilitar(c, h) { if (vencido(c, h)) { var f = c.hasta; c.hasta = ""; return f; } return ""; }
 
-  /* Datos de ejemplo relativos a hoy (así la demo no envejece): uno que vence pronto y uno ya vencido */
+  /* Datos de ejemplo relativos a hoy (así la demo no envejece): uno que vence pronto, uno ya vencido y uno programado a futuro */
   function sembrar(contratos, h) {
     h = h || hoy();
     contratos.forEach(function (c) {
       if (c.hasta === undefined) c.hasta = "";
+      if (c.nro === "4000100417" && c.estado === "programado") c.vigencia = sumar(h, 12);
       if (c.nro === "4000100231") c.hasta = sumar(h, 20);
       if (c.nro === "351000101") c.hasta = sumar(h, -1);
     });
   }
 
-  var API = g.ABM_VIG = { aplica: aplica, minimo: minimo, faltantes: faltantes, texto: texto, vencido: vencido, vencer: vencer, celda: celda, alHabilitar: alHabilitar, sembrar: sembrar, sumar: sumar, fmt: fmt };
+  var API = g.ABM_VIG = { aplica: aplica, minimo: minimo, faltantes: faltantes, texto: texto, vencido: vencido, activar: activar, vencer: vencer, celda: celda, alHabilitar: alHabilitar, sembrar: sembrar, sumar: sumar, fmt: fmt };
   if (D && D.CONTRATOS) sembrar(D.CONTRATOS);
   if (typeof document === "undefined") return;
 
