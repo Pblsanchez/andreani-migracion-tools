@@ -1,4 +1,4 @@
-/* ABM Contratos DMS · deshabilitar y volver a habilitar un contrato existente (T-007 v0.7, D-078). Datos ficticios. */
+/* ABM Contratos DMS · deshabilitar y volver a habilitar un contrato existente (T-007 v0.7, D-078; v0.8 parte 4: vigencia vencida, D-086). Datos ficticios. */
 (function (g) {
   "use strict";
   function U() { return g.ABM_UI; }
@@ -26,6 +26,7 @@
       "<p>" + (on
         ? "Desde ahora no se van a poder admitir envíos nuevos con este contrato. La configuración queda guardada y lo podés volver a habilitar cuando haga falta."
         : "El contrato vuelve a quedar habilitado desde hoy, con la misma configuración que tenía.") + "</p>" +
+      (!on && g.ABM_VIG && g.ABM_VIG.vencido(c, u.hoyISO()) ? '<p class="small">Tenía «Vigencia hasta» el ' + g.ABM_VIG.fmt(c.hasta) + " y ya venció: al habilitarlo se quita esa fecha y queda sin vencimiento. Si necesitás otra fecha, cargala desde Editar.</p>" : "") +
       '<div class="campo"><label for="motivoEstado">Motivo (opcional, queda en el historial)</label><textarea id="motivoEstado" rows="3" placeholder="' + (on ? "Ej.: el cliente dejó de operar este servicio" : "Ej.: el cliente retoma el servicio") + '"></textarea></div>' +
       '<div class="pie-modal"><button class="btn btn-ghost" data-acc="cerrarModal">Cancelar</button><button class="btn btn-primary" id="confEstado" data-nro="' + u.esc(nro) + '">' + (on ? "Deshabilitar" : "Habilitar desde hoy") + "</button></div></div>";
     document.body.appendChild(m);
@@ -38,8 +39,9 @@
     var on = activo(c); motivo = String(motivo || "").trim();
     c.estado = on ? "deshabilitado" : "habilitado";
     c.vigencia = on ? "" : u.hoyISO();
+    var vieja = !on && g.ABM_VIG ? g.ABM_VIG.alHabilitar(c, u.hoyISO()) : ""; /* D-086: la fecha vencida se quita */
     c.historial.push({ fecha: u.ahora(), usuario: "comercial.ejemplo", accion: on ? "Deshabilitado" : "Habilitado nuevamente",
-      detalle: (on ? "Deshabilitado desde " + u.fmtFecha(u.hoyISO()) : "Habilitado desde " + u.fmtFecha(c.vigencia)) + (motivo ? " · Motivo: " + motivo : "") });
+      detalle: (on ? "Deshabilitado desde " + u.fmtFecha(u.hoyISO()) : "Habilitado desde " + u.fmtFecha(c.vigencia)) + (vieja ? " · Se quitó la vigencia hasta vencida (" + u.fmtFecha(vieja) + ")" : "") + (motivo ? " · Motivo: " + motivo : "") });
     return c.estado;
   }
 
