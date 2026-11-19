@@ -25,7 +25,7 @@ var HERRAMIENTAS = [
     nombre: "ABM Contratos DMS · propuesta",
     descripcion: "Prototipo navegable de cómo nos gustaría dar de alta un contrato por pantalla en DMS: datos de SAP sin tipear, servicio en lenguaje comercial, domicilios una sola vez y vigencia al guardar.",
     para: "Dejar atrás el proceso contingente: dar de alta por pantalla los contratos B2B de hoy y los B2C cuando Integra migre a DMS. Datos de ejemplo, no guarda nada.",
-    version: "v0.8", actualizado: "2026-11-19",
+    version: "v0.9", actualizado: "2026-11-19",
     acciones: [
       { texto: "Ver la presentación", href: "./pruebas/abm-contratos/", estilo: "primary" },
       { texto: "Ir a la demo", href: "./pruebas/abm-contratos/#demo", estilo: "ghost" }
@@ -78,7 +78,8 @@ var PROCESOS = [
 ];
 
 var NOVEDADES = [
-  { fecha: "2026-11-19", titulo: "ABM Contratos DMS · v0.8", texto: "Cartera del comercial, protocolo de entrega para comparar, domicilios sin repetir y vigencia con fecha de inicio y fin." },
+  { fecha: "2026-11-19", titulo: "ABM Contratos DMS · v0.9", texto: "Devolución centralizada a una UO, «Formulario Mobile Entrega», «Contrato agrupador de rendición» y el menú ⋮ del listado siempre a la vista." },
+  { fecha: "2026-11-19", titulo: "ABM Contratos DMS · v0.8", texto: "Cartera del comercial, formulario Mobile de entrega para comparar, domicilios sin repetir y vigencia con fecha de inicio y fin." },
   { fecha: "2026-11-18", titulo: "Seguimiento de actividades · v1.3", texto: "La actividad reciente muestra solo los cambios de las tareas, sin los guardados automáticos de capturas." },
   { fecha: "2026-11-18", titulo: "Seguimiento de actividades", texto: "En qué estamos, qué terminamos y qué espera tu OK, en una sola pantalla. Se entra con la clave de la Matriz." },
   { fecha: "2026-11-18", titulo: "ABM Contratos DMS · v0.7", texto: "Deshabilitar y volver a habilitar contratos desde la edición, y dos ciclos de vida nuevos." },
