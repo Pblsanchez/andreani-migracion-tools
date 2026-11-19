@@ -1,0 +1,38 @@
+/* ABM Contratos DMS · v0.8 · protocolo de entrega, comparar, póliza y contactos (D-087, D-092 a D-095) · paleta D-045 */
+input[type="email"], input[type="tel"] {
+  font-family: var(--c-font-family-body); font-size: 16px; line-height: 24px; height: 40px; padding: 0 var(--c-spacing-3);
+  border: var(--c-border-width-subtle) solid var(--c-color-border-strong); border-radius: var(--c-border-radius-small);
+  background: var(--c-color-surface); color: var(--c-color-text-strong); width: 100%; }
+
+/* Protocolo de entrega */
+.proto-sel { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--c-spacing-3) var(--c-spacing-4); }
+.proto-sel .campo { flex: 1 1 380px; max-width: 560px; }
+.proto-sel .btn { margin-top: 24px; }
+.proto-ficha { display: grid; gap: var(--c-spacing-3); background: var(--c-color-surface-hover); border: var(--c-border-width-subtle) solid var(--c-color-surface-neutral);
+  border-left: var(--c-border-width-strong) solid var(--c-color-border-primary); border-radius: var(--c-border-radius-small); padding: var(--c-spacing-3) var(--c-spacing-4); }
+.proto-grupos { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--c-spacing-3) var(--c-spacing-5); }
+.proto-grupos > div { display: grid; gap: var(--c-spacing-2); align-content: start; }
+.proto-ficha .lbl { font-size: 14px; line-height: 20px; font-weight: 500; color: var(--c-color-text-strong); }
+.chip-req { background: var(--c-color-surface); border: var(--c-border-width-subtle) solid var(--c-color-border-subtle); }
+
+/* Comparar protocolos (modal) */
+.modal-ancho { max-width: 1080px; }
+.filtro-req { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 0 var(--c-spacing-3); }
+.tabla-comp th.c, .tabla-comp td.c { text-align: center; white-space: normal; min-width: 72px; }
+.tabla-comp thead th { vertical-align: bottom; font-size: 12px; line-height: 16px; }
+.tabla-comp thead th .caption { display: block; font-weight: 400; color: var(--c-color-text); }
+.tabla-comp tbody th { background: transparent; white-space: normal; min-width: 220px; font-weight: 400; }
+.tabla-comp .si { color: var(--c-color-text-strong); display: inline-flex; }
+.tabla-comp tr.elegido { background: var(--c-color-surface-primary-subtle); box-shadow: inset 3px 0 0 var(--c-color-border-primary); }
+
+/* Administrativas: póliza y contactos */
+.admin-extra { display: grid; gap: var(--c-spacing-4); padding: var(--c-spacing-4); border-top: var(--c-border-width-subtle) solid var(--c-color-surface-neutral); }
+.contactos { display: grid; gap: var(--c-spacing-3); }
+.lista-cont { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--c-spacing-2); }
+.lista-cont li { display: flex; align-items: center; gap: var(--c-spacing-3); border: var(--c-border-width-subtle) solid var(--c-color-surface-neutral); border-radius: var(--c-border-radius-small); padding: var(--c-spacing-2) var(--c-spacing-3); }
+.lista-cont li > div { flex: 1; }
+.nuevo-cont { border: var(--c-border-width-subtle) dashed var(--c-color-border-strong); border-radius: var(--c-border-radius-small); padding: var(--c-spacing-3) var(--c-spacing-4); margin: 0; display: grid; gap: var(--c-spacing-3); }
+.nuevo-cont legend { font-size: 14px; line-height: 20px; font-weight: 500; color: var(--c-color-text-strong); padding: 0 var(--c-spacing-1); }
+.nuevo-cont .campos { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+
+@media (max-width: 600px) { .proto-sel .btn { margin-top: 0; } }

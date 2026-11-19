@@ -34,31 +34,31 @@
     ] }
   ];
 
-  // Nivel 4: «Condición de entrega» = Formulario Mobile B2B, armado por requisitos (D-071; pasa a select en la v0.8 parte 2, D-091). El B2B 9 no se ofrece (no se migrará).
+  // Nivel 4: «Protocolo de entrega» = Formulario Mobile de DMS (D-091, D-092). Se elige de una lista; los requisitos solo describen qué pide cada uno. El B2B 9 no se ofrece (no se migrará).
   var REQUISITOS = [
-    { id: "dni", grupo: "pide", nombre: "DNI de quien recibe" },
-    { id: "firmaSello", grupo: "pide", nombre: "Firma y sello en el remito" },
-    { id: "firmaSelloDoc", grupo: "pide", nombre: "Firma y sello en la documentación" },
-    { id: "fotoRemito", grupo: "pide", nombre: "Foto del remito" },
-    { id: "fotoHojaRuta", grupo: "pide", nombre: "Foto de la hoja de ruta firmada (retira en depósito)" },
-    { id: "fotoProducto", grupo: "pide", nombre: "Foto del producto retirado" },
-    { id: "valores", grupo: "retira", nombre: "Valores (cobro)" },
-    { id: "documentacion", grupo: "retira", nombre: "Documentación" },
-    { id: "insumo", grupo: "retira", nombre: "Insumo (conservadora retornable)" }
+    { id: "dni", grupo: "pide", nombre: "DNI de quien recibe", corto: "DNI" },
+    { id: "firmaSello", grupo: "pide", nombre: "Firma y sello en el remito", corto: "Firma y sello" },
+    { id: "firmaSelloDoc", grupo: "pide", nombre: "Firma y sello en la documentación", corto: "Firma en documentación" },
+    { id: "fotoRemito", grupo: "pide", nombre: "Foto del remito", corto: "Foto del remito" },
+    { id: "fotoHojaRuta", grupo: "pide", nombre: "Foto de la hoja de ruta firmada (retira en depósito)", corto: "Foto hoja de ruta" },
+    { id: "fotoProducto", grupo: "pide", nombre: "Foto del producto retirado", corto: "Foto del producto" },
+    { id: "valores", grupo: "retira", nombre: "Valores (cobro)", corto: "Cobro" },
+    { id: "documentacion", grupo: "retira", nombre: "Documentación", corto: "Documentación" },
+    { id: "insumo", grupo: "retira", nombre: "Insumo (conservadora retornable)", corto: "Insumo" }
   ];
   var FORMULARIOS = [
-    { cod: "1", dms: "Formulario B2B 1", req: ["fotoRemito"] },
-    { cod: "2", dms: "Formulario B2B 2", req: ["dni", "fotoRemito"] },
-    { cod: "3", dms: "Formulario B2B 3", req: ["dni", "fotoRemito", "valores"] },
-    { cod: "4", dms: "Formulario B2B 4", req: ["dni", "fotoRemito", "documentacion"] },
-    { cod: "5", dms: "Formulario B2B 5", req: ["dni", "fotoRemito", "insumo"] },
-    { cod: "6", dms: "Formulario B2B 6", req: ["firmaSello", "fotoRemito", "insumo"] },
-    { cod: "7", dms: "Formulario B2B 7", req: ["firmaSello", "fotoRemito"] },
-    { cod: "8", dms: "Formulario B2B 8", req: ["fotoHojaRuta"] },
-    { cod: "10", dms: "Formulario B2B 10", req: ["dni", "firmaSelloDoc", "fotoRemito"] },
-    { cod: "11", dms: "Formulario B2B 11", req: ["dni", "firmaSello", "fotoRemito", "valores"] },
-    { cod: "12", dms: "Formulario B2B 12", req: ["dni", "firmaSello", "fotoRemito", "valores", "insumo"] },
-    { cod: "13", dms: "Formulario B2B 13", req: ["fotoProducto"] }
+    { cod: "1", dms: "Formulario B2B 1", nombre: "Foto del remito", req: ["fotoRemito"] },
+    { cod: "2", dms: "Formulario B2B 2", nombre: "DNI y foto del remito", req: ["dni", "fotoRemito"] },
+    { cod: "3", dms: "Formulario B2B 3", nombre: "DNI, foto del remito y cobro", req: ["dni", "fotoRemito", "valores"] },
+    { cod: "4", dms: "Formulario B2B 4", nombre: "DNI, foto del remito y retiro de documentación", req: ["dni", "fotoRemito", "documentacion"] },
+    { cod: "5", dms: "Formulario B2B 5", nombre: "DNI, foto del remito y retiro de insumo", req: ["dni", "fotoRemito", "insumo"] },
+    { cod: "6", dms: "Formulario B2B 6", nombre: "Firma y sello, foto del remito y retiro de insumo", req: ["firmaSello", "fotoRemito", "insumo"] },
+    { cod: "7", dms: "Formulario B2B 7", nombre: "Firma y sello con foto del remito", req: ["firmaSello", "fotoRemito"] },
+    { cod: "8", dms: "Formulario B2B 8", nombre: "Retiro en depósito con hoja de ruta firmada", req: ["fotoHojaRuta"] },
+    { cod: "10", dms: "Formulario B2B 10", nombre: "DNI, firma en la documentación y foto del remito", req: ["dni", "firmaSelloDoc", "fotoRemito"] },
+    { cod: "11", dms: "Formulario B2B 11", nombre: "DNI, firma y sello, foto del remito y cobro", req: ["dni", "firmaSello", "fotoRemito", "valores"] },
+    { cod: "12", dms: "Formulario B2B 12", nombre: "DNI, firma y sello, foto del remito, cobro e insumo", req: ["dni", "firmaSello", "fotoRemito", "valores", "insumo"] },
+    { cod: "13", dms: "Formulario B2B 13", nombre: "Foto del producto retirado", req: ["fotoProducto"] }
   ];
 
   // Ciclos de vida de ejemplo (D-068, D-075): código + descripción coloquial
@@ -70,29 +70,30 @@
     { id: "cv-03", codigo: "B-3 , B-2", nombre: "Retiro en domicilio · 2 visitas sin custodia" }
   ];
 
-  // Condiciones: 16 interruptores de hoy agrupados en 3 bloques (D-067.1). "dms" = nombre actual en DMS.
+  // Condiciones de hoy agrupadas en bloques (D-067.1). "dms" = nombre actual en DMS. La cadena de frío la da el tipo de carga (D-084); sin comprobante ni gestión telefónica (D-085).
   var BLOQUES = [
     { id: "admision", nombre: "Admisión", desc: "Cómo entra el envío a la red." },
+    { id: "frio", nombre: "Cadena de frío", desc: "Solo existe con un tipo de carga de frío.", soloFrio: true },
     { id: "acciones", nombre: "Acciones sobre el envío", desc: "Qué se puede hacer con el envío una vez admitido." },
-    { id: "admin", nombre: "Administrativas", desc: "Cobros y valores." }
+    { id: "admin", nombre: "Administrativas", desc: "Cobros, póliza y contactos." }
   ];
   var CONDICIONES = [
     { id: "admAuto", bloque: "admision", nombre: "Admisión automática", dms: ["Admisión automática"], ayuda: "Los envíos se admiten sin control manual en el ingreso." },
     { id: "aforo", bloque: "admision", nombre: "Aforo obligatorio", dms: ["Aforo obligatorio"], ayuda: "Se exige pesar y medir cada bulto al admitirlo." },
-    { id: "frio", bloque: "admision", nombre: "Cadena de frío", dms: ["Tiene cadena de frío"], ayuda: "El envío viaja refrigerado de punta a punta." },
-    { id: "conservadora", bloque: "admision", nombre: "Conservadora cerrada por el cliente", dms: ["Conservadora cerrada por el cliente"], ayuda: "El cliente entrega la conservadora cerrada y no se abre en la operación." },
+    { id: "conservadora", bloque: "frio", nombre: "Conservadora cerrada por el cliente", dms: ["Conservadora cerrada por el cliente"], ayuda: "El cliente entrega la conservadora cerrada y no se abre en la operación." },
     { id: "almacenamiento", bloque: "admision", nombre: "Almacenamiento", dms: ["Permite almacenamiento"], ayuda: "Los envíos pueden quedar guardados en planta antes de salir a distribución." },
     { id: "remito", bloque: "admision", tipo: "opciones", nombre: "Remito", dms: ["Tiene remito"], opciones: ["Digital", "Físico", "Sin remito"], ayuda: "Cómo viaja el remito del cliente. Hoy DMS solo permite sí / no." },
     { id: "rescate", bloque: "acciones", nombre: "Rescate", dms: ["Permite rescate"], ayuda: "El cliente puede pedir recuperar el envío antes de la entrega." },
     { id: "cambio", bloque: "acciones", nombre: "Cambio", dms: ["Tiene cambio"], ayuda: "En la misma visita se entrega un producto y se retira otro." },
     { id: "parcial", bloque: "acciones", nombre: "Entrega parcial", dms: ["Permite entrega parcial"], ayuda: "Se puede entregar una parte de los bultos del envío." },
-    { id: "contingencia", bloque: "acciones", nombre: "Contingencia", dms: ["Permite contingencia"], ayuda: "El envío puede operarse con el procedimiento de contingencia." },
+    { id: "contingencia", bloque: "frio", nombre: "Contingencia", dms: ["Permite contingencia"], ayuda: "El envío puede operarse con el procedimiento de contingencia." },
     { id: "fecha", bloque: "acciones", nombre: "Actualizar fecha pactada", dms: ["Permite actualizar la fecha pactada"], ayuda: "Se puede reprogramar la fecha acordada con el destinatario." },
-    { id: "comprobante", bloque: "acciones", nombre: "Imprimir comprobante de entrega", dms: ["Permite imprimir comprobante de entrega"], ayuda: "Se puede imprimir la constancia de entrega." },
-    { id: "telefonica", bloque: "acciones", nombre: "Gestión telefónica", dms: ["Permite gestión telefónica", "Tiene gestión telefónica"], ayuda: "Se contacta por teléfono al destinatario para coordinar la entrega. Reúne los 2 interruptores que hoy parecen duplicados." },
     { id: "cobranza", bloque: "admin", nombre: "Gestión de cobranza", dms: ["Tiene gestión cobranza"], ayuda: "Se cobran valores al destinatario en la entrega." },
     { id: "retiroParcial", bloque: "admin", nombre: "Retiro parcial de valores", dms: ["Pemite retiro parcial de valores"], depende: "cobranza", ayuda: "Los valores cobrados se pueden retirar en partes. Solo aplica con gestión de cobranza." }
   ];
+
+  // Contactos para notificaciones o comunicación (D-087): opcionales, suelen ser del cliente o del destinatario
+  var CONTACTO = { de: ["Cliente", "Destinatario", "Otro"], tipos: [{ id: "mail", nombre: "Mail" }, { id: "tel", nombre: "Teléfono" }], usos: ["Notificaciones", "Comunicación"] };
 
   // Clases de domicilio (D-065): lista de Pablo; obligatorias = las marcadas con *. A validar con el equipo DMS.
   var CLASES = [
@@ -129,8 +130,8 @@
   ];
 
   function condBase(extra) {
-    var c = { admAuto: true, aforo: false, frio: false, conservadora: false, almacenamiento: false, remito: "Digital",
-      rescate: true, cambio: false, parcial: false, contingencia: true, fecha: true, comprobante: true, telefonica: true,
+    var c = { admAuto: true, aforo: false, conservadora: false, almacenamiento: false, remito: "Digital",
+      rescate: true, cambio: false, parcial: false, contingencia: false, fecha: true,
       cobranza: false, retiroParcial: false };
     for (var k in extra) c[k] = extra[k];
     return c;
@@ -142,38 +143,40 @@
 
   // Contratos ya configurados en DMS (ficticios). agrupador = contrato del mismo solicitante del que se hereda la rendición (D-089).
   var CONTRATOS = [
-    { nro: "4000100231", niveles: { logistica: "1", continente: "3", sla: "1" }, req: ["dni", "fotoRemito"], ciclo: "cv-std",
-      cond: condBase({}), agrupador: "", poliza: "",
+    { nro: "4000100231", niveles: { logistica: "1", continente: "3", sla: "1" }, form: "2", ciclo: "cv-std",
+      cond: condBase({}), agrupador: "", poliza: "", contactos: [],
       domicilios: [{ id: "d1", dom: DOMI_A, clases: ["DEVOLUCION", "DEVOLUCION_REMITOS", "REENVIO"] }],
       estado: "habilitado", vigencia: "2026-10-05",
       historial: [{ fecha: "2026-10-05 10:12", usuario: "comercial.ejemplo", accion: "Alta", detalle: "Contrato creado · Habilitado desde 05/10/2026" }] },
-    { nro: "4000100232", niveles: { logistica: "1", continente: "3", sla: "1" }, req: ["dni", "fotoRemito", "valores"], ciclo: "cv-std",
-      cond: condBase({ cobranza: true, retiroParcial: true, remito: "Físico" }), agrupador: "4000100231", poliza: "",
+    { nro: "4000100232", niveles: { logistica: "1", continente: "3", sla: "1" }, form: "3", ciclo: "cv-std",
+      cond: condBase({ cobranza: true, retiroParcial: true, remito: "Físico" }), agrupador: "4000100231", poliza: "", contactos: [],
       domicilios: [{ id: "d2", dom: DOMI_A, clases: ["DEVOLUCION", "DEVOLUCION_COBROS"] }],
       estado: "habilitado", vigencia: "2026-10-05",
       historial: [{ fecha: "2026-10-05 10:30", usuario: "comercial.ejemplo", accion: "Alta", detalle: "Contrato creado · Agrupador 4000100231 (hereda la rendición) · Habilitado desde 05/10/2026" }] },
-    { nro: "4000100417", niveles: { logistica: "1", continente: "1", sla: "3" }, req: ["dni", "fotoRemito", "insumo"], ciclo: "cv-std",
-      cond: condBase({ frio: true, conservadora: true, aforo: true, remito: "Digital" }), agrupador: "", poliza: "",
+    { nro: "4000100417", niveles: { logistica: "1", continente: "1", sla: "3" }, form: "5", ciclo: "cv-std",
+      cond: condBase({ conservadora: true, contingencia: true, aforo: true, remito: "Digital" }), agrupador: "", poliza: "000123-45",
+      contactos: [{ id: "k1", nombre: "Mesa de ayuda", de: "Cliente", tipo: "mail", dato: "avisos@laboratorio-demo.example", uso: "Notificaciones" },
+        { id: "k2", nombre: "Recepción del depósito", de: "Destinatario", tipo: "tel", dato: "011 5555-0100", uso: "Comunicación" }],
       domicilios: [{ id: "d3", dom: DOMI_B, clases: ["DEVOLUCION", "DEVOLUCION_REMITOS"] }],
       estado: "programado", vigencia: "2026-12-01",
       historial: [{ fecha: "2026-11-12 16:02", usuario: "comercial.demo", accion: "Alta", detalle: "Contrato creado · Vigente desde 01/12/2026" }] },
-    { nro: "4000100502", niveles: { logistica: "1", continente: "7", sla: "2" }, req: ["firmaSello", "fotoRemito"], ciclo: "cv-std",
-      cond: condBase({ parcial: true, remito: "Digital" }), agrupador: "", poliza: "",
+    { nro: "4000100502", niveles: { logistica: "1", continente: "7", sla: "2" }, form: "7", ciclo: "cv-std",
+      cond: condBase({ parcial: true, remito: "Digital" }), agrupador: "", poliza: "", contactos: [],
       domicilios: [{ id: "d4", dom: DOMI_B, clases: ["DEVOLUCION"] }],
       estado: "deshabilitado", vigencia: "",
       historial: [{ fecha: "2026-11-03 09:45", usuario: "comercial.demo", accion: "Alta", detalle: "Contrato creado · Deshabilitado (falta domicilio de rendición)" }] },
-    { nro: "351000101", niveles: { logistica: "1", continente: "4", sla: "1" }, req: ["firmaSello", "fotoRemito"], ciclo: "cv-std",
-      cond: condBase({ aforo: true, remito: "Físico" }), agrupador: "", poliza: "",
+    { nro: "351000101", niveles: { logistica: "1", continente: "4", sla: "1" }, form: "7", ciclo: "cv-std",
+      cond: condBase({ aforo: true, remito: "Físico" }), agrupador: "", poliza: "", contactos: [],
       domicilios: [{ id: "d5", dom: DOMI_C, clases: ["DEVOLUCION", "DEVOLUCION_REMITOS", "REENVIO"] }],
       estado: "habilitado", vigencia: "2026-09-20",
       historial: [{ fecha: "2026-09-20 11:05", usuario: "comercial.ejemplo", accion: "Alta", detalle: "Contrato creado · Habilitado desde 20/09/2026" }] },
     // Fuera de la cartera del comercial de ejemplo: no se ve en el listado (D-088)
-    { nro: "4000100610", niveles: { logistica: "1", continente: "3", sla: "1" }, req: ["dni", "fotoRemito"], ciclo: "cv-std",
-      cond: condBase({}), agrupador: "", poliza: "",
+    { nro: "4000100610", niveles: { logistica: "1", continente: "3", sla: "1" }, form: "2", ciclo: "cv-std",
+      cond: condBase({}), agrupador: "", poliza: "", contactos: [],
       domicilios: [{ id: "d6", dom: DOMI_D, clases: ["DEVOLUCION", "DEVOLUCION_REMITOS"] }],
       estado: "habilitado", vigencia: "2026-10-22",
       historial: [{ fecha: "2026-10-22 15:40", usuario: "comercial.otro", accion: "Alta", detalle: "Contrato creado · Habilitado desde 22/10/2026" }] }
   ];
 
-  g.ABM_DATOS = { NIVELES: NIVELES, REQUISITOS: REQUISITOS, FORMULARIOS: FORMULARIOS, CICLOS: CICLOS, BLOQUES: BLOQUES, CONDICIONES: CONDICIONES, CLASES: CLASES, COMERCIAL: COMERCIAL, SAP: SAP, CONTRATOS: CONTRATOS };
+  g.ABM_DATOS = { NIVELES: NIVELES, REQUISITOS: REQUISITOS, FORMULARIOS: FORMULARIOS, CICLOS: CICLOS, BLOQUES: BLOQUES, CONDICIONES: CONDICIONES, CLASES: CLASES, CONTACTO: CONTACTO, COMERCIAL: COMERCIAL, SAP: SAP, CONTRATOS: CONTRATOS };
 })(typeof window !== "undefined" ? window : globalThis);
