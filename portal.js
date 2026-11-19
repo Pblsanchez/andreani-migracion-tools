@@ -46,7 +46,7 @@ var HERRAMIENTAS = [
     nombre: "Seguimiento de actividades",
     descripcion: "En qué estamos, qué terminamos, qué está frenado y qué espera el OK de Pablo, en una sola pantalla. Lee el índice de tareas y los últimos cambios cada vez que entrás.",
     para: "Ver cómo vienen todas las tareas sin tener que preguntar. Se entra con la misma clave de GitHub de la Matriz; sin clave no muestra nada.",
-    version: "v1.2", actualizado: "2026-11-18",
+    version: "v1.3", actualizado: "2026-11-18",
     acciones: [
       { texto: "Abrir", href: "./seguimiento/", estilo: "primary" },
       { texto: "Guía de uso", href: "./seguimiento/guia.html", estilo: "ghost" }
@@ -78,6 +78,7 @@ var PROCESOS = [
 ];
 
 var NOVEDADES = [
+  { fecha: "2026-11-18", titulo: "Seguimiento de actividades · v1.3", texto: "La actividad reciente muestra solo los cambios de las tareas, sin los guardados automáticos de capturas." },
   { fecha: "2026-11-18", titulo: "Seguimiento de actividades", texto: "En qué estamos, qué terminamos y qué espera tu OK, en una sola pantalla. Se entra con la clave de la Matriz." },
   { fecha: "2026-11-18", titulo: "ABM Contratos DMS · v0.7", texto: "Deshabilitar y volver a habilitar contratos desde la edición, y dos ciclos de vida nuevos." },
   { fecha: "2026-11-18", titulo: "Portal renovado", texto: "Ya no es solo de la migración: suma el alta de contratos en DMS, filtros por proceso y el ABM de Contratos." },
