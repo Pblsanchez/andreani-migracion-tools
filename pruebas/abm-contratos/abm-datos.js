@@ -34,7 +34,7 @@
     ] }
   ];
 
-  // Nivel 4: «Protocolo de entrega» = Formulario Mobile de DMS (D-091, D-092). Se elige de una lista; los requisitos solo describen qué pide cada uno. El B2B 9 no se ofrece (no se migrará).
+  // Nivel 4: «Formulario Mobile Entrega» = Formulario Mobile de DMS (D-091, D-100). Se elige de una lista; los requisitos solo describen qué pide cada uno. El B2B 9 no se ofrece (no se migrará).
   var REQUISITOS = [
     { id: "dni", grupo: "pide", nombre: "DNI de quien recibe", corto: "DNI" },
     { id: "firmaSello", grupo: "pide", nombre: "Firma y sello en el remito", corto: "Firma y sello" },
@@ -88,14 +88,24 @@
     { id: "parcial", bloque: "acciones", nombre: "Entrega parcial", dms: ["Permite entrega parcial"], ayuda: "Se puede entregar una parte de los bultos del envío." },
     { id: "contingencia", bloque: "frio", nombre: "Contingencia", dms: ["Permite contingencia"], ayuda: "El envío puede operarse con el procedimiento de contingencia." },
     { id: "fecha", bloque: "acciones", nombre: "Actualizar fecha pactada", dms: ["Permite actualizar la fecha pactada"], ayuda: "Se puede reprogramar la fecha acordada con el destinatario." },
+    // D-099: devolución centralizada en la UO elegida (último lugar de «Acciones sobre el envío»); reemplaza la clase de domicilio DEVOLUCION_CENTRALIZADA
+    { id: "devCentral", bloque: "acciones", nombre: "Devolución centralizada", dms: ["Clase de domicilio DEVOLUCION_CENTRALIZADA"], ayuda: "Lo que no se entrega vuelve a una UO de logística inversa, en lugar de a un domicilio del cliente." },
+    { id: "uoDevCentral", bloque: "acciones", tipo: "uo", nombre: "UO de devolución centralizada", dms: ["No existe: hoy se carga como domicilio"], depende: "devCentral", ayuda: "La UO que recibe las devoluciones de este contrato. Solo aparecen las UO habilitadas para este proceso." },
     { id: "cobranza", bloque: "admin", nombre: "Gestión de cobranza", dms: ["Tiene gestión cobranza"], ayuda: "Se cobran valores al destinatario en la entrega." },
     { id: "retiroParcial", bloque: "admin", nombre: "Retiro parcial de valores", dms: ["Pemite retiro parcial de valores"], depende: "cobranza", ayuda: "Los valores cobrados se pueden retirar en partes. Solo aplica con gestión de cobranza." }
+  ];
+
+  // UO habilitadas para devolución centralizada (D-099). Nombres dados por Pablo; la lista real la define DMS.
+  var UOS = [
+    { cod: "102", nombre: "Logística Inversa ZS" },
+    { cod: "2", nombre: "Benavidez C. Distribucion" }
   ];
 
   // Contactos para notificaciones o comunicación (D-087): opcionales, suelen ser del cliente o del destinatario
   var CONTACTO = { de: ["Cliente", "Destinatario", "Otro"], tipos: [{ id: "mail", nombre: "Mail" }, { id: "tel", nombre: "Teléfono" }], usos: ["Notificaciones", "Comunicación"] };
 
   // Clases de domicilio (D-065): lista de Pablo; obligatorias = las marcadas con *. A validar con el equipo DMS.
+  // DEVOLUCION_CENTRALIZADA sale de los domicilios: se resuelve con «Devolución centralizada» + UO en el paso 2 (D-099).
   var CLASES = [
     { id: "DEVOLUCION", nombre: "Devolución", obligatoria: true },
     { id: "DEVOLUCION_REMITOS", nombre: "Devolución de remitos (rendición)", obligatoria: true },
@@ -103,7 +113,6 @@
     { id: "REENVIO", nombre: "Reenvío", obligatoria: false },
     { id: "DESTRUCCION", nombre: "Destrucción", obligatoria: false },
     { id: "SINIESTRO", nombre: "Siniestro", obligatoria: false },
-    { id: "DEVOLUCION_CENTRALIZADA", nombre: "Devolución centralizada", obligatoria: false },
     { id: "DEVOLUCION_COBROS", nombre: "Devolución de cobros", obligatoria: false }
   ];
 
@@ -131,7 +140,7 @@
 
   function condBase(extra) {
     var c = { admAuto: true, aforo: false, conservadora: false, almacenamiento: false, remito: "Digital",
-      rescate: true, cambio: false, parcial: false, contingencia: false, fecha: true,
+      rescate: true, cambio: false, parcial: false, contingencia: false, fecha: true, devCentral: false, uoDevCentral: "",
       cobranza: false, retiroParcial: false };
     for (var k in extra) c[k] = extra[k];
     return c;
@@ -141,10 +150,10 @@
   var DOMI_C = { calle: "Ruta Ficticia", numero: "4500", localidad: "Parque Industrial Demo", provincia: "Santa Fe", cp: "2000" };
   var DOMI_D = { calle: "Pasaje Modelo", numero: "88", localidad: "Pueblo Ejemplo", provincia: "Mendoza", cp: "5500" };
 
-  // Contratos ya configurados en DMS (ficticios). agrupador = contrato del mismo solicitante del que se hereda la rendición (D-089).
+  // Contratos ya configurados en DMS (ficticios). agrupador = contrato del mismo solicitante del que se hereda la rendición (D-089, D-098).
   var CONTRATOS = [
     { nro: "4000100231", niveles: { logistica: "1", continente: "3", sla: "1" }, form: "2", ciclo: "cv-std",
-      cond: condBase({}), agrupador: "", poliza: "", contactos: [],
+      cond: condBase({ devCentral: true, uoDevCentral: "102" }), agrupador: "", poliza: "", contactos: [],
       domicilios: [{ id: "d1", dom: DOMI_A, clases: ["DEVOLUCION", "DEVOLUCION_REMITOS", "REENVIO"] }],
       estado: "habilitado", vigencia: "2026-10-05",
       historial: [{ fecha: "2026-10-05 10:12", usuario: "comercial.ejemplo", accion: "Alta", detalle: "Contrato creado · Habilitado desde 05/10/2026" }] },
@@ -152,7 +161,7 @@
       cond: condBase({ cobranza: true, retiroParcial: true, remito: "Físico" }), agrupador: "4000100231", poliza: "", contactos: [],
       domicilios: [{ id: "d2", dom: DOMI_A, clases: ["DEVOLUCION", "DEVOLUCION_COBROS"] }],
       estado: "habilitado", vigencia: "2026-10-05",
-      historial: [{ fecha: "2026-10-05 10:30", usuario: "comercial.ejemplo", accion: "Alta", detalle: "Contrato creado · Agrupador 4000100231 (hereda la rendición) · Habilitado desde 05/10/2026" }] },
+      historial: [{ fecha: "2026-10-05 10:30", usuario: "comercial.ejemplo", accion: "Alta", detalle: "Contrato creado · Agrupador de rendición 4000100231 · Habilitado desde 05/10/2026" }] },
     { nro: "4000100417", niveles: { logistica: "1", continente: "1", sla: "3" }, form: "5", ciclo: "cv-std",
       cond: condBase({ conservadora: true, contingencia: true, aforo: true, remito: "Digital" }), agrupador: "", poliza: "000123-45",
       contactos: [{ id: "k1", nombre: "Mesa de ayuda", de: "Cliente", tipo: "mail", dato: "avisos@laboratorio-demo.example", uso: "Notificaciones" },
@@ -178,5 +187,5 @@
       historial: [{ fecha: "2026-10-22 15:40", usuario: "comercial.otro", accion: "Alta", detalle: "Contrato creado · Habilitado desde 22/10/2026" }] }
   ];
 
-  g.ABM_DATOS = { NIVELES: NIVELES, REQUISITOS: REQUISITOS, FORMULARIOS: FORMULARIOS, CICLOS: CICLOS, BLOQUES: BLOQUES, CONDICIONES: CONDICIONES, CLASES: CLASES, CONTACTO: CONTACTO, COMERCIAL: COMERCIAL, SAP: SAP, CONTRATOS: CONTRATOS };
+  g.ABM_DATOS = { NIVELES: NIVELES, REQUISITOS: REQUISITOS, FORMULARIOS: FORMULARIOS, CICLOS: CICLOS, BLOQUES: BLOQUES, CONDICIONES: CONDICIONES, UOS: UOS, CLASES: CLASES, CONTACTO: CONTACTO, COMERCIAL: COMERCIAL, SAP: SAP, CONTRATOS: CONTRATOS };
 })(typeof window !== "undefined" ? window : globalThis);

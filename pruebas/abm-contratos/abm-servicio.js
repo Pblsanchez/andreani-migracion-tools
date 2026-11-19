@@ -1,4 +1,4 @@
-/* ABM Contratos DMS · v0.8 · Protocolo de entrega (D-091, D-092, D-095) + póliza y contactos (D-087, D-093). Datos ficticios. */
+/* ABM Contratos DMS · v0.9 · Formulario Mobile Entrega (D-091, D-095, D-100) + póliza y contactos (D-087, D-093). Datos ficticios. */
 (function (g) {
   "use strict";
   var D = g.ABM_DATOS;
@@ -6,7 +6,8 @@
 
   /* ---------- lógica pura ---------- */
   function proto(cod) { for (var i = 0; i < D.FORMULARIOS.length; i++) if (D.FORMULARIOS[i].cod === cod) return D.FORMULARIOS[i]; return null; }
-  function nombreProto(f) { return f ? "Protocolo " + f.cod + " · " + f.nombre : "—"; }
+  function corto(f) { return f ? "Formulario " + f.cod : ""; }
+  function nombreProto(f) { return f ? corto(f) + " · " + f.nombre : "—"; }
   function reqDe(cod) { var f = proto(cod); return f ? f.req : []; }
   function req(id) { for (var i = 0; i < D.REQUISITOS.length; i++) if (D.REQUISITOS[i].id === id) return D.REQUISITOS[i]; return { id: id, nombre: id, corto: id, grupo: "" }; }
   function textoProto(cod) {
@@ -14,7 +15,7 @@
       t = r.filter(function (x) { return req(x).grupo === "retira"; }).map(function (x) { return req(x).nombre; });
     return (p.length ? "Pide: " + p.join(", ") : "") + (p.length && t.length ? " · " : "") + (t.length ? "Retira: " + t.join(", ") : "");
   }
-  /* Protocolo más parecido al actual que incluya «con» y no incluya «sin» (para los avisos con arreglo en un clic, D-075) */
+  /* Formulario más parecido al actual que incluya «con» y no incluya «sin» (para los avisos con arreglo en un clic, D-075) */
   function cercano(cod, con, sin) {
     var base = reqDe(cod), mejor = null, dm = 1e9;
     D.FORMULARIOS.forEach(function (f) {
@@ -41,7 +42,7 @@
     return lista.map(function (x) { return x.nombre + " (" + x.de + " · " + tipoNombre(x.tipo) + " " + x.dato + " · " + x.uso + ")"; }).join("; ");
   }
 
-  var API = g.ABM_SERVICIO = { proto: proto, nombreProto: nombreProto, reqDe: reqDe, textoProto: textoProto, cercano: cercano, filtrar: filtrar,
+  var API = g.ABM_SERVICIO = { proto: proto, corto: corto, nombreProto: nombreProto, reqDe: reqDe, textoProto: textoProto, cercano: cercano, filtrar: filtrar,
     validarContacto: validarContacto, textoContactos: textoContactos, tipoNombre: tipoNombre };
   if (typeof document === "undefined") return;
 
@@ -58,46 +59,45 @@
   }
   function vProtocolo(b) {
     var f = proto(b.form);
-    var h = '<div class="campo proto" style="gap:12px"><h3>Protocolo de entrega <span class="caption">(DMS: Formulario Mobile)</span></h3>' +
+    var h = '<div class="campo proto" style="gap:12px"><h3>Formulario Mobile Entrega</h3>' +
       '<p class="small">Qué tiene que hacer el repartidor al entregar: qué pide y qué retira. Sirve para los dos canales.</p>' +
-      '<div class="proto-sel"><div class="campo"><label for="proto">Protocolo de entrega</label><select id="proto" aria-describedby="proto-a"><option value="">Elegir…</option>' +
+      '<div class="proto-sel"><div class="campo"><label for="proto">Formulario Mobile Entrega</label><select id="proto" aria-describedby="proto-a"><option value="">Elegir…</option>' +
       D.FORMULARIOS.map(function (x) { return '<option value="' + x.cod + '"' + (b.form === x.cod ? " selected" : "") + ">" + esc(nombreProto(x)) + "</option>"; }).join("") +
       '</select><span class="ayuda" id="proto-a">¿No sabés cuál te sirve? Compará qué pide cada uno y elegilo desde ahí.</span></div>' +
-      '<button type="button" class="btn btn-secondary" id="btnComparar" data-srv="comparar">Comparar protocolos</button></div>';
-    if (f) h += '<div class="proto-ficha" aria-live="polite"><h4>Qué pide el ' + esc("Protocolo " + f.cod) + '</h4><div class="proto-grupos">' +
+      '<button type="button" class="btn btn-secondary" id="btnComparar" data-srv="comparar">Comparar formularios</button></div>';
+    if (f) h += '<div class="proto-ficha" aria-live="polite"><h4>Qué pide el ' + esc(corto(f)) + '</h4><div class="proto-grupos">' +
       '<div><span class="lbl">Al entregar pide</span><div class="chips">' + chipsDe(f.req, "pide") + "</div></div>" +
-      '<div><span class="lbl">Además retira</span><div class="chips">' + chipsDe(f.req, "retira") + "</div></div></div>" +
-      '<span class="caption">En DMS: ' + esc(f.dms) + " (código " + esc(f.cod) + ")</span></div>";
+      '<div><span class="lbl">Además retira</span><div class="chips">' + chipsDe(f.req, "retira") + "</div></div></div></div>";
     return h + "</div>";
   }
 
   function filasComparar(b) {
     var fs = filtrar(filtro);
-    if (!fs.length) return '<tr><td colspan="' + (D.REQUISITOS.length + 2) + '">Ningún protocolo pide todo eso junto. Sacá alguno de los filtros.</td></tr>';
+    if (!fs.length) return '<tr><td colspan="' + (D.REQUISITOS.length + 2) + '">Ningún formulario pide todo eso junto. Sacá alguno de los filtros.</td></tr>';
     return fs.map(function (f) {
       var el = b.form === f.cod;
-      return "<tr" + (el ? ' class="elegido"' : "") + '><th scope="row"><span class="strong">Protocolo ' + esc(f.cod) + '</span><br><span class="caption">' + esc(f.nombre) + "</span></th>" +
+      return "<tr" + (el ? ' class="elegido"' : "") + '><th scope="row"><span class="strong">' + esc(corto(f)) + '</span><br><span class="caption">' + esc(f.nombre) + "</span></th>" +
         D.REQUISITOS.map(function (r) { var si = f.req.indexOf(r.id) >= 0; return '<td class="c">' + (si ? '<span class="si">' + OK + '<span class="sr-only">Sí</span></span>' : '<span aria-hidden="true">—</span><span class="sr-only">No</span>') + "</td>"; }).join("") +
-        '<td class="acc">' + (el ? '<span class="chip chip-marca">Elegido</span>' : '<button type="button" class="btn btn-secondary btn-sm" data-srv="elegir" data-cod="' + f.cod + '" aria-label="Elegir Protocolo ' + esc(f.cod) + '">Elegir este</button>') + "</td></tr>";
+        '<td class="acc">' + (el ? '<span class="chip chip-marca">Elegido</span>' : '<button type="button" class="btn btn-secondary btn-sm" data-srv="elegir" data-cod="' + f.cod + '" aria-label="Elegir ' + esc(corto(f)) + '">Elegir este</button>') + "</td></tr>";
     }).join("");
   }
   function abrirComparar() {
     var b = UI().S.b; ultimoFoco = document.getElementById("btnComparar");
     var m = document.createElement("div"); m.className = "modal-fondo"; m.id = "modal"; m.setAttribute("data-srv-modal", "1");
-    m.innerHTML = '<div class="modal modal-ancho" role="dialog" aria-modal="true" aria-labelledby="t-comp"><div class="modal-head"><h3 id="t-comp">Comparar protocolos de entrega</h3>' +
+    m.innerHTML = '<div class="modal modal-ancho" role="dialog" aria-modal="true" aria-labelledby="t-comp"><div class="modal-head"><h3 id="t-comp">Comparar formularios Mobile de entrega</h3>' +
       '<button type="button" class="btn btn-ghost btn-sm" data-srv="cerrar" id="cerrarComp">Cerrar</button></div>' +
-      '<p class="small">Marcá lo que necesitás y quedan solo los protocolos que lo piden. Con «Elegir este» volvés al contrato con ese protocolo.</p>' +
+      '<p class="small">Marcá lo que necesitás y quedan solo los formularios que lo piden. Con «Elegir este» volvés al contrato con ese formulario.</p>' +
       '<fieldset class="opciones filtro-req"><legend>Que pida o retire</legend>' + D.REQUISITOS.map(function (r) {
         return '<label class="chk"><input type="checkbox" data-filtro="' + r.id + '"' + (filtro.indexOf(r.id) >= 0 ? " checked" : "") + ">" + esc(r.nombre) + "</label>";
       }).join("") + "</fieldset>" +
-      '<div class="tabla-wrap"><table class="tabla-comp"><caption class="sr-only">Qué pide y qué retira cada protocolo de entrega</caption><thead><tr><th scope="col">Protocolo</th>' +
+      '<div class="tabla-wrap"><table class="tabla-comp"><caption class="sr-only">Qué pide y qué retira cada formulario Mobile de entrega</caption><thead><tr><th scope="col">Formulario</th>' +
       D.REQUISITOS.map(function (r) { return '<th scope="col" class="c" title="' + esc(r.nombre) + '">' + esc(r.corto) + (r.grupo === "retira" ? '<span class="caption">retira</span>' : "") + "</th>"; }).join("") +
       '<th scope="col"><span class="sr-only">Acción</span></th></tr></thead><tbody id="compBody">' + filasComparar(b) + "</tbody></table></div>" +
       '<p class="small" id="compCuenta" aria-live="polite">' + cuenta() + "</p></div>";
     document.body.appendChild(m);
     document.getElementById("cerrarComp").focus();
   }
-  function cuenta() { var n = filtrar(filtro).length; return n + " protocolo" + (n === 1 ? "" : "s") + (filtro.length ? " con lo marcado" : " en total"); }
+  function cuenta() { var n = filtrar(filtro).length; return n + " formulario" + (n === 1 ? "" : "s") + (filtro.length ? " con lo marcado" : " en total"); }
   function cerrarComparar() {
     var m = document.getElementById("modal"); if (m && m.hasAttribute("data-srv-modal")) m.parentNode.removeChild(m);
     var bt = document.getElementById("btnComparar") || ultimoFoco; if (bt && bt.focus) bt.focus();
