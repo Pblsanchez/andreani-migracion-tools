@@ -1,4 +1,4 @@
-/* ABM Contratos DMS · prototipo de propuesta v0.8 (T-007, D-063 a D-095). Datos ficticios. Deshabilitar/habilitar: abm-estado.js · protocolo, póliza y contactos: abm-servicio.js */
+/* ABM Contratos DMS · prototipo de propuesta v0.8 (T-007, D-063 a D-095). Datos ficticios. Deshabilitar/habilitar: abm-estado.js · protocolo, póliza y contactos: abm-servicio.js · domicilios cargados: abm-domicilios.js */
 (function (g) {
   "use strict";
   var D = g.ABM_DATOS, P = g.ABM_SERVICIO;
@@ -298,18 +298,10 @@
     }).join("") + "</div>";
     h += '<fieldset class="opciones" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0 12px"><legend>Usar este domicilio para</legend>' + D.CLASES.map(function (c) {
       if (c.id === "DEVOLUCION_REMITOS" && b.agrupador) return "";
-      return '<label class="chk"><input type="checkbox" data-nclase="' + c.id + '"' + (S.nuevoClases.indexOf(c.id) >= 0 ? " checked" : "") + ">" + esc(c.nombre) + (cub[c.id] ? ' <span class="caption">(reemplaza)</span>' : "") + "</label>";
+      return '<label class="chk"><input type="checkbox" data-nclase="' + c.id + '"' + (S.nuevoClases.indexOf(c.id) >= 0 ? " checked" : "") + ">" + esc(c.nombre) + (cub[c.id] ? ' <span class="caption">(hoy en otro domicilio: pasa a este)</span>' : "") + "</label>";
     }).join("") + "</fieldset>";
     h += '<div><button class="btn btn-secondary" data-acc="agregarDom">Agregar domicilio</button></div><div id="msgDom" aria-live="polite">' + (S.msgDom || "") + "</div></div>";
-    h += '<div class="campo" style="gap:12px"><h3>Domicilios cargados (' + b.domicilios.length + ")</h3>";
-    if (!b.domicilios.length) h += '<p class="small">Todavía no hay domicilios. Cargá uno y marcá todas las clases donde se usa.</p>';
-    h += '<div class="domis">' + b.domicilios.map(function (d) {
-      return '<div class="domi"><div class="domi-top"><span class="strong">' + esc(domTexto(d.dom)) + '</span><div class="der"><button class="btn btn-ghost btn-sm" data-acc="quitarDom" data-id="' + d.id + '">Quitar</button></div></div>' +
-        '<fieldset class="opciones" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0 12px"><legend class="caption">Clases donde se usa</legend>' + D.CLASES.map(function (c) {
-          if (c.id === "DEVOLUCION_REMITOS" && b.agrupador) return "";
-          return '<label class="chk"><input type="checkbox" data-domi="' + d.id + '" data-clase="' + c.id + '"' + (d.clases.indexOf(c.id) >= 0 ? " checked" : "") + ">" + esc(c.nombre) + "</label>";
-        }).join("") + "</fieldset></div>";
-    }).join("") + "</div></div></div>";
+    h += '<div class="campo" style="gap:12px">' + g.ABM_DOMI.vCargados(b, b.agrupador ? L.rendicion(b.agrupador) : null) + "</div></div>";
     return h;
   }
   function domiciliosReusables() {
@@ -370,7 +362,7 @@
 
   /* ---------- acciones ---------- */
   function iniciar(modo, nro) {
-    S.modo = modo; S.vista = "wizard"; S.paso = 1; S.errores = false; S.busqSap = ""; S.msgDom = "";
+    S.modo = modo; S.vista = "wizard"; S.paso = 1; S.errores = false; S.busqSap = ""; S.msgDom = ""; g.ABM_DOMI.reset();
     S.nuevoDom = { calle: "", numero: "", localidad: "", provincia: "", cp: "" }; S.nuevoClases = [];
     S.abiertos = { admision: true, frio: true, acciones: false, admin: false }; S.msgFrio = ""; if (P.reset) P.reset();
     if (modo === "alta") { S.b = nuevoBorrador(); S.orig = null; }
@@ -381,7 +373,7 @@
     }
     render("t-wiz"); window.scrollTo(0, 0);
   }
-  function irPaso(n) { S.paso = n; S.errores = false; S.msgDom = ""; S.msgFrio = ""; render("t-wiz"); window.scrollTo(0, 0); }
+  function irPaso(n) { S.paso = n; S.errores = false; S.msgDom = ""; S.msgFrio = ""; g.ABM_DOMI.reset(); render("t-wiz"); window.scrollTo(0, 0); }
   function siguiente() {
     var f = faltantes(S.paso, S.b, ctx);
     if (f.length) { S.errores = true; render("err"); return; }
@@ -406,7 +398,7 @@
     S.vista = "lista"; render("t-lista");
   }
   function agregarDom() {
-    var n = S.nuevoDom, faltan = [];
+    var n = S.nuevoDom, faltan = []; g.ABM_DOMI.reset();
     [["calle", "Calle"], ["numero", "Número"], ["localidad", "Localidad"], ["provincia", "Provincia"], ["cp", "Código postal"]].forEach(function (x) { if (!String(n[x[0]]).trim()) faltan.push(x[1]); });
     if (faltan.length) { S.msgDom = alerta("error", "Completá: " + esc(faltan.join(", ")) + "."); render("nd-calle"); return; }
     if (!S.nuevoClases.length) { S.msgDom = alerta("error", "Marcá al menos una clase donde se usa el domicilio."); render(); return; }
@@ -441,7 +433,7 @@
     else if (a === "elegirSap") { S.b.nro = nro; S.b.domicilios = []; S.b.agrupador = ""; S.errores = false; render("busqSap"); }
     else if (a === "agregarDom") agregarDom();
     else if (a === "fix") { var adv = advertencias(S.b)[+t.getAttribute("data-i")]; if (adv) { aplicarFix(S.b, adv.fix); toast("Listo: " + adv.btn.toLowerCase() + "."); render("t-wiz"); } }
-    else if (a === "quitarDom") { var id = t.getAttribute("data-id"); S.b.domicilios = S.b.domicilios.filter(function (d) { return d.id !== id; }); S.msgDom = ""; render(); }
+    else if (a === "quitarDom") { var id = t.getAttribute("data-id"); S.b.domicilios = S.b.domicilios.filter(function (d) { return d.id !== id; }); S.msgDom = ""; g.ABM_DOMI.reset(); render(); }
   });
   function cerrarMenus() { var ms = raiz.querySelectorAll(".menu"); for (var i = 0; i < ms.length; i++) { ms[i].hidden = true; var b = ms[i].previousElementSibling; if (b) b.setAttribute("aria-expanded", "false"); } }
   document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest("[data-acc='cerrarModal']")) cerrarModal(); else if (e.target.id === "modal") cerrarModal(); });
@@ -472,15 +464,6 @@
     }
     else if (t.name && t.name.indexOf("cond-") === 0) { S.b.cond[t.name.slice(5)] = t.value; render(); }
     else if (t.hasAttribute("data-nclase")) { var k = t.getAttribute("data-nclase"); S.nuevoClases = S.nuevoClases.filter(function (x) { return x !== k; }); if (t.checked) S.nuevoClases.push(k); }
-    else if (t.hasAttribute("data-domi")) {
-      var did = t.getAttribute("data-domi"), cl = t.getAttribute("data-clase");
-      S.b.domicilios.forEach(function (d) {
-        if (d.id === did) { d.clases = d.clases.filter(function (x) { return x !== cl; }); if (t.checked) d.clases.push(cl); }
-        else if (t.checked) d.clases = d.clases.filter(function (x) { return x !== cl; });
-      });
-      S.msgDom = t.checked ? alerta("info", "«" + esc(clase(cl).nombre) + "» quedó asignada a este domicilio (una clase usa un solo domicilio).") : "";
-      render(t.id === "" ? null : null);
-    }
     else if (id === "reusar" && t.value !== "") { var d = domiciliosReusables()[+t.value]; S.nuevoDom = clon(d); render("nd-calle"); }
     else if (t.name === "estado") { S.b.estado = t.value; if (t.value === "programado" && !S.b.vigencia) S.b.vigencia = manianaISO(); render(t.value === "programado" ? "vigencia" : null); }
     else if (id === "vigencia") S.b.vigencia = t.value;
