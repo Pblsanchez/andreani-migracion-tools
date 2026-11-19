@@ -1,4 +1,4 @@
-/* ABM Contratos DMS · prototipo de propuesta v0.8 (T-007, D-063 a D-095). Datos ficticios. Deshabilitar/habilitar: abm-estado.js · protocolo, póliza y contactos: abm-servicio.js · domicilios cargados: abm-domicilios.js · vigencia hasta: abm-vigencia.js */
+/* ABM Contratos DMS · prototipo de propuesta v0.9 (T-007, D-063 a D-100). Datos ficticios. Deshabilitar/habilitar: abm-estado.js · formulario Mobile Entrega, póliza y contactos: abm-servicio.js · domicilios cargados: abm-domicilios.js · vigencia hasta: abm-vigencia.js */
 (function (g) {
   "use strict";
   var D = g.ABM_DATOS, P = g.ABM_SERVICIO;
@@ -47,7 +47,7 @@
   /* ---------- lógica pura (testeable en Node) ---------- */
   function nuevoBorrador() {
     var cond = {};
-    D.CONDICIONES.forEach(function (c) { cond[c.id] = c.tipo === "opciones" ? "" : false; });
+    D.CONDICIONES.forEach(function (c) { cond[c.id] = c.tipo ? "" : false; });
     return { nro: "", niveles: { logistica: "", continente: "", sla: "" }, form: "", ciclo: "", cond: cond,
       agrupador: "", poliza: "", contactos: [],
       domicilios: [], estado: "", vigencia: "", hasta: "" };
@@ -66,9 +66,10 @@
     }
     if (paso === 2) {
       D.NIVELES.forEach(function (n) { if (!b.niveles[n.id]) f.push("Elegir «" + n.nombre + "»"); });
-      if (!b.form) f.push("Elegir el protocolo de entrega");
+      if (!b.form) f.push("Elegir el Formulario Mobile Entrega");
       if (!b.ciclo) f.push("Elegir el ciclo de vida");
       if (!b.cond.remito) f.push("Indicar cómo viaja el remito (Admisión)");
+      if (b.cond.devCentral && !b.cond.uoDevCentral) f.push("Elegir la UO de devolución centralizada (Acciones sobre el envío)");
     }
     if (paso === 3) {
       var cub = clasesCubiertas(b);
@@ -86,16 +87,16 @@
   }
   function advertencias(b) {
     var a = [], alt;
-    var oc = opNivel("continente", b.niveles.continente), ol = opNivel("logistica", b.niveles.logistica), req = P.reqDe(b.form), pn = b.form ? "Protocolo " + b.form : "";
+    var oc = opNivel("continente", b.niveles.continente), ol = opNivel("logistica", b.niveles.logistica), req = P.reqDe(b.form), pn = b.form ? "Formulario " + b.form : "";
     if (req.indexOf("valores") >= 0 && !b.cond.cobranza) a.push({ tipo: "warning", txt: "El " + pn + " cobra valores al entregar. Activá «Gestión de cobranza».", btn: "Activar gestión de cobranza", fix: { cond: "cobranza", val: true } });
-    if (b.cond.cobranza && b.form && req.indexOf("valores") < 0 && (alt = P.cercano(b.form, "valores", null))) a.push({ tipo: "warning", txt: "Hay gestión de cobranza, pero el " + pn + " no cobra valores. Usá un protocolo que cobre.", btn: "Usar Protocolo " + alt.cod + " (" + alt.nombre + ")", fix: { form: alt.cod } });
+    if (b.cond.cobranza && b.form && req.indexOf("valores") < 0 && (alt = P.cercano(b.form, "valores", null))) a.push({ tipo: "warning", txt: "Hay gestión de cobranza, pero el " + pn + " no cobra valores. Usá un formulario que cobre.", btn: "Usar Formulario " + alt.cod + " (" + alt.nombre + ")", fix: { form: alt.cod } });
     if (b.cond.remito === "Sin remito" && req.indexOf("fotoRemito") >= 0) a.push({ tipo: "warning", txt: "El contrato es «Sin remito», pero el " + pn + " pide foto del remito. Si el remito viaja, indicá cómo.", btn: "Pasar a remito digital", fix: { cond: "remito", val: "Digital" } });
-    if (req.indexOf("insumo") >= 0 && oc && !oc.frio && (alt = P.cercano(b.form, null, "insumo"))) a.push({ tipo: "caution", txt: "El " + pn + " retira insumo (conservadora retornable), pero el tipo de carga «" + oc.nombre + "» no es de frío. Elegí un tipo de carga de frío o un protocolo sin insumo.", btn: "Usar Protocolo " + alt.cod + " (sin insumo)", fix: { form: alt.cod } });
+    if (req.indexOf("insumo") >= 0 && oc && !oc.frio && (alt = P.cercano(b.form, null, "insumo"))) a.push({ tipo: "caution", txt: "El " + pn + " retira insumo (conservadora retornable), pero el tipo de carga «" + oc.nombre + "» no es de frío. Elegí un tipo de carga de frío o un formulario sin insumo.", btn: "Usar Formulario " + alt.cod + " (sin insumo)", fix: { form: alt.cod } });
     if (ol && ol.cod === "7" && !b.cond.cambio) a.push({ tipo: "caution", txt: "El tipo de operación es «Cambio». Activá la condición «Cambio».", btn: "Activar cambio", fix: { cond: "cambio", val: true } });
     return a;
   }
   function aplicarFix(b, fx) {
-    if (fx.cond) { b.cond[fx.cond] = fx.val; if (!fx.val) D.CONDICIONES.forEach(function (x) { if (x.depende === fx.cond) b.cond[x.id] = false; }); }
+    if (fx.cond) { b.cond[fx.cond] = fx.val; if (!fx.val) D.CONDICIONES.forEach(function (x) { if (x.depende === fx.cond) b.cond[x.id] = x.tipo ? "" : false; }); }
     if (fx.form) b.form = fx.form;
   }
   /* D-084: sin tipo de carga de frío no existen las opciones de frío; devuelve true si había alguna activa */
@@ -105,17 +106,18 @@
     D.CONDICIONES.forEach(function (c) { if (c.bloque === "frio") { if (b.cond[c.id]) hubo = true; b.cond[c.id] = false; } });
     return hubo;
   }
-  function textoCond(c, v) { return c.tipo === "opciones" ? (v || "—") : (v ? "Sí" : "No"); }
+  function textoUO(cod) { var u = (D.UOS || []).filter(function (x) { return x.cod === cod; })[0]; return u ? "UO " + u.cod + " " + u.nombre : "—"; }
+  function textoCond(c, v) { return c.tipo === "uo" ? (v ? textoUO(v) : "Sin elegir") : c.tipo === "opciones" ? (v || "—") : (v ? "Sí" : "No"); }
   function filasResumen(b) {
     var s = sap(b.nro) || {};
     var f = [];
     function add(sec, k, v) { f.push({ sec: sec, k: k, v: v }); }
     add("sap", "N° de contrato", b.nro); add("sap", "Descripción", s.desc); add("sap", "Razón social", s.razon); add("sap", "Solicitante", s.solicitante);
     add("sap", "Canal", C ? C.canal(b.nro) : "—");
-    add("sap", "Contrato agrupador", b.agrupador ? b.agrupador + " (hereda el domicilio de rendición)" : "Sin agrupador");
+    add("sap", "Contrato agrupador de rendición", b.agrupador ? b.agrupador + " (hereda el domicilio de rendición)" : "Sin agrupador");
     D.NIVELES.forEach(function (n) { var o = opNivel(n.id, b.niveles[n.id]); add("servicio", n.nombre, o ? o.nombre + " (DMS " + n.dmsNombre + " " + o.cod + ")" : "—"); });
     add("servicio", "Cadena de frío", esFrio(b) ? "Sí (la da el tipo de carga)" : "No");
-    var fm = P.proto(b.form); add("servicio", "Protocolo de entrega", fm ? P.nombreProto(fm) + " (DMS " + fm.dms + ")" : "—");
+    var fm = P.proto(b.form); add("servicio", "Formulario Mobile Entrega", fm ? P.nombreProto(fm) : "—");
     var cv = ciclo(b.ciclo); add("servicio", "Ciclo de vida", cv ? cv.codigo + " · " + cv.nombre : "—");
     D.CONDICIONES.forEach(function (c) {
       if (c.bloque === "frio" && !esFrio(b)) return;
@@ -178,9 +180,9 @@
     if (!filas.length) h += '<tr><td colspan="8">No hay contratos con esos filtros.</td></tr>';
     filas.forEach(function (c) {
       var s = sap(c.nro) || {}; var cv = ciclo(c.ciclo);
-      h += "<tr><td>" + esc(s.razon) + "</td><td><span class=\"strong\">" + esc(c.nro) + "</span> " + C.chipCanal(c.nro) + (c.agrupador ? ' <span class="chip" title="Hereda la rendición de ' + esc(c.agrupador) + '">Agrupador ' + esc(c.agrupador) + "</span>" : "") + '<br><span class="caption">' + esc(s.desc) + "</span></td><td>" + esc(s.solicitante) + "</td>" +
+      h += "<tr><td>" + esc(s.razon) + "</td><td><span class=\"strong\">" + esc(c.nro) + "</span> " + C.chipCanal(c.nro) + (c.agrupador ? ' <span class="chip" title="Contrato agrupador de rendición: hereda la rendición de ' + esc(c.agrupador) + '">Agrupador ' + esc(c.agrupador) + "</span>" : "") + '<br><span class="caption">' + esc(s.desc) + "</span></td><td>" + esc(s.solicitante) + "</td>" +
         '<td><div class="chips">' + D.NIVELES.map(function (n) { var o = opNivel(n.id, c.niveles[n.id]); return '<span class="chip" title="' + esc(n.nombre) + (o ? " · DMS " + n.dmsNombre + " " + o.cod : "") + '">' + esc(o ? o.nombre : "—") + "</span>"; }).join("") +
-        (function () { var fm = P.proto(c.form); return fm ? '<span class="chip" title="' + esc(P.nombreProto(fm) + " · " + P.textoProto(fm.cod)) + '">Protocolo ' + esc(fm.cod) + "</span>" : ""; })() + "</div></td>" +
+        (function () { var fm = P.proto(c.form); return fm ? '<span class="chip" title="' + esc(P.nombreProto(fm) + " · " + P.textoProto(fm.cod)) + '">Formulario ' + esc(fm.cod) + "</span>" : ""; })() + "</div></td>" +
         "<td>" + (cv ? esc(cv.nombre) + '<br><span class="caption">' + esc(cv.codigo) + "</span>" : "—") + "</td>" +
         "<td>" + (g.ABM_VIG ? g.ABM_VIG.celda(c, hoyISO()) : c.vigencia ? "Desde " + fmtFecha(c.vigencia) : "—") + "</td><td>" + chipEstado(c) + "</td>" +
         '<td class="acc"><div class="kebab"><button class="btn btn-ghost btn-icon btn-sm" aria-haspopup="true" aria-expanded="false" data-acc="kebab" data-nro="' + c.nro + '" aria-label="Acciones del contrato ' + c.nro + '">' + ICO.kebab + "</button>" +
@@ -236,7 +238,7 @@
   /* Contrato agrupador (D-089): opcional; hereda la rendición, que deja de configurarse acá */
   function vAgrupador() {
     var ops = C.agrupadores(S.b.nro, S.contratos), ag = S.b.agrupador, hd = ag ? L.rendicion(ag) : null;
-    var h = '<h3>Contrato agrupador</h3><div class="campo" style="max-width:520px"><label for="agrupador">Contrato agrupador (opcional)</label>';
+    var h = '<h3>Contrato agrupador de rendición</h3><div class="campo" style="max-width:520px"><label for="agrupador">Contrato agrupador de rendición (opcional)</label>';
     if (!ops.length && !ag) return h + '<p class="small" id="agrupador">Este solicitante todavía no tiene otro contrato configurado: no hay de dónde heredar.</p></div>';
     h += '<select id="agrupador" aria-describedby="agrupador-a"><option value="">Sin agrupador</option>' + ops.map(function (c) { var sc = sap(c.nro) || {}; return '<option value="' + c.nro + '"' + (ag === c.nro ? " selected" : "") + ">" + esc(c.nro + " · " + sc.desc + " (" + C.canal(c.nro) + ")") + "</option>"; }).join("") + "</select>";
     h += '<span class="ayuda" id="agrupador-a">Solo contratos ya configurados del mismo solicitante. El contrato toma del agrupador el domicilio de rendición: si cambia allá, cambia acá.</span></div>';
@@ -263,8 +265,8 @@
     D.BLOQUES.forEach(function (bl, i) {
       if (bl.soloFrio && !esFrio(b)) return;
       var cs = D.CONDICIONES.filter(function (c) { return c.bloque === bl.id; });
-      var act = cs.filter(function (c) { return c.tipo === "opciones" ? false : !!b.cond[c.id] && (!c.depende || b.cond[c.depende]); }).length;
-      var bin = cs.filter(function (c) { return c.tipo !== "opciones"; }).length;
+      var act = cs.filter(function (c) { return c.tipo ? false : !!b.cond[c.id] && (!c.depende || b.cond[c.depende]); }).length;
+      var bin = cs.filter(function (c) { return !c.tipo; }).length;
       h += '<details class="bloque" data-bloque="' + bl.id + '"' + (S.abiertos[bl.id] ? " open" : "") + '><summary>' + ICO.flecha + '<span><span class="strong">' + bl.nombre + '</span><br><span class="caption">' + (bl.soloFrio ? "El tipo de carga «" + esc(oc.nombre) + "» viaja con cadena de frío: estas opciones solo existen en contratos de frío." : bl.desc) + '</span></span><span class="chip resumen-b">' + act + " de " + bin + " activas</span></summary><div class=\"condiciones\">";
       cs.forEach(function (c) { h += vCond(c, b); });
       h += "</div>" + (bl.id === "admin" ? P.vAdmin(b) : "") + "</details>";
@@ -274,6 +276,13 @@
   function vCond(c, b) {
     var idA = "ay-" + c.id;
     var cab = '<div><span class="strong">' + c.nombre + '</span><br><span class="caption">En DMS hoy: ' + c.dms.map(function (x) { return "«" + esc(x) + "»"; }).join(" + ") + "</span></div>";
+    if (c.tipo === "uo") {
+      if (c.depende && !b.cond[c.depende]) return "";
+      var sinUO = !b.cond[c.id];
+      return '<div class="cond dependiente"><div class="campo" style="grid-column:1/-1;max-width:420px"><label for="uo-' + c.id + '">' + esc(c.nombre) + ' <span class="caption">(obligatoria)</span></label><select id="uo-' + c.id + '" data-uo="' + c.id + '" aria-describedby="' + idA + '"' + (sinUO ? ' aria-invalid="true"' : "") + '><option value="">Elegir…</option>' +
+        (D.UOS || []).map(function (u) { return '<option value="' + esc(u.cod) + '"' + (b.cond[c.id] === u.cod ? " selected" : "") + ">UO " + esc(u.cod) + " " + esc(u.nombre) + "</option>"; }).join("") +
+        '</select><span class="ayuda" id="' + idA + '">' + esc(c.ayuda) + (sinUO ? ' <span class="bloqueo">Elegí la UO: sin ella no se puede seguir.</span>' : "") + "</span></div></div>";
+    }
     if (c.tipo === "opciones") {
       return '<div class="cond">' + cab + "<span></span>" + '<fieldset class="opciones" aria-describedby="' + idA + '" style="grid-column:1/-1"><legend class="sr-only">' + c.nombre + "</legend>" + c.opciones.map(function (o) {
         return '<label class="opcion"><input type="radio" name="cond-' + c.id + '" value="' + esc(o) + '"' + (b.cond[c.id] === o ? " checked" : "") + ">" + esc(o) + "</label>";
@@ -465,9 +474,10 @@
       render(id);
     }
     else if (t.name === "ciclo") { S.b.ciclo = t.value; render(); }
+    else if (t.hasAttribute("data-uo")) { S.b.cond[t.getAttribute("data-uo")] = t.value; render(t.id); }
     else if (t.hasAttribute("data-cond")) {
       var c = t.getAttribute("data-cond"); S.b.cond[c] = t.checked;
-      D.CONDICIONES.forEach(function (x) { if (x.depende === c && !t.checked) S.b.cond[x.id] = false; });
+      D.CONDICIONES.forEach(function (x) { if (x.depende === c && !t.checked) S.b.cond[x.id] = x.tipo ? "" : false; });
       render(t.id);
     }
     else if (t.name && t.name.indexOf("cond-") === 0) { S.b.cond[t.name.slice(5)] = t.value; render(); }
