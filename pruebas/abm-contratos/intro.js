@@ -68,7 +68,7 @@
       '<ol class="recorrido"><li class="linea" aria-hidden="true"></li>' +
       '<li><span class="paso" aria-hidden="true">◎</span><h3>Listado</h3><p>Solo los contratos de tu cartera, con canal, niveles, ciclo, vigencia y estado. Desde acá se editan, habilitan o deshabilitan.</p></li>' +
       '<li><span class="paso">1</span><h3>Contrato SAP</h3><p>Aparecen solo los contratos de tu cartera que todavía no están en DMS; los datos de SAP no se editan.</p></li>' +
-      '<li><span class="paso">2</span><h3>Servicio</h3><p>Niveles en lenguaje comercial, protocolo de entrega para elegir y comparar, ciclo por nombre y condiciones agrupadas.</p></li>' +
+      '<li><span class="paso">2</span><h3>Servicio</h3><p>Niveles en lenguaje comercial, Formulario Mobile Entrega para elegir y comparar, ciclo por nombre y condiciones agrupadas, con devolución centralizada a una UO.</p></li>' +
       '<li><span class="paso">3</span><h3>Domicilios</h3><p>Cada domicilio se carga una vez y se le asignan sus clases; la rendición puede venir del contrato agrupador.</p></li>' +
       '<li><span class="paso">4</span><h3>Resumen y guardado</h3><p>Se ve qué cambió, desde cuándo rige y, si tiene, hasta cuándo.</p></li></ol></div>' },
     { titulo: "Después de la demo", html:
