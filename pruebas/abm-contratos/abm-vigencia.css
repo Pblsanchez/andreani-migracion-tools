@@ -1,0 +1,5 @@
+/* ABM Contratos DMS · v0.8 parte 4 · vigencia hasta (D-086) · paleta D-045: amarillo solo caution, siempre con texto */
+.vig-hasta { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--c-spacing-2) var(--c-spacing-3); }
+.vig-hasta .ayuda { flex-basis: 100%; font-size: 12px; line-height: 16px; color: var(--c-color-text); }
+.chip-vence { background: var(--c-color-surface-caution-subtle); color: var(--c-color-text-caution-inverse); border: var(--c-border-width-subtle) solid var(--c-color-border-caution); }
+.aviso-sap { font-size: 14px; line-height: 20px; color: var(--c-color-text); }
