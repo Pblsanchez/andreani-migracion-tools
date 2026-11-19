@@ -1,4 +1,4 @@
-/* ABM Contratos DMS · prototipo de propuesta v0.8 (T-007, D-063 a D-095). Datos ficticios. Deshabilitar/habilitar: abm-estado.js · protocolo, póliza y contactos: abm-servicio.js · domicilios cargados: abm-domicilios.js */
+/* ABM Contratos DMS · prototipo de propuesta v0.8 (T-007, D-063 a D-095). Datos ficticios. Deshabilitar/habilitar: abm-estado.js · protocolo, póliza y contactos: abm-servicio.js · domicilios cargados: abm-domicilios.js · vigencia hasta: abm-vigencia.js */
 (function (g) {
   "use strict";
   var D = g.ABM_DATOS, P = g.ABM_SERVICIO;
@@ -50,7 +50,7 @@
     D.CONDICIONES.forEach(function (c) { cond[c.id] = c.tipo === "opciones" ? "" : false; });
     return { nro: "", niveles: { logistica: "", continente: "", sla: "" }, form: "", ciclo: "", cond: cond,
       agrupador: "", poliza: "", contactos: [],
-      domicilios: [], estado: "", vigencia: "" };
+      domicilios: [], estado: "", vigencia: "", hasta: "" };
   }
   function clasesCubiertas(b) {
     var m = {};
@@ -80,6 +80,7 @@
         if (!b.vigencia) f.push("Indicar la fecha «Vigente desde»");
         else if (b.vigencia < manianaISO()) f.push("La fecha «Vigente desde» debe ser posterior a hoy");
       }
+      if (g.ABM_VIG) f = f.concat(g.ABM_VIG.faltantes(b, hoyISO()));
     }
     return f;
   }
@@ -129,6 +130,7 @@
       if (c.id === "DEVOLUCION_REMITOS" && b.agrupador) { var hd = L.rendicion(b.agrupador); add("domicilios", c.nombre + " (obligatoria)", "Heredado de " + b.agrupador + (hd ? " · " + domTexto(hd) : "")); return; }
       add("domicilios", c.nombre + (c.obligatoria ? " (obligatoria)" : ""), d ? domTexto(d.dom) : "Sin domicilio");
     });
+    if (g.ABM_VIG) add("vigencia", "Vigencia hasta", g.ABM_VIG.texto(b));
     return f;
   }
   function diferencias(orig, b) {
@@ -151,6 +153,7 @@
   var ctx = { get modo() { return S.modo; }, yaConfigurado: function (n) { return !!contrato(n); } };
 
   function render(foco) {
+    if (g.ABM_VIG) g.ABM_VIG.vencer(S.contratos, hoyISO());
     raiz.innerHTML = S.vista === "lista" ? vLista() : vWizard();
     if (foco) { var el = document.getElementById(foco); if (el) el.focus(); }
   }
@@ -179,7 +182,7 @@
         '<td><div class="chips">' + D.NIVELES.map(function (n) { var o = opNivel(n.id, c.niveles[n.id]); return '<span class="chip" title="' + esc(n.nombre) + (o ? " · DMS " + n.dmsNombre + " " + o.cod : "") + '">' + esc(o ? o.nombre : "—") + "</span>"; }).join("") +
         (function () { var fm = P.proto(c.form); return fm ? '<span class="chip" title="' + esc(P.nombreProto(fm) + " · " + P.textoProto(fm.cod)) + '">Protocolo ' + esc(fm.cod) + "</span>" : ""; })() + "</div></td>" +
         "<td>" + (cv ? esc(cv.nombre) + '<br><span class="caption">' + esc(cv.codigo) + "</span>" : "—") + "</td>" +
-        "<td>" + (c.vigencia ? "Desde " + fmtFecha(c.vigencia) : "—") + "</td><td>" + chipEstado(c) + "</td>" +
+        "<td>" + (g.ABM_VIG ? g.ABM_VIG.celda(c, hoyISO()) : c.vigencia ? "Desde " + fmtFecha(c.vigencia) : "—") + "</td><td>" + chipEstado(c) + "</td>" +
         '<td class="acc"><div class="kebab"><button class="btn btn-ghost btn-icon btn-sm" aria-haspopup="true" aria-expanded="false" data-acc="kebab" data-nro="' + c.nro + '" aria-label="Acciones del contrato ' + c.nro + '">' + ICO.kebab + "</button>" +
         '<div class="menu" role="menu" hidden><button role="menuitem" data-acc="editar" data-nro="' + c.nro + '">Editar</button>' + (g.ABM_ESTADO ? g.ABM_ESTADO.itemMenu(c) : "") + '<button role="menuitem" data-acc="historial" data-nro="' + c.nro + '">Ver historial (auditoría)</button></div></div></td></tr>';
     });
@@ -215,12 +218,15 @@
     var h = "";
     if (S.modo === "alta") {
       var q = S.busqSap.toLowerCase();
-      var res = D.SAP.filter(function (s) { return C.enCartera(s.nro) && (!q || [s.nro, s.razon, s.desc, s.solicitante].join(" ").toLowerCase().indexOf(q) >= 0); });
+      /* D-096: solo contratos de SAP que todavía no están en DMS; los configurados se gestionan desde el listado */
+      var coinc = D.SAP.filter(function (s) { return C.enCartera(s.nro) && (!q || [s.nro, s.razon, s.desc, s.solicitante].join(" ").toLowerCase().indexOf(q) >= 0); });
+      var res = coinc.filter(function (s) { return !contrato(s.nro); }), yaEn = q ? coinc.filter(function (s) { return !!contrato(s.nro); }) : [];
       h += '<div class="campo buscador"><label for="busqSap">Buscar contrato en SAP (tu cartera)</label><input type="search" id="busqSap" value="' + esc(S.busqSap) + '" placeholder="N° de contrato, razón social o solicitante" aria-describedby="busqSap-a"><span class="ayuda" id="busqSap-a">El contrato tiene que estar dado de alta en SAP. No se tipean datos.</span></div>';
       h += '<ul class="resultados" aria-label="Contratos de SAP">' + (res.length ? res.map(function (s) {
         var ya = !!contrato(s.nro);
         return '<li><button data-acc="elegirSap" data-nro="' + s.nro + '" aria-pressed="' + (S.b.nro === s.nro) + '"' + (ya ? ' disabled aria-disabled="true"' : "") + '><span class="strong">' + esc(s.nro) + " · " + esc(s.desc) + " " + C.chipCanal(s.nro) + '</span><span class="small">' + esc(s.razon) + " · Solicitante " + esc(s.solicitante) + (ya ? " · Ya configurado en DMS (editalo desde el listado)" : "") + "</span></button></li>";
-      }).join("") : '<li class="small" style="padding:12px 16px">Sin resultados en SAP.</li>') + "</ul>";
+      }).join("") : '<li class="small" style="padding:12px 16px">' + (q ? "No hay contratos para configurar con esa búsqueda." : "Todos los contratos de tu cartera ya están configurados en DMS.") + "</li>") + "</ul>";
+      h += '<p class="aviso-sap">' + (yaEn.length ? "Ya están en DMS: " + yaEn.map(function (s) { return esc(s.nro); }).join(", ") + ". Los editás, habilitás o deshabilitás desde el listado de contratos." : "Solo aparecen los contratos de SAP que todavía no están en DMS; los que ya están los gestionás desde el listado.") + "</p>";
     }
     var s = sap(S.b.nro);
     if (s) h += '<h3>Datos del contrato en SAP</h3><p class="small">Solo lectura: si algo está mal, se corrige en SAP.</p>' + vFicha(s);
@@ -321,7 +327,7 @@
     if (S.modo === "edicion") h += alerta(nDif ? "caution" : "info", nDif ? "<strong>" + nDif + " cambio" + (nDif === 1 ? "" : "s") + "</strong> respecto de la versión vigente (resaltados, con el valor anterior tachado)." : "No hay cambios respecto de la versión vigente.");
     var secs = [["sap", "Contrato", 1], ["servicio", "Niveles de esfuerzo y ciclo de vida", 2]];
     D.BLOQUES.forEach(function (bl) { secs.push(["cond-" + bl.id, "Condiciones · " + bl.nombre, 2]); });
-    secs.push(["domicilios", "Domicilios por clase", 3]);
+    secs.push(["domicilios", "Domicilios por clase", 3]); secs.push(["vigencia", "Vigencia", 4]);
     h += '<div class="resumen">' + secs.map(function (sc) {
       var fs = filas.filter(function (f) { return f.sec === sc[0]; });
       if (!fs.length) return "";
@@ -338,6 +344,7 @@
       opEstado("programado", "Vigente desde una fecha", ed ? "Los cambios rigen desde la fecha elegida; hasta entonces sigue la versión actual." : "Queda listo y empieza a regir en la fecha elegida.") +
       opEstado("deshabilitado", "Deshabilitado", "Queda guardado pero no se puede usar hasta habilitarlo.") + "</fieldset>";
     if (b.estado === "programado") h += '<div class="campo" style="max-width:260px"><label for="vigencia">Vigente desde</label><input type="date" id="vigencia" min="' + manianaISO() + '" value="' + esc(b.vigencia) + '"></div>';
+    if (g.ABM_VIG) h += g.ABM_VIG.vCampo(b);
     h += alerta("info", "Los cambios rigen hacia adelante: los envíos ya admitidos siguen con la configuración con la que entraron. Queda registro en la auditoría de DMS (usuario, fecha y detalle).");
     return h;
   }
@@ -368,7 +375,7 @@
     if (modo === "alta") { S.b = nuevoBorrador(); S.orig = null; }
     else {
       var c = contrato(nro);
-      S.b = { nro: c.nro, niveles: clon(c.niveles), form: c.form || "", ciclo: c.ciclo, cond: clon(c.cond), agrupador: c.agrupador || "", poliza: c.poliza || "", contactos: clon(c.contactos || []), domicilios: clon(c.domicilios), estado: "", vigencia: "" };
+      S.b = { nro: c.nro, niveles: clon(c.niveles), form: c.form || "", ciclo: c.ciclo, cond: clon(c.cond), agrupador: c.agrupador || "", poliza: c.poliza || "", contactos: clon(c.contactos || []), domicilios: clon(c.domicilios), estado: "", vigencia: "", hasta: c.hasta || "" };
       S.orig = clon(S.b);
     }
     render("t-wiz"); window.scrollTo(0, 0);
@@ -384,13 +391,14 @@
     if (f.length) { S.errores = true; render("err"); return; }
     var b = S.b, vig = b.estado === "habilitado" ? hoyISO() : b.estado === "programado" ? b.vigencia : "";
     var detEstado = b.estado === "habilitado" ? "Habilitado desde " + fmtFecha(vig) : b.estado === "programado" ? "Vigente desde " + fmtFecha(vig) : "Deshabilitado";
+    if (b.estado === "deshabilitado") b.hasta = ""; else if (b.hasta) detEstado += " · vence el " + fmtFecha(b.hasta);
     if (S.modo === "alta") {
-      S.contratos.unshift({ nro: b.nro, niveles: b.niveles, form: b.form, ciclo: b.ciclo, cond: b.cond, agrupador: b.agrupador, poliza: b.poliza, contactos: b.contactos, domicilios: b.domicilios, estado: b.estado, vigencia: vig,
+      S.contratos.unshift({ nro: b.nro, niveles: b.niveles, form: b.form, ciclo: b.ciclo, cond: b.cond, agrupador: b.agrupador, poliza: b.poliza, contactos: b.contactos, domicilios: b.domicilios, estado: b.estado, vigencia: vig, hasta: b.hasta || "",
         historial: [{ fecha: ahora(), usuario: "comercial.ejemplo", accion: "Alta", detalle: "Contrato creado · " + detEstado }] });
       toast("Contrato " + b.nro + " creado · " + detEstado);
     } else {
       var c = contrato(b.nro), dif = diferencias(S.orig, b), ks = Object.keys(dif);
-      c.niveles = b.niveles; c.form = b.form; c.ciclo = b.ciclo; c.cond = b.cond; c.agrupador = b.agrupador; c.poliza = b.poliza; c.contactos = b.contactos; c.domicilios = b.domicilios; c.estado = b.estado; c.vigencia = vig;
+      c.niveles = b.niveles; c.form = b.form; c.ciclo = b.ciclo; c.cond = b.cond; c.agrupador = b.agrupador; c.poliza = b.poliza; c.contactos = b.contactos; c.domicilios = b.domicilios; c.estado = b.estado; c.vigencia = vig; c.hasta = b.hasta || "";
       c.historial.push({ fecha: ahora(), usuario: "comercial.ejemplo", accion: "Modificación (versión " + (c.historial.length + 1) + ")",
         detalle: (ks.length ? ks.map(function (k) { return k.split("|")[1]; }).join(", ") : "Sin cambios de configuración") + " · " + detEstado });
       toast("Cambios guardados · " + detEstado);
