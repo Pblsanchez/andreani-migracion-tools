@@ -1,0 +1,5 @@
+/* ABM Contratos DMS · listado (T-007 v0.9): la columna de acciones (⋮) queda fija a la derecha aunque la tabla se ensanche */
+.tabla-wrap th:last-child, .tabla-wrap td.acc { position: sticky; right: 0; z-index: 1; background: var(--c-color-surface); box-shadow: inset 1px 0 0 var(--c-color-surface-neutral); }
+.tabla-wrap th:last-child { background: var(--c-color-surface-hover); }
+.tabla-wrap tbody tr:hover td.acc { background: var(--c-color-surface-hover); }
+.tabla-wrap td.acc { padding-left: var(--c-spacing-2); padding-right: var(--c-spacing-2); }
