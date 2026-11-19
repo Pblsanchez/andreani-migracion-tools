@@ -1,0 +1,8 @@
+/* ABM Contratos DMS · v0.8 parte 3 · domicilios: clases como etiquetas, «Cambiar clases» y rendición heredada (D-094, D-089) · paleta D-045 */
+.domi-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--c-spacing-2); }
+.chip-clase { background: var(--c-color-surface); border: var(--c-border-width-subtle) solid var(--c-color-border-subtle); color: var(--c-color-text-strong); }
+.chip-lock { display: inline-flex; align-items: center; gap: var(--c-spacing-1); background: var(--c-color-surface-hover); }
+.domi-heredado { background: var(--c-color-surface-hover); border-style: dashed; }
+.domi-edit { border-color: var(--c-color-border-primary); box-shadow: inset 3px 0 0 var(--c-color-border-primary); }
+.domi-chks { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0 var(--c-spacing-3); }
+.domi-acc { display: flex; flex-wrap: wrap; gap: var(--c-spacing-2); }
