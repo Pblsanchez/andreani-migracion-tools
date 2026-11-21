@@ -1,0 +1,51 @@
+/* Portal · grupos del catálogo colapsables (T-022). Se carga después de portal.css, solo en la portada. */
+.grupo.acc { display: block; margin-bottom: var(--c-spacing-3); }
+.acc-h { margin: 0; font: inherit; }
+.acc-btn { width: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: var(--c-spacing-4); text-align: left; font: inherit; color: inherit; cursor: pointer; background: var(--c-color-surface); border: 1px solid var(--c-color-surface-neutral); border-left: var(--c-border-width-strong) solid var(--c-color-border-primary); border-radius: var(--c-border-radius-medium); padding: var(--c-spacing-4) var(--c-spacing-5); box-shadow: var(--shadow-bottom-regular); transition: background-color .2s, box-shadow .2s; }
+.acc-btn:hover { background: var(--c-color-surface-primary-subtle); box-shadow: var(--shadow-elevada); }
+.acc-btn:focus-visible { outline: 2px solid transparent; box-shadow: var(--shadow-focus-regular); }
+.acc.abierto .acc-btn { background: var(--c-color-surface-primary-subtle); }
+.acc-tit { display: grid; gap: 2px; min-width: 0; }
+.acc-nom { display: flex; align-items: center; gap: var(--c-spacing-2); font-family: var(--c-font-family-headline); font-size: 20px; line-height: 24px; font-weight: 500; color: var(--c-color-text-strong); }
+.acc-n { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px; padding: 0 var(--c-spacing-2); border-radius: 99px; background: var(--c-gray-800); color: var(--c-gray-000); font: 500 12px/16px var(--c-font-family-body); }
+.acc-desc { font-size: 14px; line-height: 20px; color: var(--c-color-text-strong); }
+.acc-prev { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; max-width: 560px; transition: opacity .25s; }
+.acc-prev span { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px 2px 4px; border-radius: 99px; border: 1px solid var(--c-color-surface-neutral); background: var(--c-color-surface); font-size: 12px; line-height: 16px; color: var(--c-color-text-strong); white-space: nowrap; }
+.acc-prev svg { width: 16px; height: 16px; color: var(--c-color-text-primary); }
+.acc.abierto .acc-prev { opacity: 0; }
+.acc-chev { width: 36px; height: 36px; border-radius: 99px; display: inline-flex; align-items: center; justify-content: center; background: var(--c-color-surface-neutral); color: var(--c-color-text-strong); transition: transform .3s ease, background-color .2s, color .2s; }
+.acc-chev svg { width: 24px; height: 24px; }
+.acc.abierto .acc-chev { transform: rotate(180deg); background: var(--c-color-fill-primary); color: var(--c-color-text-inverse); }
+
+/* Panel: se despliega con la altura (grid 0fr → 1fr); cerrado no se puede tabular */
+.acc-panel { display: grid; grid-template-rows: 0fr; visibility: hidden; transition: grid-template-rows .4s ease, visibility 0s linear .4s; }
+.acc.abierto .acc-panel { grid-template-rows: 1fr; visibility: visible; transition: grid-template-rows .4s ease, visibility 0s; }
+.acc-in { min-height: 0; overflow: hidden; }
+.acc-in .grilla { padding: var(--c-spacing-4) 2px var(--c-spacing-3); }
+.acc.abierto .grilla > li { animation: subir .5s ease both; }
+.acc.abierto .grilla > li:nth-child(2) { animation-delay: .08s; }
+.acc.abierto .grilla > li:nth-child(3) { animation-delay: .16s; }
+.acc.abierto .grilla > li:nth-child(4) { animation-delay: .24s; }
+.acc.abierto .grilla > li:nth-child(n+5) { animation-delay: .32s; }
+
+/* «En pausa» en gris */
+.acc[data-g="archivo"] .acc-btn { border-left-color: var(--c-gray-500); }
+.acc[data-g="archivo"] .grupo-num { background: var(--c-gray-600); }
+.acc[data-g="archivo"] .acc-prev svg { color: var(--c-color-text); }
+.acc[data-g="archivo"].abierto .acc-btn { background: var(--c-color-surface-hover); }
+.acc[data-g="archivo"].abierto .acc-chev { background: var(--c-gray-700); }
+
+@media (max-width: 1023px) {
+  .acc-btn { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .acc-chev { grid-column: 3; grid-row: 1; }
+  .acc-prev { grid-column: 2 / -1; grid-row: 2; justify-content: flex-start; max-width: none; }
+  .acc.abierto .acc-prev { display: none; }
+}
+@media (max-width: 599px) {
+  .acc-btn { gap: var(--c-spacing-3); padding: var(--c-spacing-3) var(--c-spacing-4); }
+  .acc-nom { font-size: 18px; line-height: 22px; }
+  .acc-prev { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .acc-panel, .acc.abierto .acc-panel { transition: none; }
+}

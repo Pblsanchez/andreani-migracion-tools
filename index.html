@@ -7,6 +7,7 @@
 <title>Portal de soluciones · Andreani</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="portal.css?v=2.2">
+<link rel="stylesheet" href="catalogo.css?v=1.0">
 <script>document.documentElement.className += " js";</script>
 </head>
 <body>
@@ -82,7 +83,7 @@
     <div class="sec-head rev">
       <span class="eyebrow">Catálogo</span>
       <h2 id="titulo-herr">Herramientas y prototipos</h2>
-      <p>Buscá por nombre o filtrá por estado y por proceso. Las que viven en otro repositorio se abren en una pestaña nueva.</p>
+      <p>Abrí cada grupo para ver sus herramientas, o buscá por nombre y filtrá por proceso. Las que viven en otro repositorio se abren en una pestaña nueva.</p>
     </div>
     <div class="toolbar rev">
       <label class="buscar">
@@ -91,7 +92,6 @@
         <input type="search" id="buscar" placeholder="Buscar (matriz, contratos, normalizador…)" autocomplete="off">
         <kbd aria-hidden="true">/</kbd>
       </label>
-      <div class="chips" role="group" aria-label="Filtrar por estado" id="chips"></div>
       <div class="chips procs" role="group" aria-label="Filtrar por proceso" id="procs"></div>
     </div>
     <p class="sr" id="estado-filtro" aria-live="polite"></p>
@@ -127,6 +127,6 @@
   </div>
 </footer>
 
-<script src="portal.js?v=2.6"></script>
+<script src="portal.js?v=2.7"></script>
 </body>
 </html>

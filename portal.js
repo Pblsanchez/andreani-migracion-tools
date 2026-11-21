@@ -1,4 +1,4 @@
-/* Portal de soluciones (T-016, D-076, D-077) · catálogo y comportamiento. Separado de index.html en T-017 E3 (v2.2). */
+/* Portal de soluciones (T-016, D-076, D-077) · catálogo y comportamiento. Separado de index.html en T-017 E3 (v2.2). Grupos colapsables: T-022 (v2.7). */
 /*
  * Catálogo del portal (D-008, T-016). Para sumar una herramienta, agregar un objeto a HERRAMIENTAS.
  *   tipo: "uso" (en uso) | "proto" (prototipo / propuesta) | "archivo" (en pausa)
@@ -88,6 +88,7 @@ var PROCESOS = [
 ];
 
 var NOVEDADES = [
+  { fecha: "2026-11-21", titulo: "Portal · catálogo por grupos", texto: "Los grupos del catálogo se abren y se cierran: de un vistazo ves qué hay en cada uno y abrís solo lo que te interesa. Si buscás, se abren solos." },
   { fecha: "2026-11-21", titulo: "Alta automática de contratos DMS", texto: "El alta contingente ahora se hace sola: del Excel que manda el comercial por Teams a la carpeta de configuración DMS. En producción desde el 24/11." },
   { fecha: "2026-11-19", titulo: "ABM Contratos DMS · v0.9", texto: "Devolución centralizada a una UO, «Formulario Mobile Entrega», «Contrato agrupador de rendición» y el menú ⋮ del listado siempre a la vista." },
   { fecha: "2026-11-19", titulo: "ABM Contratos DMS · v0.8", texto: "Cartera del comercial, formulario Mobile de entrega para comparar, domicilios sin repetir y vigencia con fecha de inicio y fin." },
@@ -126,7 +127,8 @@ var ESTADOS = {
 function procNombre(id) { var p = PROCESOS.filter(function (x) { return x.id === id; })[0]; return p ? p.nombre : ""; }
 var proc = "todos";
 var HOY = new Date();
-var filtro = "todas";
+/* T-022: grupos colapsables. Sin filtro: uno abierto por vez (o ninguno). Con búsqueda o proceso: se abren los grupos con resultados. */
+var abiertos = {};
 
 function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
 function svg(n) { return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + (ICONOS[n] || "") + "</svg>"; }
@@ -136,7 +138,10 @@ function badge(est) { var e = ESTADOS[est]; return '<span class="badge ' + e.cla
 function badges(h) { return (esNuevo(h.actualizado) ? '<span class="badge b-nuevo">' + svg("nuevo") + "Nuevo</span>" : "") + badge(h.estado); }
 function norm(s) { return String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
 function consulta() { return norm(document.getElementById("buscar").value.trim()); }
-function coincide(h, q) { return (proc === "todos" || h.proceso === proc) && (!q || norm(h.nombre + " " + h.descripcion + " " + h.para + " " + procNombre(h.proceso)).indexOf(q) >= 0); }
+function coincideTexto(h, q) { return !q || norm(h.nombre + " " + h.descripcion + " " + h.para + " " + procNombre(h.proceso)).indexOf(q) >= 0; }
+function coincide(h, q) { return (proc === "todos" || h.proceso === proc) && coincideTexto(h, q); }
+function filtrando() { return proc !== "todos" || !!consulta(); }
+function corto(h) { return h.nombre.split(" · ")[0]; }
 
 function tarjeta(h) {
   var acc = h.acciones.map(function (a) {
@@ -147,7 +152,7 @@ function tarjeta(h) {
   var meta = [];
   if (h.version) meta.push("Versión " + esc(h.version));
   if (h.actualizado) meta.push('Actualizado el <time datetime="' + h.actualizado + '">' + fecha(h.actualizado) + "</time>");
-  return '<li class="rev"><article class="tarjeta' + (h.tipo === "archivo" ? " gris" : "") + '">' +
+  return '<li><article class="tarjeta' + (h.tipo === "archivo" ? " gris" : "") + '">' +
     '<div class="t-top"><span class="ic">' + svg(h.icono) + '</span><div><span class="t-proc">' + esc(procNombre(h.proceso)) + '</span><h4>' + esc(h.nombre) + '</h4><div class="badges">' + badges(h) + "</div></div></div>" +
     '<p class="desc">' + esc(h.descripcion) + "</p>" +
     '<p class="para"><b>Para qué sirve:</b> ' + esc(h.para) + "</p>" +
@@ -157,39 +162,70 @@ function tarjeta(h) {
 
 function renderChips() {
   var q = consulta();
-  var ops = [{ id: "todas", nombre: "Todas" }].concat(GRUPOS);
-  document.getElementById("chips").innerHTML = ops.map(function (o) {
-    var n = HERRAMIENTAS.filter(function (h) { return (o.id === "todas" || h.tipo === o.id) && coincide(h, q); }).length;
-    return '<button type="button" class="chip" data-f="' + o.id + '" aria-pressed="' + (filtro === o.id) + '">' + esc(o.nombre) + ' <span class="n">' + n + "</span></button>";
-  }).join("");
   var pops = [{ id: "todos", nombre: "Todos los procesos" }].concat(PROCESOS);
   document.getElementById("procs").innerHTML = pops.map(function (o) {
-    var n = HERRAMIENTAS.filter(function (h) { return (o.id === "todos" || h.proceso === o.id) && (filtro === "todas" || h.tipo === filtro); }).length;
+    var n = HERRAMIENTAS.filter(function (h) { return (o.id === "todos" || h.proceso === o.id) && coincideTexto(h, q); }).length;
     return '<button type="button" class="chip" data-p="' + o.id + '" aria-pressed="' + (proc === o.id) + '">' + esc(o.nombre) + ' <span class="n">' + n + "</span></button>";
   }).join("");
 }
 function sincHash() {
   var p = [];
-  if (filtro !== "todas") p.push("f-" + filtro);
   if (proc !== "todos") p.push("p-" + proc);
-  history.replaceState(null, "", p.length ? "#" + p.join("&") : location.pathname);
+  if (!filtrando()) { var g = Object.keys(abiertos)[0]; if (g) p.push("g-" + g); }
+  history.replaceState(null, "", p.length ? "#" + p.join("&") : location.pathname + location.search);
 }
 
 function renderCatalogo() {
-  var q = consulta(), html = "", total = 0, num = 0;
+  var q = consulta(), html = "", total = 0, num = 0, filtro = filtrando();
+  var conItems = {};
   GRUPOS.forEach(function (g) {
-    if (filtro !== "todas" && filtro !== g.id) return;
-    var items = HERRAMIENTAS.filter(function (h) { return h.tipo === g.id && coincide(h, q); });
+    var todos = HERRAMIENTAS.filter(function (h) { return h.tipo === g.id; });
+    var items = todos.filter(function (h) { return coincide(h, q); });
+    num++;
     if (!items.length) return;
-    num++; total += items.length;
-    html += '<div class="grupo"><div class="grupo-head"><span class="grupo-num" aria-hidden="true">' + num + '</span><div><h3>' + esc(g.nombre) +
-      ' <span class="sr">(' + items.length + ")</span></h3><p>" + esc(g.desc) + '</p></div></div><ul class="grilla">' + items.map(tarjeta).join("") + "</ul></div>";
+    conItems[g.id] = true;
+    total += items.length;
+    var abierto = !!abiertos[g.id];
+    var cuenta = filtro && items.length !== todos.length ? items.length + " de " + todos.length : String(items.length);
+    var prev = items.map(function (h) { return "<span>" + svg(h.icono) + esc(corto(h)) + "</span>"; }).join("");
+    html += '<div class="grupo acc' + (abierto ? " abierto" : "") + '" data-g="' + g.id + '">' +
+      '<h3 class="acc-h"><button type="button" class="acc-btn" id="gb-' + g.id + '" aria-expanded="' + abierto + '" aria-controls="gp-' + g.id + '">' +
+      '<span class="grupo-num" aria-hidden="true">' + num + "</span>" +
+      '<span class="acc-tit"><span class="acc-nom">' + esc(g.nombre) + ' <span class="acc-n"><span class="sr">(</span>' + cuenta + '<span class="sr">)</span></span></span><span class="acc-desc">' + esc(g.desc) + "</span></span>" +
+      '<span class="acc-prev" aria-hidden="true">' + prev + "</span>" +
+      '<span class="acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path fill="currentColor" d="M7.4 8.6 12 13.2l4.6-4.6L18 10l-6 6-6-6 1.4-1.4Z"/></svg></span>' +
+      "</button></h3>" +
+      '<div class="acc-panel" id="gp-' + g.id + '" role="region" aria-labelledby="gb-' + g.id + '"><div class="acc-in"><ul class="grilla">' + items.map(tarjeta).join("") + "</ul></div></div></div>";
   });
-  if (!total) html = '<div class="vacio">' + svg("vacio").replace("<svg", '<svg width="32" height="32"') + "<h3>No encontramos nada con esa búsqueda</h3><p>Probá con otra palabra o elegí «Todas».</p></div>";
+  Object.keys(abiertos).forEach(function (k) { if (!conItems[k]) delete abiertos[k]; });
+  if (!total) html = '<div class="vacio">' + svg("vacio").replace("<svg", '<svg width="32" height="32"') + "<h3>No encontramos nada con esa búsqueda</h3><p>Probá con otra palabra o elegí «Todos los procesos».</p></div>";
   document.getElementById("catalogo").innerHTML = html;
   document.getElementById("estado-filtro").textContent = total + (total === 1 ? " resultado" : " resultados");
   renderChips();
   observar();
+}
+
+/* Abre o cierra sin volver a dibujar (así se ve la animación) */
+function alternar(id) {
+  var abrir = !abiertos[id];
+  if (!filtrando()) abiertos = {};
+  if (abrir) abiertos[id] = true; else delete abiertos[id];
+  Array.prototype.forEach.call(document.querySelectorAll("#catalogo .acc"), function (el) {
+    var on = !!abiertos[el.getAttribute("data-g")];
+    el.classList.toggle("abierto", on);
+    el.querySelector(".acc-btn").setAttribute("aria-expanded", String(on));
+  });
+  sincHash();
+}
+/* Al cambiar búsqueda o proceso: con filtro se abren los grupos con resultados; sin filtro, todo cerrado */
+function aplicarFiltros() {
+  abiertos = {};
+  if (filtrando()) {
+    var q = consulta();
+    GRUPOS.forEach(function (g) { if (HERRAMIENTAS.some(function (h) { return h.tipo === g.id && coincide(h, q); })) abiertos[g.id] = true; });
+  }
+  renderCatalogo();
+  sincHash();
 }
 
 function renderTimeline() {
@@ -227,30 +263,26 @@ function observar() {
   });
 }
 
-document.getElementById("chips").addEventListener("click", function (e) {
-  var b = e.target.closest("[data-f]"); if (!b) return;
-  filtro = b.getAttribute("data-f");
-  sincHash();
-  renderCatalogo();
-  var nb = document.querySelector('[data-f="' + filtro + '"]'); if (nb) nb.focus();
+document.getElementById("catalogo").addEventListener("click", function (e) {
+  var b = e.target.closest(".acc-btn"); if (!b) return;
+  alternar(b.closest(".acc").getAttribute("data-g"));
 });
 document.getElementById("procs").addEventListener("click", function (e) {
   var b = e.target.closest("[data-p]"); if (!b) return;
   proc = b.getAttribute("data-p");
-  sincHash();
-  renderCatalogo();
+  aplicarFiltros();
   var nb = document.querySelector('[data-p="' + proc + '"]'); if (nb) nb.focus();
 });
-document.getElementById("buscar").addEventListener("input", renderCatalogo);
+document.getElementById("buscar").addEventListener("input", aplicarFiltros);
 document.addEventListener("keydown", function (e) {
   var t = e.target.tagName;
   if (e.key === "/" && t !== "INPUT" && t !== "TEXTAREA") { e.preventDefault(); var i = document.getElementById("buscar"); i.focus(); i.scrollIntoView({ block: "center" }); }
-  if (e.key === "Escape" && e.target.id === "buscar") { e.target.value = ""; renderCatalogo(); }
+  if (e.key === "Escape" && e.target.id === "buscar") { e.target.value = ""; aplicarFiltros(); }
 });
 
-var hf = location.hash.match(/f-(uso|proto|archivo)/), hp = location.hash.match(/p-(migracion|contratos|transversal)/);
-if (hf) filtro = hf[1];
+var hp = location.hash.match(/p-(migracion|contratos|transversal)/), hg = location.hash.match(/g-(uso|proto|archivo)/);
 if (hp) proc = hp[1];
 renderMeta();
 renderTimeline();
-renderCatalogo();
+if (filtrando()) aplicarFiltros();
+else { if (hg) abiertos[hg[1]] = true; renderCatalogo(); }
