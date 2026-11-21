@@ -1,4 +1,4 @@
-/* Portal de soluciones (T-016, D-076, D-077) · catálogo y comportamiento. Separado de index.html en T-017 E3 (v2.2). Grupos colapsables: T-022 (v2.7). */
+/* Portal de soluciones (T-016, D-076, D-077) · catálogo y comportamiento. Separado de index.html en T-017 E3 (v2.2). Grupos colapsables: T-022 (v2.7). Sin destacado «Lo nuevo»: T-023 (v2.8). */
 /*
  * Catálogo del portal (D-008, T-016). Para sumar una herramienta, agregar un objeto a HERRAMIENTAS.
  *   tipo: "uso" (en uso) | "proto" (prototipo / propuesta) | "archivo" (en pausa)
@@ -31,7 +31,7 @@ var HERRAMIENTAS = [
     ]
   },
   {
-    id: "abm", tipo: "proto", estado: "proto", icono: "abm", destacado: true, proceso: "contratos",
+    id: "abm", tipo: "proto", estado: "proto", icono: "abm", proceso: "contratos",
     nombre: "ABM Contratos DMS · propuesta",
     descripcion: "Prototipo navegable de cómo nos gustaría dar de alta un contrato por pantalla en DMS: datos de SAP sin tipear, servicio en lenguaje comercial, domicilios una sola vez y vigencia al guardar.",
     para: "Dejar atrás el proceso contingente: dar de alta por pantalla los contratos B2B de hoy y los B2C cuando Integra migre a DMS. Datos de ejemplo, no guarda nada.",
@@ -247,8 +247,8 @@ function renderMeta() {
       setTimeout(function () { requestAnimationFrame(paso); }, 700);
     });
   }
-  var d = HERRAMIENTAS.filter(function (h) { return h.destacado; })[0];
-  if (d) document.getElementById("dest-badges").innerHTML = badges(d) + '<span class="badge b-repo">' + esc(d.version) + " · " + fecha(d.actualizado) + "</span>";
+  var d = HERRAMIENTAS.filter(function (h) { return h.destacado; })[0], db = document.getElementById("dest-badges");
+  if (d && db) db.innerHTML = badges(d) + '<span class="badge b-repo">' + esc(d.version) + " · " + fecha(d.actualizado) + "</span>";
 }
 
 /* Aparición al hacer scroll */
