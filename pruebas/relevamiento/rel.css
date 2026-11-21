@@ -41,7 +41,8 @@ h3 { font-size: 16px; line-height: 22px; font-weight: 500; }
 .lateral { position: sticky; top: var(--c-spacing-4); background: var(--c-color-surface); border: 1px solid var(--c-color-border-subtle); border-radius: var(--c-border-radius-medium); padding: var(--c-spacing-4); }
 .principal { background: var(--c-color-surface); border: 1px solid var(--c-color-border-subtle); border-radius: var(--c-border-radius-medium); padding: var(--c-spacing-5); min-width: 0; }
 .bajada { margin: var(--c-spacing-2) 0 var(--c-spacing-5); }
-@media (max-width: 900px) { .wrap { grid-template-columns: 1fr; padding: var(--c-spacing-4); } .lateral { position: static; } .principal { padding: var(--c-spacing-4); } }
+.wrap > * { min-width: 0; }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); padding: var(--c-spacing-4); } .lateral { position: static; } .principal { padding: var(--c-spacing-4); } }
 
 /* avance y pasos */
 .avance { display: grid; gap: var(--c-spacing-2); margin-bottom: var(--c-spacing-4); }
