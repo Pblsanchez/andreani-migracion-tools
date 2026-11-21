@@ -21,6 +21,16 @@ var HERRAMIENTAS = [
     ]
   },
   {
+    id: "alta-auto", tipo: "uso", estado: "beta", icono: "automatizacion", proceso: "contratos",
+    nombre: "Alta automática de contratos DMS",
+    descripcion: "El comercial manda el Excel de alta por Teams y el resto pasa solo: valida contra el CRM, corrige lo que tiene una única respuesta, le responde al comercial y entrega los archivos listos a configuración DMS en los cortes de las 11, 14 y 17 h.",
+    para: "Sacar del medio el trabajo manual del proceso contingente de alta: nadie mira la bandeja, y si algo no se puede resolver, el comercial recibe el detalle para corregirlo. En producción desde el 24/11/2026.",
+    version: "v1.0", actualizado: "2026-11-21",
+    acciones: [
+      { texto: "Cómo funciona", href: "./alta-contingente/", estilo: "primary" }
+    ]
+  },
+  {
     id: "abm", tipo: "proto", estado: "proto", icono: "abm", destacado: true, proceso: "contratos",
     nombre: "ABM Contratos DMS · propuesta",
     descripcion: "Prototipo navegable de cómo nos gustaría dar de alta un contrato por pantalla en DMS: datos de SAP sin tipear, servicio en lenguaje comercial, domicilios una sola vez y vigencia al guardar.",
@@ -78,6 +88,7 @@ var PROCESOS = [
 ];
 
 var NOVEDADES = [
+  { fecha: "2026-11-21", titulo: "Alta automática de contratos DMS", texto: "El alta contingente ahora se hace sola: del Excel que manda el comercial por Teams a la carpeta de configuración DMS. En producción desde el 24/11." },
   { fecha: "2026-11-19", titulo: "ABM Contratos DMS · v0.9", texto: "Devolución centralizada a una UO, «Formulario Mobile Entrega», «Contrato agrupador de rendición» y el menú ⋮ del listado siempre a la vista." },
   { fecha: "2026-11-19", titulo: "ABM Contratos DMS · v0.8", texto: "Cartera del comercial, formulario Mobile de entrega para comparar, domicilios sin repetir y vigencia con fecha de inicio y fin." },
   { fecha: "2026-11-18", titulo: "Seguimiento de actividades · v1.3", texto: "La actividad reciente muestra solo los cambios de las tareas, sin los guardados automáticos de capturas." },
@@ -94,6 +105,7 @@ var ICONOS = {
   abm: '<path fill="currentColor" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Zm4 18H6V4h7v5h5v11ZM8 12h8v2H8v-2Zm0 4h5v2H8v-2Z"/>',
   normalizador: '<path fill="currentColor" d="M3 5h18v2H3V5Zm3 6h12v2H6v-2Zm3 6h6v2H9v-2Z"/>',
   seguimiento: '<path fill="currentColor" d="M3 4h3v3H3V4Zm5 .5h13v2H8v-2ZM3 10.5h3v3H3v-3Zm5 .5h13v2H8v-2ZM3 17h3v3H3v-3Zm5 .5h13v2H8v-2Z"/>',
+  automatizacion: '<path fill="currentColor" d="M7 2v11h3v9l7-12h-4l4-8H7Z"/>',
   configurador: '<path fill="currentColor" d="M3 17v4h4l11-11-4-4L3 17Zm17.7-10.3a1 1 0 0 0 0-1.4l-2-2a1 1 0 0 0-1.4 0L15.6 5l4 4 1.1-1.3Z"/>',
   externo: '<path fill="currentColor" d="M14 3v2h3.6l-9.8 9.8 1.4 1.4L19 6.4V10h2V3h-7ZM5 5h6v2H5v12h12v-6h2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"/>',
   beta: '<path fill="currentColor" d="M1 21h22L12 2 1 21Zm12-3h-2v-2h2v2Zm0-4h-2v-4h2v4Z"/>',
