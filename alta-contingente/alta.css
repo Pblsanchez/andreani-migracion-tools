@@ -69,8 +69,8 @@ tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
 
 /* Cómo está hecho */
 .piezas { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--c-spacing-3); }
-.piezas li { background: var(--c-color-surface); border: 1px solid var(--c-color-surface-neutral); border-radius: var(--c-border-radius-small); padding: var(--c-spacing-4); display: grid; gap: var(--c-spacing-1); font-size: 14px; line-height: 20px; }
-.piezas b { color: var(--c-color-text-strong); font-weight: 500; }
+.piezas li { background: var(--c-color-surface); border: 1px solid var(--c-color-surface-neutral); border-radius: var(--c-border-radius-small); padding: var(--c-spacing-4); display: block; font-size: 14px; line-height: 20px; }
+.piezas b { display: block; margin-bottom: var(--c-spacing-1); color: var(--c-color-text-strong); font-weight: 500; }
 
 .volver { display: flex; flex-wrap: wrap; gap: var(--c-spacing-3); }
 
