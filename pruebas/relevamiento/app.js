@@ -150,12 +150,13 @@
 
   /* ---------- render ---------- */
   function render(foco) {
-    var p = pendientes(r, cart), t = totales(r, cart), pct = t.tot ? Math.round(t.hechas * 100 / t.tot) : 0;
+    var p = pendientes(r, cart), t = totales(r, cart), pct = t.tot ? Math.round(t.hechas * 100 / t.tot) : 0, hayMig = migrando(r, cart).length > 0;
     document.getElementById("avanceTxt").textContent = t.hechas + " de " + t.tot + " respuestas";
     var bar = document.getElementById("avanceBar"); bar.style.width = pct + "%"; bar.parentNode.setAttribute("aria-valuenow", pct);
     document.getElementById("pasos").innerHTML = PASOS.map(function (s, i) {
-      var est = i < 5 ? (p[i] ? p[i] + " pendiente" + (p[i] === 1 ? "" : "s") : "Completo") : (t.pen ? "Falta completar" : "Listo para enviar");
-      return '<li><button type="button" data-ir="' + i + '" class="paso' + (i === paso ? " activo" : "") + (i < 5 && !p[i] ? " ok" : "") + '"' + (i === paso ? ' aria-current="step"' : "") +
+      var espera = i > 0 && i < 5 && !hayMig;
+      var est = espera ? "Sin contratos a migrar" : i < 5 ? (p[i] ? p[i] + " pendiente" + (p[i] === 1 ? "" : "s") : "Completo") : (t.pen ? "Falta completar" : "Listo para enviar");
+      return '<li><button type="button" data-ir="' + i + '" class="paso' + (i === paso ? " activo" : "") + (i < 5 && !p[i] && !espera ? " ok" : "") + '"' + (i === paso ? ' aria-current="step"' : "") +
         '><span class="paso-n">' + (i + 1) + '</span><span class="paso-t">' + esc(s.t) + '<span class="paso-e">' + esc(est) + "</span></span></button></li>";
     }).join("");
     document.getElementById("pasoT").textContent = (paso + 1) + ". " + PASOS[paso].t;
