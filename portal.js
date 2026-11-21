@@ -286,3 +286,5 @@ renderMeta();
 renderTimeline();
 if (filtrando()) aplicarFiltros();
 else { if (hg) abiertos[hg[1]] = true; renderCatalogo(); }
+/* Un link con grupo o proceso (#g-uso, #p-contratos) lleva directo al catálogo */
+if (hg || hp) { var secH = document.getElementById("herramientas"); if (secH && secH.scrollIntoView) setTimeout(function () { secH.scrollIntoView(); }, 0); }
