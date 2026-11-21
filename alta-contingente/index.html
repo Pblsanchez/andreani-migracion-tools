@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Cómo funciona el alta automática de contratos DMS: el comercial manda el Excel por Teams y el resto pasa solo - Andreani">
+<title>Alta automática de contratos DMS · Cómo funciona · Andreani</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../portal.css?v=2.2">
+<link rel="stylesheet" href="alta.css?v=1.0">
+<script>document.documentElement.className += " js";</script>
+</head>
+<body>
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+<header class="header">
+  <div class="header-in">
+    <a class="logo" href="../" aria-label="Andreani, volver al Portal de soluciones">Andreani</a>
+    <span class="ruta"><a href="../">Portal de soluciones</a> / <strong>Alta automática de contratos DMS</strong></span>
+    <nav aria-label="Secciones de la página">
+      <a href="#recorrido">Recorrido</a>
+      <a href="#decide">Qué decide</a>
+      <a href="#horarios">Horarios</a>
+      <a href="#como">Cómo está hecho</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" aria-labelledby="titulo">
+  <svg class="hero-deco" viewBox="0 0 600 600" aria-hidden="true" focusable="false">
+    <circle cx="300" cy="300" r="280"/><circle cx="300" cy="300" r="210"/><circle cx="300" cy="300" r="140"/>
+    <circle class="r" cx="300" cy="300" r="175"/>
+    <g class="g"><circle class="p" cx="300" cy="20" r="7"/><circle class="p" cx="510" cy="300" r="5"/><circle class="p" cx="160" cy="300" r="4"/></g>
+  </svg>
+  <div class="hero-in">
+    <span class="eyebrow anim">Alta de contratos en DMS · en producción desde el 24/11/2026</span>
+    <h1 id="titulo" class="anim">El comercial manda el Excel. <em>Lo demás pasa solo.</em></h1>
+    <p class="hero-bajada anim">Automatizamos el proceso contingente de alta de contratos en DMS. Desde que el comercial nos manda el Excel por Teams hasta que el archivo queda listo en manos de configuración DMS, nadie tiene que mirar la bandeja: se valida la información, se corrige lo que se puede corregir y, si algo no tiene arreglo, se le pide el cambio al comercial con el detalle de qué falta.</p>
+    <div class="hero-cta anim">
+      <a class="btn btn-primary btn-lg" href="#recorrido">Ver el recorrido</a>
+      <a class="btn btn-secondary btn-lg btn-claro" href="#decide">Qué valida y qué corrige</a>
+    </div>
+  </div>
+</section>
+
+<main id="contenido" tabindex="-1">
+
+  <section id="recorrido" aria-labelledby="t-recorrido">
+    <div class="sec-head rev">
+      <span class="eyebrow">El recorrido</span>
+      <h2 id="t-recorrido">Del mensaje del comercial a la carpeta de configuración DMS</h2>
+      <p>El comercial sigue haciendo lo mismo de siempre: completa el Excel de alta y lo manda por Teams. A partir de ahí, cada paso lo hace la automatización.</p>
+    </div>
+    <ol class="recorrido">
+      <li class="paso humano rev">
+        <span class="paso-num" aria-hidden="true">1</span>
+        <span class="paso-quien">Comercial</span>
+        <h3>Manda el Excel por Teams</h3>
+        <p>Completa el modelo de alta de contrato y lo envía en un mensaje, como hasta ahora. No tiene que usar ninguna herramienta nueva.</p>
+      </li>
+      <li class="paso rev">
+        <span class="paso-num" aria-hidden="true">2</span>
+        <span class="paso-quien">Automático</span>
+        <h3>Encuentra el pedido</h3>
+        <p>Una vez por hora revisa los mensajes nuevos, se queda con los que traen un Excel y descarta lo que no es un alta de contrato.</p>
+        <p class="cuando">Días hábiles, de 7 a 18 h. Lo que llega el fin de semana o un feriado se toma el siguiente día hábil.</p>
+      </li>
+      <li class="paso rev">
+        <span class="paso-num" aria-hidden="true">3</span>
+        <span class="paso-quien">Automático</span>
+        <h3>Valida contra el CRM</h3>
+        <p>Controla que el código de solicitante y la razón social del Excel correspondan al mismo cliente en la base de clientes del CRM.</p>
+      </li>
+      <li class="paso rev">
+        <span class="paso-num" aria-hidden="true">4</span>
+        <span class="paso-quien">Automático</span>
+        <h3>Normaliza el archivo</h3>
+        <p>Deja el Excel en el formato que necesita DMS: corrige lo que tiene una única respuesta correcta y frena lo que no se puede resolver.</p>
+      </li>
+      <li class="paso rev">
+        <span class="paso-num" aria-hidden="true">5</span>
+        <span class="paso-quien">Automático</span>
+        <h3>Le responde al comercial</h3>
+        <p>En el mismo chat: le confirma que lo recibimos y cuándo va a poder pedir la validación en A.com, o le explica qué tiene que corregir y que vuelva a mandarlo.</p>
+      </li>
+      <li class="paso rev">
+        <span class="paso-num" aria-hidden="true">6</span>
+        <span class="paso-quien">Automático → configuración DMS</span>
+        <h3>Entrega en el corte</h3>
+        <p>En cada corte pasa los archivos listos a la carpeta del día y le avisa a configuración DMS por Teams, con la lista de archivos y el link a la carpeta.</p>
+        <p class="cuando">Cortes a las 11, 14 y 17 h. Configuración DMS no ve nada antes del corte.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section id="decide" aria-labelledby="t-decide">
+    <div class="sec-head rev">
+      <span class="eyebrow">Qué decide sola</span>
+      <h2 id="t-decide">Valida, corrige y, si no puede, pide el cambio</h2>
+      <p>La regla es simple: si hay una sola respuesta correcta, la automatización la toma y lo cuenta en el mensaje. Si no la hay, no adivina: le devuelve el pedido al comercial con el detalle.</p>
+    </div>
+    <div class="decide">
+      <article class="col valida rev">
+        <div class="col-head"><span class="col-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M15.5 14h-.8l-.3-.3A6.5 6.5 0 1 0 14 15.5l.3.3v.8l5 5 1.5-1.5-5-5Zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z"/></svg></span><h3>Valida</h3></div>
+        <p>Antes de tocar nada, controla que el pedido tenga sentido.</p>
+        <ul>
+          <li>Que el archivo sea un alta de contrato<span>Si no tiene el Formulario, lo deja de lado sin molestar a nadie.</span></li>
+          <li>Solicitante y razón social contra el CRM<span>Busca por código y, si no coincide, por nombre del cliente.</span></li>
+          <li>Que el cliente esté en el maestro de datos<span>Si el cliente no tiene número de SAP, lo avisa.</span></li>
+          <li>Errores de fórmula en las hojas<span>Nunca le llega a configuración DMS un archivo con #¡REF!.</span></li>
+          <li>Reenvíos del mismo contrato<span>Vale la última versión que mandó el comercial.</span></li>
+        </ul>
+      </article>
+      <article class="col corrige rev">
+        <div class="col-head"><span class="col-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2Z"/></svg></span><h3>Corrige sola</h3></div>
+        <p>Lo que tiene una única respuesta correcta lo arregla y sigue.</p>
+        <ul>
+          <li>Código de solicitante equivocado<span>Si el CRM permite saber cuál es, lo corrige y se lo cuenta al comercial.</span></li>
+          <li>SLA que no coincide con el continente<span>Lo alinea en el Formulario y en la hoja Contrato.</span></li>
+          <li>Hoja Direcciones rota<span>La arma de nuevo desde el Formulario y le explica al comercial cómo evitarlo.</span></li>
+          <li>Domicilios vacíos o en cero<span>No se configuran.</span></li>
+          <li>Domicilio sin tipo<span>Toma el tipo 1 por defecto.</span></li>
+          <li>Espacios de más al final de los textos<span>Se quitan siempre.</span></li>
+        </ul>
+      </article>
+      <article class="col devuelve rev">
+        <div class="col-head"><span class="col-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M1 21h22L12 2 1 21Zm12-3h-2v-2h2v2Zm0-4h-2v-4h2v4Z"/></svg></span><h3>Pide el cambio</h3></div>
+        <p>Si no hay forma de resolverlo sin adivinar, frena y le escribe al comercial.</p>
+        <ul>
+          <li>No se puede saber el solicitante<span>El Excel no lo trae o no es válido, y el CRM no permite determinarlo.</span></li>
+          <li>Errores de fórmula fuera de Direcciones<span>Por ejemplo, en la hoja Contrato.</span></li>
+          <li>Datos obligatorios que faltan o no son válidos<span>Le dice cuáles, en lenguaje simple.</span></li>
+        </ul>
+        <p>El comercial corrige el Excel y lo vuelve a mandar por el mismo chat. Los problemas técnicos no le llegan a él: le llegan a Pablo.</p>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-mensajes">
+    <div class="mensajes rev">
+      <div class="intro">
+        <span class="eyebrow">Así se ven los mensajes</span>
+        <h3 id="t-mensajes">Respuestas claras, en el mismo chat</h3>
+        <p>Todo lo que manda la automatización empieza con 🤖, para que se sepa que es un mensaje automático. Al comercial le dice qué pasó y qué sigue; a configuración DMS le pasa los archivos y los avisos que tiene que tener en cuenta.</p>
+        <p class="aclara">Ejemplos con datos ficticios.</p>
+      </div>
+      <div class="chat">
+        <div class="burbuja ok"><span class="de">Al comercial · pedido tomado</span>🤖 Hola Ana, recibimos el pedido de Ejemplo S.A. (351000000) y ya lo enviamos a configurar. Hoy al final de la tarde o a más tardar mañana vas a poder pedir la validación en A.com. Corregimos el código de solicitante: el Excel decía 100001 y en el CRM es 100002.</div>
+        <div class="burbuja error"><span class="de">Al comercial · pedido de cambio</span>🤖 Hola Juan, no pudimos tomar el pedido de Comercio Modelo S.R.L.: la hoja Contrato tiene errores de fórmula (#¡REF!). Corregilo en el Excel y volvé a enviarlo por acá.</div>
+        <div class="burbuja corte"><span class="de">A configuración DMS · corte</span>🤖 Hola, te paso 2 archivos para alta de contratos DMS: Alta de contrato DMS 351000000 100002 Ejemplo S.A.xlsx · Alta de contrato DMS 351000001 100003 Muestra S.A.xlsx. Carpeta: link a la carpeta del día.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="horarios" aria-labelledby="t-horarios">
+    <div class="sec-head rev">
+      <span class="eyebrow">Horarios y plazos</span>
+      <h2 id="t-horarios">Cuándo pasa cada cosa</h2>
+      <p>El plazo que le damos al comercial no es «queda cargado»: es cuándo va a poder pedir la validación en A.com, que es lo próximo que tiene que hacer.</p>
+    </div>
+    <div class="tabla-wrap rev">
+      <table>
+        <caption>Calendario de la automatización (días hábiles, hora de Buenos Aires)</caption>
+        <thead><tr><th scope="col">Qué</th><th scope="col">Cuándo</th><th scope="col">Qué ve el comercial o configuración DMS</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Revisión de pedidos</th><td>Una vez por hora, de 7 a 18 h (a los 50 minutos de cada hora)</td><td>El comercial recibe la respuesta, como máximo, una hora hábil después de mandar el Excel.</td></tr>
+          <tr><th scope="row">Cortes</th><td>11, 14 y 17 h</td><td>Configuración DMS recibe los archivos nuevos en la carpeta del día y un aviso por Teams.</td></tr>
+          <tr><th scope="row">Pedido antes de las 17 h</th><td>Va al corte de ese mismo día</td><td>«Hoy al final de la tarde o a más tardar mañana vas a poder pedir la validación en A.com.»</td></tr>
+          <tr><th scope="row">Pedido después de las 17 h</th><td>Va al primer corte del próximo día hábil</td><td>El plazo se corre al próximo día hábil.</td></tr>
+          <tr><th scope="row">Fin de semana o feriado</th><td>Se toma en la primera revisión del próximo día hábil</td><td>Si hubo un feriado en el medio, el mensaje lo aclara.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-resuelve">
+    <div class="sec-head rev">
+      <span class="eyebrow">Qué resuelve</span>
+      <h2 id="t-resuelve">Menos idas y vueltas para todos</h2>
+    </div>
+    <div class="resuelve">
+      <div class="dato rev"><b>Comercial</b><span>Manda el Excel como siempre y recibe respuesta en el mismo chat: el plazo, lo que corregimos o lo que tiene que cambiar.</span></div>
+      <div class="dato rev"><b>Configuración DMS</b><span>Recibe archivos ya validados y normalizados, juntos en la carpeta del día, en tres horarios fijos.</span></div>
+      <div class="dato rev"><b>Nadie en el medio</b><span>No hace falta que una persona mire la bandeja, abra cada Excel ni reenvíe archivos.</span></div>
+      <div class="dato rev"><b>Todo queda registrado</b><span>Cada pedido queda anotado con su estado y, todos los días hábiles, Pablo recibe un aviso de que todo funciona.</span></div>
+    </div>
+  </section>
+
+  <section id="como" aria-labelledby="t-como">
+    <div class="sec-head rev">
+      <span class="eyebrow">Cómo está hecho</span>
+      <h2 id="t-como">Las piezas</h2>
+      <p>Usamos herramientas que ya tenemos en Andreani. Los datos de los pedidos se quedan en OneDrive y Teams.</p>
+    </div>
+    <ul class="piezas">
+      <li class="rev"><b>Agente de Copilot Studio</b>Lee los pedidos, decide, normaliza y escribe los mensajes, siguiendo un manual de operación con todas las reglas.</li>
+      <li class="rev"><b>Flujos programados</b>Despiertan al agente en cada revisión, en cada corte y para el aviso diario de salud.</li>
+      <li class="rev"><b>CRM (Dataverse)</b>Base de clientes para validar el solicitante y la razón social. Solo se consulta, no se modifica.</li>
+      <li class="rev"><b>Teams</b>Por donde llegan los pedidos y salen las respuestas, el aviso a configuración DMS y el aviso diario.</li>
+      <li class="rev"><b>OneDrive</b>Carpetas de archivos listos y de cada día, y el registro de pedidos.</li>
+      <li class="rev"><b>Normalizador DMS</b>Las mismas reglas del <a href="https://pblsanchez.github.io/dms-contract-normalizer/" target="_blank" rel="noopener noreferrer">DMS Contract Normalizer<span class="sr"> (se abre en una pestaña nueva)</span></a>, más las que sumamos para la automatización.</li>
+    </ul>
+  </section>
+
+  <section aria-label="Volver" class="volver rev">
+    <a class="btn btn-primary" href="../">Volver al Portal de soluciones</a>
+    <a class="btn btn-secondary" href="mailto:psanchez@andreani.com?subject=Alta%20autom%C3%A1tica%20de%20contratos%20DMS">Escribirle a Pablo Sánchez</a>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="footer-in">
+    <span>Andreani · Portal de soluciones · Alta automática de contratos DMS</span>
+    <span>Versión 1.0 · <time datetime="2026-11-21">21/11/2026</time></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var els = document.querySelectorAll(".rev");
+  if (!("IntersectionObserver" in window)) { Array.prototype.forEach.call(els, function (e) { e.classList.add("on"); }); return; }
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("on"); io.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  Array.prototype.forEach.call(els, function (e, i) { if (e.tagName === "LI") e.style.animationDelay = (i % 3) * 0.12 + "s"; io.observe(e); });
+})();
+</script>
+</body>
+</html>
