@@ -218,7 +218,7 @@
 <script>
 (function () {
   var els = document.querySelectorAll(".rev");
-  if (!("IntersectionObserver" in window)) { Array.prototype.forEach.call(els, function (e) { e.classList.add("on"); }); return; }
+  if (!("IntersectionObserver" in window) || /[?&]estatico/.test(location.search)) { Array.prototype.forEach.call(els, function (e) { e.classList.add("on"); }); return; }
   var io = new IntersectionObserver(function (es) {
     es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("on"); io.unobserve(e.target); } });
   }, { threshold: 0.1 });
