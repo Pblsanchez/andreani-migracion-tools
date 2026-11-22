@@ -1,4 +1,4 @@
-/* Portal de soluciones (T-016, D-076, D-077) · catálogo y comportamiento. Separado de index.html en T-017 E3 (v2.2). Grupos colapsables: T-022 (v2.7). Sin destacado «Lo nuevo»: T-023 (v2.8). */
+/* Portal de soluciones (T-016, D-076, D-077) · catálogo y comportamiento. Separado de index.html en T-017 E3 (v2.2). Grupos colapsables: T-022 (v2.7). Sin destacado «Lo nuevo»: T-023 (v2.8). Relevamiento comercial: T-024 (v2.9). */
 /*
  * Catálogo del portal (D-008, T-016). Para sumar una herramienta, agregar un objeto a HERRAMIENTAS.
  *   tipo: "uso" (en uso) | "proto" (prototipo / propuesta) | "archivo" (en pausa)
@@ -18,6 +18,17 @@ var HERRAMIENTAS = [
     acciones: [
       { texto: "Abrir", href: "./matriz-envios/", estilo: "primary" },
       { texto: "Guía de uso", href: "./matriz-envios/guia.html", estilo: "ghost" }
+    ]
+  },
+  {
+    id: "relevamiento", tipo: "uso", estado: "beta", icono: "relevamiento", proceso: "migracion",
+    nombre: "Relevamiento comercial · migración a DMS",
+    descripcion: "Cada ejecutivo elige su cartera (dirección, gerente comercial, gerente de cuenta y ejecutivo) y responde, contrato por contrato y con opciones cerradas, qué se migra a DMS y cómo: ciclo de vida, condición de entrega, etiqueta e integración. Al terminar lo manda por Teams en un clic.",
+    para: "Tener la información de cada cliente B2C antes de migrarlo, confirmada por su dueño de cuenta. La primera vez se entra con el link que mandamos por Teams; después también desde acá.",
+    version: "v0.2", actualizado: "2026-11-22",
+    acciones: [
+      { texto: "Abrir", href: "https://pblsanchez.github.io/relevamiento-migracion-dms/", estilo: "primary", externo: true },
+      { texto: "Ver el ejemplo", href: "https://pblsanchez.github.io/relevamiento-migracion-dms/?demo", estilo: "ghost", externo: true }
     ]
   },
   {
@@ -88,6 +99,7 @@ var PROCESOS = [
 ];
 
 var NOVEDADES = [
+  { fecha: "2026-11-22", titulo: "Relevamiento comercial · migración a DMS", texto: "El equipo comercial confirma, cliente por cliente, qué se migra a DMS y cómo. Cada ejecutivo filtra su cartera y responde con opciones cerradas." },
   { fecha: "2026-11-21", titulo: "Portal · catálogo por grupos", texto: "Los grupos del catálogo se abren y se cierran: de un vistazo ves qué hay en cada uno y abrís solo lo que te interesa. Si buscás, se abren solos." },
   { fecha: "2026-11-21", titulo: "Alta automática de contratos DMS", texto: "El alta contingente ahora se hace sola: del Excel que manda el comercial por Teams a la carpeta de configuración DMS. En producción desde el 24/11." },
   { fecha: "2026-11-19", titulo: "ABM Contratos DMS · v0.9", texto: "Devolución centralizada a una UO, «Formulario Mobile Entrega», «Contrato agrupador de rendición» y el menú ⋮ del listado siempre a la vista." },
@@ -107,6 +119,7 @@ var ICONOS = {
   normalizador: '<path fill="currentColor" d="M3 5h18v2H3V5Zm3 6h12v2H6v-2Zm3 6h6v2H9v-2Z"/>',
   seguimiento: '<path fill="currentColor" d="M3 4h3v3H3V4Zm5 .5h13v2H8v-2ZM3 10.5h3v3H3v-3Zm5 .5h13v2H8v-2ZM3 17h3v3H3v-3Zm5 .5h13v2H8v-2Z"/>',
   automatizacion: '<path fill="currentColor" d="M7 2v11h3v9l7-12h-4l4-8H7Z"/>',
+  relevamiento: '<path fill="currentColor" d="M9 2h6a1 1 0 0 1 1 1v1h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2V3a1 1 0 0 1 1-1Zm1 2v2h4V4h-4ZM6 6v14h12V6h-2v2H8V6H6Zm4.6 10.4-2.3-2.3 1.4-1.4.9.9 3.7-3.7 1.4 1.4-5.1 5.1Z"/>',
   configurador: '<path fill="currentColor" d="M3 17v4h4l11-11-4-4L3 17Zm17.7-10.3a1 1 0 0 0 0-1.4l-2-2a1 1 0 0 0-1.4 0L15.6 5l4 4 1.1-1.3Z"/>',
   externo: '<path fill="currentColor" d="M14 3v2h3.6l-9.8 9.8 1.4 1.4L19 6.4V10h2V3h-7ZM5 5h6v2H5v12h12v-6h2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"/>',
   beta: '<path fill="currentColor" d="M1 21h22L12 2 1 21Zm12-3h-2v-2h2v2Zm0-4h-2v-4h2v4Z"/>',
