@@ -25,10 +25,11 @@ var HERRAMIENTAS = [
     nombre: "Relevamiento comercial · migración a DMS",
     descripcion: "Cada ejecutivo elige su cartera (dirección, gerente comercial, gerente de cuenta y ejecutivo) y responde, contrato por contrato y con opciones cerradas, qué se migra a DMS y cómo: ciclo de vida, condición de entrega, etiqueta e integración. Al terminar lo manda por Teams en un clic.",
     para: "Tener la información de cada cliente B2C antes de migrarlo, confirmada por su dueño de cuenta. La primera vez se entra con el link que mandamos por Teams; después también desde acá.",
-    version: "v0.2", actualizado: "2026-11-22",
+    version: "v0.3", actualizado: "2026-11-22",
     acciones: [
       { texto: "Abrir", href: "https://pblsanchez.github.io/relevamiento-migracion-dms/", estilo: "primary", externo: true },
-      { texto: "Ver el ejemplo", href: "https://pblsanchez.github.io/relevamiento-migracion-dms/?demo", estilo: "ghost", externo: true }
+      { texto: "Ver el ejemplo", href: "https://pblsanchez.github.io/relevamiento-migracion-dms/?demo", estilo: "ghost", externo: true },
+      { texto: "Tablero de avance", href: "https://pblsanchez.github.io/relevamiento-migracion-dms/tablero.html", estilo: "ghost", externo: true }
     ]
   },
   {
@@ -99,6 +100,7 @@ var PROCESOS = [
 ];
 
 var NOVEDADES = [
+  { fecha: "2026-11-22", titulo: "Relevamiento comercial · tablero de avance", texto: "Un tablero para seguir el relevamiento: qué carteras ya enviaron, qué falta en cada dirección y qué respondieron. Desde ahí mismo sale el reporte a cada director por Teams." },
   { fecha: "2026-11-22", titulo: "Relevamiento comercial · migración a DMS", texto: "El equipo comercial confirma, cliente por cliente, qué se migra a DMS y cómo. Cada ejecutivo filtra su cartera y responde con opciones cerradas." },
   { fecha: "2026-11-21", titulo: "Portal · catálogo por grupos", texto: "Los grupos del catálogo se abren y se cierran: de un vistazo ves qué hay en cada uno y abrís solo lo que te interesa. Si buscás, se abren solos." },
   { fecha: "2026-11-21", titulo: "Alta automática de contratos DMS", texto: "El alta contingente ahora se hace sola: del Excel que manda el comercial por Teams a la carpeta de configuración DMS. En producción desde el 24/11." },
