@@ -1,4 +1,4 @@
-/* Portal de soluciones (T-016, D-076, D-077) · catálogo y comportamiento. Separado de index.html en T-017 E3 (v2.2). Grupos colapsables: T-022 (v2.7). Sin destacado «Lo nuevo»: T-023 (v2.8). Relevamiento comercial: T-024 (v2.9). */
+/* Portal de soluciones (T-016, D-076, D-077) · catálogo y comportamiento. Separado de index.html en T-017 E3 (v2.2). Grupos colapsables: T-022 (v2.7). Sin destacado «Lo nuevo»: T-023 (v2.8). Relevamiento comercial: T-024 (v2.9). Seguimiento v1.6 con el estilo del portal: T-019 (v2.11). */
 /*
  * Catálogo del portal (D-008, T-016). Para sumar una herramienta, agregar un objeto a HERRAMIENTAS.
  *   tipo: "uso" (en uso) | "proto" (prototipo / propuesta) | "archivo" (en pausa)
@@ -66,9 +66,9 @@ var HERRAMIENTAS = [
   {
     id: "seguimiento", tipo: "uso", estado: "beta", icono: "seguimiento", proceso: "transversal",
     nombre: "Seguimiento de actividades",
-    descripcion: "En qué estamos, qué terminamos, qué está frenado y qué espera el OK de Pablo, en una sola pantalla. Lee el índice de tareas y los últimos cambios cada vez que entrás.",
+    descripcion: "En qué estamos, qué terminamos, qué está frenado y qué espera el OK de Pablo, en una sola pantalla: los números clave arriba, filtros por estado y proceso, tarjetas para lo que espera un OK y la actividad como línea de tiempo. Lee el índice de tareas cada vez que entrás.",
     para: "Ver cómo vienen todas las tareas sin tener que preguntar. Se entra con la misma clave de GitHub de la Matriz; sin clave no muestra nada.",
-    version: "v1.3", actualizado: "2026-11-18",
+    version: "v1.6", actualizado: "2026-11-23",
     acciones: [
       { texto: "Abrir", href: "./seguimiento/", estilo: "primary" },
       { texto: "Guía de uso", href: "./seguimiento/guia.html", estilo: "ghost" }
@@ -100,6 +100,7 @@ var PROCESOS = [
 ];
 
 var NOVEDADES = [
+  { fecha: "2026-11-23", titulo: "Seguimiento de actividades · v1.6", texto: "Nuevo diseño con el estilo del portal: los números clave arriba, filtros con etiquetas de estado y proceso, tarjetas para lo que espera tu OK, la actividad como línea de tiempo y etiquetas de estado para filtrar la tabla." },
   { fecha: "2026-11-22", titulo: "Relevamiento comercial · tablero de avance", texto: "Un tablero para seguir el relevamiento: qué carteras ya enviaron, qué falta en cada dirección y qué respondieron. Desde ahí mismo sale el reporte a cada director por Teams." },
   { fecha: "2026-11-22", titulo: "Relevamiento comercial · migración a DMS", texto: "El equipo comercial confirma, cliente por cliente, qué se migra a DMS y cómo. Cada ejecutivo filtra su cartera y responde con opciones cerradas." },
   { fecha: "2026-11-21", titulo: "Portal · catálogo por grupos", texto: "Los grupos del catálogo se abren y se cierran: de un vistazo ves qué hay en cada uno y abrís solo lo que te interesa. Si buscás, se abren solos." },
