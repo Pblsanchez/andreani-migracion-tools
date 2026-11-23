@@ -1,0 +1,46 @@
+/* Seguimiento de actividades · T-019 E2 (D-131) · componentes del Portal (v1.5).
+   Va después de ../portal.css y seguimiento.css: ajusta lo viejo del Seguimiento a las piezas del portal.
+   Paleta D-045 · solo modo claro. */
+
+/* Franja: 3 números (los estilos base son .hero-meta del portal) */
+.hero--seg .hero-meta { margin-top: 0; }
+.seg-dato { display: grid; gap: 2px; }
+.seg-dato strong { color: var(--c-gray-000); }
+.seg-dato:first-child strong { color: var(--c-red-400); }
+
+/* Filtros: dos filas de etiquetas (chips del portal) */
+.filtros { display: grid; gap: var(--c-spacing-3); align-items: start; margin-bottom: var(--c-spacing-5); }
+.chips-fila { display: flex; flex-wrap: wrap; align-items: center; gap: var(--c-spacing-3); }
+.chips-fila__label { min-width: 72px; font: 500 14px/20px var(--c-font-family-body); color: var(--c-color-text-strong); }
+.chips-fila .chip { height: 36px; }
+
+/* Tarjetas del portal (pisa la .tarjeta vieja de seguimiento.css) */
+.seg-grilla { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+.seg-grilla > li { display: flex; }
+.seg-grilla .tarjeta {
+  width: 100%; display: grid; grid-template-rows: auto auto 1fr auto auto; gap: var(--c-spacing-3);
+  padding: var(--c-spacing-5); border: 0; border-top: var(--c-border-width-strong) solid var(--c-color-border-primary);
+  border-radius: var(--c-border-radius-medium); box-shadow: var(--shadow-bottom-regular); font-size: 14px; line-height: 20px;
+}
+.seg-grilla .tarjeta.gris { border-top-color: var(--c-gray-500); }
+.seg-grilla .t-titulo { font: 500 18px/22px var(--c-font-family-headline); color: var(--c-color-text-strong); margin: 0; }
+.seg-grilla .badges { align-items: center; gap: var(--c-spacing-2); }
+.seg-grilla .para { margin: 0; }
+.seg-grilla .para b { color: var(--c-color-text-strong); }
+.seg-grilla .t-meta { margin: 0; }
+
+/* «Esperan tu OK»: cabecera como los grupos del portal, sin el fondo rosa de toda la sección */
+.seccion--ok { background: none; border-left: 0; border-radius: 0; padding: 0; }
+.seccion__cab.grupo-head { align-items: center; margin-bottom: var(--c-spacing-4); }
+
+/* Actividad reciente: línea de tiempo del portal dentro de un panel blanco */
+.seg-tl { background: var(--c-color-surface); border: var(--c-border-width-subtle) solid var(--c-color-border-neutral-subtle); border-radius: var(--c-border-radius-medium); padding: var(--c-spacing-5); }
+.seg-tl .timeline { gap: var(--c-spacing-4); }
+.seg-tl .timeline .actividad__que { color: var(--c-color-text-strong); }
+.seg-tl .timeline .sr-only { font-size: 1px; }
+
+@media (max-width: 599px) {
+  .chips-fila__label { min-width: 0; flex-basis: 100%; }
+  .seg-grilla { grid-template-columns: 1fr; }
+  .seg-tl { padding: var(--c-spacing-4); }
+}

@@ -7,7 +7,8 @@
 <title>Seguimiento de actividades · Portal de soluciones</title>
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../portal.css?v=2.2">
-<link rel="stylesheet" href="seguimiento.css?v=1.4">
+<link rel="stylesheet" href="seguimiento.css?v=1.5">
+<link rel="stylesheet" href="seg-e2.css?v=1.5">
 </head>
 <body>
 <a class="skip-link" href="#seg-main">Saltar al contenido</a>
@@ -35,7 +36,7 @@
     <h1 id="seg-titulo" class="anim">Seguimiento de actividades, <em>en una sola pantalla.</em></h1>
     <p class="hero-bajada anim">En qué estamos, qué terminamos y qué espera tu OK. Se lee del índice de tareas cada vez que entrás.</p>
     <div class="hero-cta anim"><a class="btn btn-secondary btn-claro" href="guia.html">Ver la guía</a></div>
-    <div class="hero-meta anim" id="seg-hero-meta" hidden></div>
+    <div class="hero-meta anim" id="seg-hero-meta" aria-label="Resumen de tareas" hidden></div>
   </div>
 </section>
 
@@ -50,7 +51,7 @@
     <p class="leido" id="seg-leido"></p>
     <div id="seg-error" aria-live="polite"></div>
     <div id="seg-filtros" class="filtros" role="group" aria-label="Filtros"></div>
-    <section id="seg-contadores" class="seccion seccion--contadores" aria-labelledby="seg-contadores-titulo"></section>
+    <section id="seg-contadores" class="seccion seccion--contadores" aria-labelledby="seg-contadores-titulo" hidden></section>
     <section id="seg-ok" class="seccion seccion--ok" aria-labelledby="seg-ok-titulo"></section>
     <section id="seg-frenadas" class="seccion" aria-labelledby="seg-frenadas-titulo"></section>
     <section id="seg-actividad" class="seccion" aria-labelledby="seg-actividad-titulo"></section>
@@ -67,9 +68,9 @@
   </div>
 </footer>
 
-<script src="seguimiento-lib.js?v=1.4"></script>
-<script src="seguimiento-gh.js?v=1.4"></script>
-<script src="seguimiento-vistas.js?v=1.4"></script>
-<script src="seguimiento.js?v=1.4"></script>
+<script src="seguimiento-lib.js?v=1.5"></script>
+<script src="seguimiento-gh.js?v=1.5"></script>
+<script src="seguimiento-vistas.js?v=1.5"></script>
+<script src="seguimiento.js?v=1.5"></script>
 </body>
 </html>
