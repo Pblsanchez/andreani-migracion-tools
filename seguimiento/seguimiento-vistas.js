@@ -1,4 +1,4 @@
-/* ==SEG-VISTAS== Seguimiento de actividades (T-017, D-081) v1.5 — T-019 E2 (D-131): componentes del Portal.
+/* ==SEG-VISTAS== Seguimiento de actividades (T-017, D-081) v1.6 — T-019 E2 (D-131): componentes del Portal; v1.6 (D-132): pills de estado en la tabla.
    Franja con 3 números (Esperan tu OK · En curso · Cerradas), filtros con etiquetas (chips) de estado y proceso,
    tarjetas del portal para «Esperan tu OK» y «Bloqueadas y en pausa», línea de tiempo para la actividad reciente.
    La tabla de tareas sigue en seguimiento.js. Recibe los helpers de la interfaz (ui) desde seguimiento.js. */
@@ -60,7 +60,60 @@ function SEG_VISTAS(ui) {
     cont.appendChild(fila("Estado", "seg-f-estado", estados));
     cont.appendChild(fila("Proceso", "seg-f-proceso", procesos));
     if (f.proceso || f.estado) cont.appendChild(el("div", null, [el("button", { type: "button", "class": "btn btn-ghost btn--chico", id: "seg-f-limpiar", onclick: function () { alCambiar({ proceso: "", estado: "" }); } }, ["Limpiar filtros"])]));
-    renderFranja(d); vigilarDatos();
+    renderFranja(d); vigilarDatos(); vigilarTabla();
+  }
+
+  /* ---------- Tabla: filtro propio con pills de estado (T-019, D-132) ----------
+     Pills con el mismo diseño que la columna «Estado». Se pueden marcar varios (ej.: En curso + En revisión).
+     Filtran solo la tabla, sobre lo que ya dejan los filtros de arriba. La tabla la arma seguimiento.js:
+     cuando se vuelve a pintar, se agregan los pills y se aplica la selección (MutationObserver). */
+  var selTabla = [];
+  function prepararTabla() {
+    var cont = $("seg-lista"); if (!cont) return;
+    var cuerpo = $("seg-lista-cuerpo");
+    hijosConClase(cont, "pills-tabla").forEach(function (n) { cont.removeChild(n); });
+    if (!cuerpo || !enArbol(cont, cuerpo)) return;
+    var filas = cuerpo.children || [], c = {};
+    L.ESTADOS.forEach(function (e) { c[e] = 0; });
+    filas.forEach(function (tr) { var e = tr.getAttribute("data-estado"); if (c[e] != null) c[e]++; });
+    selTabla = selTabla.filter(function (e) { return c[e] > 0; });
+    var pills = el("div", { "class": "pills-tabla" + (selTabla.length ? " hay-sel" : ""), role: "group", "aria-label": "Filtrar la tabla por estado" }, [
+      el("span", { "class": "chips-fila__label", text: "Ver en la tabla" }),
+      el("button", { type: "button", "class": "chip chip--todas", "aria-pressed": selTabla.length ? "false" : "true", "data-estado": "",
+        onclick: function () { selTabla = []; prepararTabla(); anunciarTabla(); } }, ["Todas", el("span", { "class": "n", text: String(filas.length) })])
+    ].concat(L.ESTADOS.map(function (e) {
+      var activo = selTabla.indexOf(e) >= 0, n = c[e];
+      return el("button", { type: "button", "class": "pill-estado", "aria-pressed": activo ? "true" : "false", "data-estado": e, disabled: n === 0,
+        title: n === 0 ? "No hay tareas «" + e + "» en la tabla" : (activo ? "Quitar «" + e + "»" : "Sumar «" + e + "» a la tabla"),
+        onclick: function () { if (activo) selTabla = selTabla.filter(function (x) { return x !== e; }); else selTabla = selTabla.concat([e]); prepararTabla(); anunciarTabla(); } },
+        [etiquetaEstado({ estado: e }), el("span", { "class": "pill-n", text: String(n) })]);
+    })));
+    var cab = hijosConClase(cont, "seccion__cab")[0];
+    if (cab) cont.insertBefore(pills, cab.nextSibling); else cont.appendChild(pills);
+    var visibles = 0;
+    filas.forEach(function (tr) { var ver = !selTabla.length || selTabla.indexOf(tr.getAttribute("data-estado")) >= 0; tr.hidden = !ver; if (ver) visibles++; });
+    var tot = $("seg-lista-total");
+    if (tot) {
+      if (tot.getAttribute("data-base") == null) tot.setAttribute("data-base", tot.textContent);
+      tot.textContent = selTabla.length ? visibles + " de " + filas.length + " en la tabla" : tot.getAttribute("data-base");
+    }
+  }
+  function anunciarTabla() {
+    var a = $("seg-anuncio"), tot = $("seg-lista-total");
+    if (a && tot) { a.textContent = ""; a.textContent = "Tabla: " + tot.textContent + "."; }
+  }
+  function hijosConClase(n, cl) { return (n.children || []).filter(function (x) { return (" " + (x.getAttribute("class") || "") + " ").indexOf(" " + cl + " ") >= 0; }); }
+  function enArbol(raiz, n) { while (n) { if (n === raiz) return true; n = n.parentNode; } return false; }
+  var vigTabla = false, pintando = false;
+  function vigilarTabla() {
+    if (vigTabla) return; vigTabla = true;
+    var cont = $("seg-lista");
+    if (!cont || typeof MutationObserver === "undefined") return;
+    new MutationObserver(function () {
+      if (pintando) return;
+      if (hijosConClase(cont, "pills-tabla").length && $("seg-lista-cuerpo") && $("seg-lista-total") && $("seg-lista-total").getAttribute("data-base") != null) return;
+      pintando = true; try { prepararTabla(); } finally { pintando = false; }
+    }).observe(cont, { childList: true });
   }
 
   /* ---------- Contadores: desde v1.5 los muestran las etiquetas de estado; la sección queda oculta ---------- */
@@ -127,6 +180,6 @@ function SEG_VISTAS(ui) {
     }))]));
   }
 
-  return { renderFiltros: renderFiltros, renderContadores: renderContadores, renderOk: renderOk, renderFrenadas: renderFrenadas, renderActividad: renderActividad, renderFranja: renderFranja, limpiarFranja: limpiarFranja };
+  return { renderFiltros: renderFiltros, renderContadores: renderContadores, renderOk: renderOk, renderFrenadas: renderFrenadas, renderActividad: renderActividad, renderFranja: renderFranja, limpiarFranja: limpiarFranja, prepararTabla: prepararTabla };
 }
 if (typeof module !== "undefined" && module.exports) module.exports = SEG_VISTAS;
