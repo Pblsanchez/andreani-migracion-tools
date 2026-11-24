@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La demanda que vinimos a resolver · Alta de contratos DMS</title>
+<meta name="description" content="Cuántos pedidos de alta de contratos DMS se procesaron a mano, cuántos se repitieron y qué cambia con la automatización.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23d71920'/%3E%3Cpath d='M8 22V14M14 22V9M20 22V12M26 22V17' stroke='%23fff' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --c-color-bg:#fafafa;--c-color-surface:#fff;--c-color-surface-primary:#d71920;--c-color-surface-primary-subtle:#fbe8e9;
+  --c-color-surface-neutral:#dfe1e3;--c-color-surface-neutral-strong:#616a75;--c-color-surface-neutral-subtle:#fafafa;
+  --c-color-surface-warning:#e86427;--c-color-surface-warning-subtle:#fdefe9;--c-color-surface-info:#4e63d7;--c-color-surface-info-subtle:#edeffb;
+  --c-color-surface-success:#1f7e5a;--c-color-surface-success-subtle:#ddf3ea;
+  --c-color-text-strong:#272a2f;--c-color-text:#4e555e;--c-color-text-subtle:#616a75;--c-color-text-inverse:#fff;--c-color-text-primary:#b0141a;
+  --c-color-text-warning:#a5441a;--c-color-text-success:#1f7e5a;--c-color-text-info:#3a4bb0;
+  --c-color-border-subtle:#c0c3c8;--c-color-border-strong:#818891;
+  --c-border-radius-small:8px;--c-border-radius-medium:16px;--c-border-radius-large:24px;--c-border-radius-xlarge:99px;
+  --c-font-family-headline:Rubik,"Segoe UI",system-ui,sans-serif;--c-font-family-body:Roboto,"Segoe UI",system-ui,sans-serif;
+  --c-spacing-1:4px;--c-spacing-2:8px;--c-spacing-3:12px;--c-spacing-4:16px;--c-spacing-5:24px;--c-spacing-6:32px;--c-spacing-7:48px;--c-spacing-8:64px;
+  --shadow-bottom-subtle:0 1px 2px #4e555e40;--shadow-focus-regular:0 0 0 3px #4e63d766;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--c-color-bg);color:var(--c-color-text);font:400 16px/24px var(--c-font-family-body)}
+a{color:var(--c-color-text-primary)}
+:focus-visible{outline:2px solid transparent;box-shadow:var(--shadow-focus-regular);border-radius:var(--c-border-radius-small)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 var(--c-spacing-5)}
+header.top{background:var(--c-color-surface);border-bottom:1px solid var(--c-color-surface-neutral)}
+header.top .wrap{display:flex;align-items:center;gap:var(--c-spacing-4);height:64px}
+.logo{display:flex;align-items:center;gap:var(--c-spacing-2);font:700 18px/22px var(--c-font-family-headline);color:var(--c-color-text-strong);text-decoration:none}
+.logo i{width:32px;height:32px;border-radius:var(--c-border-radius-small);background:var(--c-color-surface-primary);display:inline-block}
+nav.top{margin-left:auto;display:flex;gap:var(--c-spacing-4);font-size:14px}
+nav.top a{color:var(--c-color-text);text-decoration:none;padding:var(--c-spacing-2) 0;min-height:44px;display:flex;align-items:center}
+nav.top a:hover{color:var(--c-color-text-strong);text-decoration:underline}
+.hero{background:linear-gradient(135deg,#272a2f 0%,#3a4046 60%,#810f13 140%);color:var(--c-color-text-inverse);padding:var(--c-spacing-8) 0 var(--c-spacing-7)}
+.over{font:500 12px/16px var(--c-font-family-body);letter-spacing:.12em;text-transform:uppercase;color:#ffd5d7}
+.hero h1{font:700 40px/44px var(--c-font-family-headline);margin:var(--c-spacing-3) 0 var(--c-spacing-4);max-width:760px}
+.hero p.lead{font-size:18px;line-height:28px;max-width:720px;color:#e9eaec;margin:0}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--c-spacing-4);margin-top:var(--c-spacing-6)}
+.kpi{background:#ffffff14;border:1px solid #ffffff2e;border-radius:var(--c-border-radius-medium);padding:var(--c-spacing-5)}
+.kpi b{display:block;font:700 38px/44px var(--c-font-family-headline);color:#fff}
+.kpi span{display:block;font-size:14px;line-height:20px;color:#e9eaec;margin-top:var(--c-spacing-1)}
+.kpi.alerta b{color:#ffb38f}
+section{padding:var(--c-spacing-7) 0}
+section.blanca{background:var(--c-color-surface)}
+h2{font:700 32px/36px var(--c-font-family-headline);color:var(--c-color-text-strong);margin:0 0 var(--c-spacing-2)}
+h3{font:500 20px/24px var(--c-font-family-headline);color:var(--c-color-text-strong);margin:0 0 var(--c-spacing-2)}
+.sub{margin:0 0 var(--c-spacing-5);max-width:760px}
+.card{background:var(--c-color-surface);border-radius:var(--c-border-radius-medium);box-shadow:var(--shadow-bottom-subtle);padding:var(--c-spacing-5)}
+.filtros{display:flex;flex-wrap:wrap;align-items:center;gap:var(--c-spacing-2);margin-bottom:var(--c-spacing-5)}
+.filtros .lbl{font-size:14px;color:var(--c-color-text-subtle);margin-right:var(--c-spacing-2)}
+.chip{font:500 14px/20px var(--c-font-family-body);border:1px solid var(--c-color-border-strong);background:var(--c-color-surface);color:var(--c-color-text-strong);border-radius:var(--c-border-radius-xlarge);padding:var(--c-spacing-2) var(--c-spacing-4);min-height:44px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--c-color-text-strong);border-color:var(--c-color-text-strong);color:var(--c-color-text-inverse)}
+.chip:hover{border-color:var(--c-color-text-strong)}
+.chip:disabled{opacity:.5;cursor:not-allowed}
+.sep{width:1px;height:28px;background:var(--c-color-surface-neutral);margin:0 var(--c-spacing-2)}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--c-spacing-4);margin-bottom:var(--c-spacing-5)}
+.m{background:var(--c-color-surface);border-radius:var(--c-border-radius-medium);box-shadow:var(--shadow-bottom-subtle);padding:var(--c-spacing-4) var(--c-spacing-5);border-top:4px solid var(--c-color-surface-primary)}
+.m.warn{border-top-color:var(--c-color-surface-warning)}
+.m.neu{border-top-color:var(--c-color-surface-neutral-strong)}
+.m b{display:block;font:700 32px/36px var(--c-font-family-headline);color:var(--c-color-text-strong)}
+.m span{font-size:14px;line-height:20px}
+.m small{display:block;font-size:12px;line-height:16px;color:var(--c-color-text-subtle);margin-top:var(--c-spacing-2)}
+.leyenda{display:flex;flex-wrap:wrap;gap:var(--c-spacing-4);font-size:14px;margin:var(--c-spacing-3) 0 0}
+.leyenda i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:var(--c-spacing-2);vertical-align:-1px}
+.chart{width:100%;overflow-x:auto}
+.chart svg{display:block;min-width:640px;width:100%;height:auto}
+.chart text{font:400 11px var(--c-font-family-body);fill:#4e555e}
+.two{display:grid;grid-template-columns:3fr 2fr;gap:var(--c-spacing-4)}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:var(--c-spacing-4)}
+.vs .col{border-radius:var(--c-border-radius-medium);padding:var(--c-spacing-5)}
+.vs .antes{background:var(--c-color-surface-neutral)}
+.vs .ahora{background:var(--c-color-surface-primary-subtle)}
+.vs ul{margin:var(--c-spacing-3) 0 0;padding-left:20px}
+.vs li{margin-bottom:var(--c-spacing-2)}
+.tag{display:inline-block;font:500 12px/16px var(--c-font-family-body);border-radius:var(--c-border-radius-xlarge);padding:2px var(--c-spacing-2)}
+.tag.warn{background:var(--c-color-surface-warning-subtle);color:var(--c-color-text-warning)}
+.tag.ok{background:var(--c-color-surface-success-subtle);color:var(--c-color-text-success)}
+.causas{list-style:none;margin:0;padding:0;display:grid;gap:var(--c-spacing-3)}
+.causas li{background:var(--c-color-surface-neutral-subtle);border-radius:var(--c-border-radius-small);border-left:3px solid var(--c-color-surface-warning);padding:var(--c-spacing-2) var(--c-spacing-3);font-size:14px;line-height:20px}
+.causas li b{color:var(--c-color-text-strong)}
+.oculta{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--c-spacing-3)}
+.oculta div{background:var(--c-color-surface);border:1px dashed var(--c-color-border-strong);border-radius:var(--c-border-radius-medium);padding:var(--c-spacing-4);font-size:14px;line-height:20px}
+.oculta b{display:block;color:var(--c-color-text-strong);font:500 16px/24px var(--c-font-family-headline);margin-bottom:var(--c-spacing-1)}
+.alert{border-radius:var(--c-border-radius-small);background:var(--c-color-surface-info-subtle);border-left:4px solid var(--c-color-surface-info);padding:var(--c-spacing-3) var(--c-spacing-4);font-size:14px;line-height:20px;color:var(--c-color-text-strong);margin-top:var(--c-spacing-4)}
+details.metodo{background:var(--c-color-surface);border-radius:var(--c-border-radius-medium);box-shadow:var(--shadow-bottom-subtle);padding:var(--c-spacing-4) var(--c-spacing-5)}
+details.metodo summary{cursor:pointer;font:500 16px/24px var(--c-font-family-headline);color:var(--c-color-text-strong);min-height:44px;display:flex;align-items:center}
+details.metodo ul{font-size:14px;line-height:20px;padding-left:20px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:0 var(--c-spacing-4);height:40px;text-align:right;border-bottom:1px solid var(--c-color-surface-neutral);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-weight:500;color:var(--c-color-text-strong);background:var(--c-color-surface-neutral-subtle)}
+caption{text-align:left;padding:var(--c-spacing-2) var(--c-spacing-4);font-size:12px;color:var(--c-color-text-subtle)}
+.tabla{border-radius:var(--c-border-radius-small);overflow:auto;border:1px solid var(--c-color-surface-neutral);margin-top:var(--c-spacing-4)}
+.cta{display:flex;flex-wrap:wrap;gap:var(--c-spacing-3);margin-top:var(--c-spacing-5)}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:40px;padding:0 var(--c-spacing-5);border-radius:var(--c-border-radius-xlarge);font:500 16px/24px var(--c-font-family-body);text-decoration:none}
+.btn.pri{background:var(--c-color-surface-primary);color:#fff}
+.btn.pri:hover{background:#b0141a}
+.btn.sec{border:1px solid #fff;color:#fff}
+.btn.sec:hover{background:#ffffff1f}
+.btn.out{border:1px solid var(--c-color-surface-primary);color:var(--c-color-text-primary)}
+footer{background:var(--c-color-text-strong);color:#c0c3c8;font-size:14px;padding:var(--c-spacing-5) 0}
+footer a{color:#fff}
+@media (max-width:1023px){
+  .hero h1{font-size:28px;line-height:32px}h2{font-size:24px;line-height:28px}
+  .kpi b{font-size:28px;line-height:32px}
+  .kpis,.grid4,.oculta{grid-template-columns:1fr 1fr}.two,.vs{grid-template-columns:1fr}
+  nav.top{display:none}
+  .btn{width:90%;height:48px}.cta{justify-content:center}
+}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="logo" href="../"><i aria-hidden="true"></i>Portal de soluciones</a>
+  <nav class="top" aria-label="Secciones">
+    <a href="#demanda">Demanda</a><a href="#reproceso">Reproceso</a><a href="#oculta">Lo que no se ve</a><a href="#metodo">Cómo contamos</a><a href="../alta-contingente/">Cómo funciona</a>
+  </nav>
+</div></header>
+
+<div class="hero"><div class="wrap">
+  <div class="over">Alta de contratos DMS · proceso anterior y automatización</div>
+  <h1>La demanda que vinimos a resolver</h1>
+  <p class="lead">Durante más de un año, cada alta de contrato en DMS pasó por el mismo circuito manual: recibir el Excel, revisarlo, renombrarlo, mandarlo al grupo y esperar. Estos son los números de ese trabajo.</p>
+  <div class="kpis" id="hero-kpis"></div>
+  <div class="cta">
+    <a class="btn pri" href="#demanda">Ver la demanda mes a mes</a>
+    <a class="btn sec" href="../alta-contingente/">Cómo funciona la automatización</a>
+  </div>
+</div></div>
+
+<section id="demanda"><div class="wrap">
+  <h2>Pedido a pedido, todos los meses</h2>
+  <p class="sub">Cada barra es un mes. Lo contado sale de los archivos con número de contrato; lo estimado, de las planillas que llegaron sin renombrar.</p>
+  <div class="filtros" role="group" aria-label="Filtros">
+    <span class="lbl">Ver:</span>
+    <button class="chip" type="button" data-vista="todo" aria-pressed="true">Todo</button>
+    <button class="chip" type="button" data-vista="manual" aria-pressed="false">Proceso anterior</button>
+    <button class="chip" type="button" data-vista="auto" aria-pressed="false">Automatización</button>
+    <span class="sep" aria-hidden="true"></span>
+    <button class="chip" type="button" id="chip-cds" aria-pressed="true">Incluir Cruz del Sur uno a uno</button>
+  </div>
+  <div class="grid4" id="metricas" aria-live="polite"></div>
+  <div class="card">
+    <h3>Pedidos de alta por mes</h3>
+    <div class="chart" id="chart"></div>
+    <div class="leyenda" id="leyenda"></div>
+  </div>
+  <div class="alert" id="nota-auto" hidden></div>
+</div></section>
+
+<section id="reproceso" class="blanca"><div class="wrap">
+  <h2>Al menos 1 de cada 8 se hizo dos veces</h2>
+  <p class="sub">Un contrato que vuelve al grupo es trabajo repetido para todos: el comercial corrige, se vuelve a revisar, se vuelve a mandar y se vuelve a cargar. Pasó todos los meses, no fue un mal momento.</p>
+  <div class="two">
+    <div class="card"><h3>Envíos repetidos por mes</h3><div class="chart" id="chart-rep"></div>
+      <div class="leyenda"><span><i style="background:#e86427"></i>Contado</span><span><i style="background:#f1a27d"></i>Estimado (12,5 %)</span></div></div>
+    <div class="card"><h3>Por qué vuelve un contrato</h3>
+      <ul class="causas">
+        <li><b>Datos que no cierran:</b> SLA con otro formato, solicitante que no es el código SAP, espacios de más.</li>
+        <li><b>El cliente todavía no existe</b> en el maestro de datos o tiene el perfil sin definir.</li>
+        <li><b>Contrato cruzado:</b> el número ERP corresponde a otro contrato.</li>
+        <li><b>Se creía cargado y no estaba</b>, o se cargó por otro lado y se volvió a mandar.</li>
+        <li><b>El mismo archivo dos veces</b> en un mismo envío.</li>
+        <li><b>Faltaba un dato para operar</b> (por ejemplo, la dirección de devolución) y había que salir a buscarlo.</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<section id="oculta"><div class="wrap">
+  <h2>Lo que no entra en ningún número</h2>
+  <p class="sub">El grupo no era solo altas. Entre archivo y archivo llegaban pedidos que no dejan rastro en una carpeta, pero que también había que atender.</p>
+  <div class="oculta">
+    <div><b>Cambios en contratos vivos</b>Entrega parcial, retiro parcial, pasar contratos a Logística Asegurada.</div>
+    <div><b>Consultas</b>«¿Este contrato está dado de alta?», «¿tiene aforo obligatorio?», niveles de esfuerzo.</div>
+    <div><b>Evidencias</b>Capturas del alta en cada ambiente para destrabar un problema de integración.</div>
+    <div><b>Datos faltantes</b>Ir a buscar al comercial lo que el contrato necesitaba para poder operar.</div>
+  </div>
+</div></section>
+
+<section class="blanca"><div class="wrap">
+  <h2>Qué cambia</h2>
+  <div class="vs">
+    <div class="col antes"><span class="tag warn">Antes</span>
+      <ul><li>Cada Excel se revisaba y renombraba a mano (~5 min por archivo, sin contar idas y vueltas).</li>
+      <li>Los errores aparecían cuando el contrato ya estaba en la carga de DMS.</li>
+      <li>El comercial no sabía en qué estaba su pedido hasta preguntar.</li></ul></div>
+    <div class="col ahora"><span class="tag ok">Ahora</span>
+      <ul><li>El agente lee el Excel, corrige lo que se puede corregir y valida contra el CRM antes de enviarlo.</li>
+      <li>Los envíos salen agrupados en cortes fijos del día.</li>
+      <li>El comercial recibe el estado de su pedido sin tener que preguntar.</li></ul></div>
+  </div>
+  <div class="cta"><a class="btn out" href="../alta-contingente/">Ver cómo funciona paso a paso</a></div>
+</div></section>
+
+<section id="metodo"><div class="wrap">
+  <details class="metodo"><summary>Cómo contamos (y qué no contamos)</summary>
+    <ul>
+      <li><b>Período:</b> desde el 16/07/2025. Antes de esa fecha los envíos salían desde otra cuenta y no están en esta base.</li>
+      <li><b>Fuente:</b> los Excel compartidos en el grupo de alta de contratos. La fecha es la de la última modificación del archivo, no siempre la del envío.</li>
+      <li><b>Contado:</b> archivos con número de contrato en el nombre. Ahí se ve exactamente qué contrato se mandó más de una vez.</li>
+      <li><b>Estimado:</b> las planillas sin número se cuentan como pedidos de alta y se les aplica la misma tasa de reproceso medida (12,5 %). Desde septiembre de 2026 casi todo lleva número y la tasa medida da 11,7 %: el estimado es prudente.</li>
+      <li><b>No incluye:</b> cargas masivas de la migración ni la carga masiva de Cruz del Sur con el normalizador. Cruz del Sur enviado uno a uno por el grupo sí está, y se puede sacar con el filtro.</li>
+      <li><b>Horas:</b> 5 minutos por archivo, sin contar las consultas con el comercial.</li>
+      <li><b>Automatización:</b> desde el 21/11/2026; se actualiza sola cada día hábil a las 17 h.</li>
+    </ul>
+    <div class="tabla"><table id="tabla"></table></div>
+  </details>
+</div></section>
+
+<footer><div class="wrap">Equipo de alta de contratos · <a href="../">Portal de soluciones</a> <span id="actualizado"></span></div></footer>
+
+<script>
+(function(){
+"use strict";
+var TASA=0.125, MIN=5;
+// Agregados por mes del proceso anterior (sin clientes). g = general, c = Cruz del Sur uno a uno; a = archivos, n = contratos nuevos, r = reenvios; gs = planillas sin numero (estimado).
+var M={"2025-07":{ga:21,gn:21,gs:1},"2025-08":{ga:89,gn:87,gr:3,gs:21},"2025-09":{ga:38,gr:4,gn:34,gs:37},"2025-10":{ga:27,gn:25,gr:2,gs:62},"2025-11":{ga:19,gn:15,gr:4,gs:44},"2025-12":{ga:16,gn:14,gr:2,gs:43},"2026-01":{ga:14,gn:11,gr:3,gs:55},"2026-02":{ga:30,gn:27,gr:3,gs:53},"2026-03":{ga:21,gn:15,gr:6,gs:42},"2026-04":{ga:13,gn:12,gr:1,gs:77},"2026-05":{ga:32,gn:31,gr:1,gs:53},"2026-06":{ga:23,gn:21,gr:2,gs:61},"2026-07":{ga:42,gn:33,gr:9,gs:39},"2026-08":{ga:47,gr:8,gn:39,ca:4,cn:4,gs:34},"2026-09":{ga:102,gn:96,gr:6,ca:11,cn:6,cr:5,gs:1},"2026-10":{ga:109,gn:94,gr:15,ca:52,cn:37,cr:15,gs:1},"2026-11":{ga:65,gn:57,gr:8,ca:3,cn:3,gs:6}};
+var MESES_PERIODO=16.3; // 16/07/2025 a 24/11/2026
+var AUTO={inicio:"2026-11-21",actualizado:"",meses:{}};
+var st={vista:"todo",cds:true};
+var MES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+function lab(k){var p=k.split("-");return MES[+p[1]-1]+"-"+p[0].slice(2);}
+function n(x){return Math.round(x).toLocaleString("es-AR");}
+function $(id){return document.getElementById(id);}
+function v(o,k){return (o&&o[k])||0;}
+function fecha(iso){var p=String(iso).slice(0,10).split("-");return p[2]+"/"+p[1]+"/"+p[0];}
+function manualMes(k,cds){var o=M[k]||{},c=cds===undefined?st.cds:cds;
+  var cont=v(o,"ga")+(c?v(o,"ca"):0), est=v(o,"gs");
+  return {cont:cont,est:est,ped:cont+est,contr:v(o,"gn")+(c?v(o,"cn"):0)+est*(1-TASA),repC:v(o,"gr")+(c?v(o,"cr"):0),repE:est*TASA};}
+function autoMes(k){var o=AUTO.meses[k]||{};return {ped:v(o,"recibidos"),env:v(o,"enviados"),ok:v(o,"cargados"),rech:v(o,"rechazados"),rep:v(o,"reenvios")};}
+function meses(){var s={};Object.keys(M).forEach(function(k){s[k]=1;});Object.keys(AUTO.meses).forEach(function(k){s[k]=1;});return Object.keys(s).sort();}
+function totales(vista,cds){var t={ped:0,cont:0,est:0,contr:0,repC:0,repE:0,a:0,aRep:0,aOk:0,aRech:0};
+  meses().forEach(function(k){var m=manualMes(k,cds),a=autoMes(k);
+    if(vista!=="auto"){t.ped+=m.ped;t.cont+=m.cont;t.est+=m.est;t.contr+=m.contr;t.repC+=m.repC;t.repE+=m.repE;}
+    if(vista!=="manual"){t.a+=a.ped;t.aRep+=a.rep;t.aOk+=a.ok;t.aRech+=a.rech;}});
+  return t;}
+function hero(){var t=totales("manual",true);
+  $("hero-kpis").innerHTML=
+   '<div class="kpi"><b>'+n(t.ped)+'</b><span>pedidos de alta procesados a mano</span></div>'+
+   '<div class="kpi"><b>~'+n(t.ped/MESES_PERIODO)+'</b><span>pedidos por mes, mes tras mes</span></div>'+
+   '<div class="kpi alerta"><b>1 de cada 8</b><span>contratos se configuró más de una vez</span></div>'+
+   '<div class="kpi"><b>~'+n(t.ped*MIN/60)+' h</b><span>de trabajo manual solo en revisar y enviar</span></div>';}
+function card(c,b,s,sm){return '<div class="m '+c+'"><b>'+b+'</b><span>'+s+'</span><small>'+sm+'</small></div>';}
+function metricas(){var t=totales(st.vista,st.cds),h="";
+  if(st.vista==="auto"){
+    h+=card("",n(t.a),"pedidos recibidos por el agente","desde el "+fecha(AUTO.inicio));
+    h+=card("neu",n(t.aOk),"cargados en DMS","confirmados por la carga del día");
+    h+=card("warn",n(t.aRech),"rechazados al cargar","con el motivo informado al comercial");
+    h+=card("neu",n(t.aRep),"envíos repetidos","la meta es que tienda a cero");
+  }else{
+    var conA=st.vista==="todo", ped=t.ped+(conA?t.a:0), rep=t.repC+t.repE+(conA?t.aRep:0);
+    h+=card("",n(ped),"pedidos de alta",n(t.cont)+" contados + "+n(t.est)+" estimados"+(conA&&t.a?" + "+n(t.a)+" de la automatización":""));
+    h+=card("","~"+n(t.contr+(conA?t.a-t.aRep:0)),"contratos distintos","cada contrato contado una sola vez");
+    h+=card("warn","~"+n(rep),"envíos repetidos",n(t.repC)+" contados + ~"+n(t.repE)+" estimados ("+(ped?(100*rep/ped).toFixed(1).replace(".",","):0)+" %)");
+    h+=card("neu","~"+n(ped*MIN/60)+" h","de trabajo","a 5 min por archivo; ~"+n(rep*MIN/60)+" h fueron repetir");
+  }
+  $("metricas").innerHTML=h;}
+function barras(el,series,colores,nombre){
+  var ks=meses(),W=Math.max(640,ks.length*48),H=260,pl=36,pb=28,pt=16,cw=(W-pl-8)/ks.length;
+  var max=1;ks.forEach(function(k){var s=0;series.forEach(function(f){s+=f(k);});if(s>max)max=s;});
+  var paso=max>100?50:max>40?10:max>10?5:1, top=Math.ceil(max/paso)*paso;
+  function y(x){return pt+(H-pt-pb)*(1-x/top);}
+  var g='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+nombre+'">';
+  for(var t=0;t<=top;t+=paso){g+='<line x1="'+pl+'" x2="'+W+'" y1="'+y(t)+'" y2="'+y(t)+'" stroke="#dfe1e3"/><text x="'+(pl-6)+'" y="'+(y(t)+4)+'" text-anchor="end">'+t+'</text>';}
+  ks.forEach(function(k,i){var acc=0,x=pl+i*cw+cw*0.18,w=cw*0.64;
+    series.forEach(function(f,j){var val=f(k);if(val>0){g+='<rect x="'+x.toFixed(1)+'" y="'+y(acc+val).toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+(y(acc)-y(acc+val)).toFixed(1)+'" fill="'+colores[j]+'"><title>'+lab(k)+': '+n(val)+'</title></rect>';}acc+=val;});
+    if(acc>0)g+='<text x="'+(x+w/2).toFixed(1)+'" y="'+(y(acc)-4).toFixed(1)+'" text-anchor="middle" style="font-weight:500;fill:#272a2f">'+n(acc)+'</text>';
+    g+='<text x="'+(x+w/2).toFixed(1)+'" y="'+(H-10)+'" text-anchor="middle">'+lab(k)+'</text>';});
+  el.innerHTML=g+'</svg>';}
+function graficos(){var S=[],C=[],L=[];
+  if(st.vista!=="auto"){S.push(function(k){return manualMes(k).cont;},function(k){return manualMes(k).est;});C.push("#d71920","#e77579");L.push(["#d71920","Proceso anterior · contado"],["#e77579","Proceso anterior · estimado"]);}
+  if(st.vista!=="manual"){S.push(function(k){return autoMes(k).ped;});C.push("#272a2f");L.push(["#272a2f","Automatización"]);}
+  barras($("chart"),S,C,"Pedidos de alta por mes");
+  $("leyenda").innerHTML=L.map(function(l){return '<span><i style="background:'+l[0]+'"></i>'+l[1]+'</span>';}).join("");
+  var conA=st.vista!=="manual";
+  barras($("chart-rep"),[function(k){return manualMes(k).repC+(conA?autoMes(k).rep:0);},function(k){return manualMes(k).repE;}],["#e86427","#f1a27d"],"Envíos repetidos por mes");
+  var na=$("nota-auto");na.hidden=st.vista==="manual";
+  na.textContent="La automatización arrancó el "+fecha(AUTO.inicio)+": todavía son pocos días y la comparación gana peso mes a mes."+(AUTO.actualizado?" Última actualización: "+fecha(AUTO.actualizado)+".":"");}
+function tabla(){var h='<caption>Detalle mensual (pedidos de alta)</caption><thead><tr><th scope="col">Mes</th><th scope="col">Contado</th><th scope="col">Estimado</th><th scope="col">Repetidos</th><th scope="col">Automatización</th></tr></thead><tbody>';
+  meses().forEach(function(k){var m=manualMes(k),a=autoMes(k);h+='<tr><td>'+lab(k)+'</td><td>'+n(m.cont)+'</td><td>'+n(m.est)+'</td><td>'+n(m.repC)+(m.repE?' + ~'+n(m.repE):'')+'</td><td>'+n(a.ped)+'</td></tr>';});
+  $("tabla").innerHTML=h+'</tbody>';}
+function render(){hero();metricas();graficos();tabla();
+  document.querySelectorAll("[data-vista]").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-vista")===st.vista?"true":"false");});
+  var c=$("chip-cds");c.setAttribute("aria-pressed",st.cds?"true":"false");c.disabled=st.vista==="auto";
+  $("actualizado").textContent=AUTO.actualizado?"· Automatización actualizada el "+fecha(AUTO.actualizado):"";}
+document.querySelectorAll("[data-vista]").forEach(function(b){b.addEventListener("click",function(){st.vista=b.getAttribute("data-vista");render();});});
+$("chip-cds").addEventListener("click",function(){st.cds=!st.cds;render();});
+render();
+if(window.fetch)fetch("automatizacion.json?t="+Date.now()).then(function(r){return r.ok?r.json():null;}).then(function(j){if(j&&j.meses){AUTO=j;render();}}).catch(function(){});
+})();
+</script>
+</body>
+</html>
