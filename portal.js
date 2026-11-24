@@ -1,4 +1,4 @@
-/* Portal de soluciones (T-016, D-076, D-077) · catálogo y comportamiento. Separado de index.html en T-017 E3 (v2.2). Grupos colapsables: T-022 (v2.7). Sin destacado «Lo nuevo»: T-023 (v2.8). Relevamiento comercial: T-024 (v2.9). Seguimiento v1.6 con el estilo del portal: T-019 (v2.11). Alta automática v1.1 con cierre del pedido: T-020 (v2.12). */
+/* Portal de soluciones (T-016, D-076, D-077) · catálogo y comportamiento. Separado de index.html en T-017 E3 (v2.2). Grupos colapsables: T-022 (v2.7). Sin destacado «Lo nuevo»: T-023 (v2.8). Relevamiento comercial: T-024 (v2.9). Seguimiento v1.6 con el estilo del portal: T-019 (v2.11). Alta automática v1.1 con cierre del pedido: T-020 (v2.12). Relevamiento con acceso a «Publicar carteras»: T-024 (v2.13). */
 /*
  * Catálogo del portal (D-008, T-016). Para sumar una herramienta, agregar un objeto a HERRAMIENTAS.
  *   tipo: "uso" (en uso) | "proto" (prototipo / propuesta) | "archivo" (en pausa)
@@ -24,12 +24,13 @@ var HERRAMIENTAS = [
     id: "relevamiento", tipo: "uso", estado: "beta", icono: "relevamiento", proceso: "migracion",
     nombre: "Relevamiento comercial · migración a DMS",
     descripcion: "Cada ejecutivo elige su cartera (dirección, gerente comercial, gerente de cuenta y ejecutivo) y responde, contrato por contrato y con opciones cerradas, qué se migra a DMS y cómo: ciclo de vida, condición de entrega, etiqueta e integración. Al terminar lo manda por Teams en un clic.",
-    para: "Tener la información de cada cliente B2C antes de migrarlo, confirmada por su dueño de cuenta. La primera vez se entra con el link que mandamos por Teams; después también desde acá.",
+    para: "Tener la información de cada cliente B2C antes de migrarlo, confirmada por su dueño de cuenta. La primera vez se entra con el link que mandamos por Teams; después también desde acá. «Publicar carteras» es solo para quien administra el relevamiento: arma las carteras y genera el link para el equipo.",
     version: "v0.3", actualizado: "2026-11-22",
     acciones: [
       { texto: "Abrir", href: "https://pblsanchez.github.io/relevamiento-migracion-dms/", estilo: "primary", externo: true },
       { texto: "Ver el ejemplo", href: "https://pblsanchez.github.io/relevamiento-migracion-dms/?demo", estilo: "ghost", externo: true },
-      { texto: "Tablero de avance", href: "https://pblsanchez.github.io/relevamiento-migracion-dms/tablero.html", estilo: "ghost", externo: true }
+      { texto: "Tablero de avance", href: "https://pblsanchez.github.io/relevamiento-migracion-dms/tablero.html", estilo: "ghost", externo: true },
+      { texto: "Publicar carteras", href: "https://pblsanchez.github.io/relevamiento-migracion-dms/publicar.html", estilo: "ghost", externo: true }
     ]
   },
   {
