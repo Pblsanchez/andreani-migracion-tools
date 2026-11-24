@@ -253,6 +253,18 @@ section{scroll-margin-top:72px}
   .js .rev{opacity:1;transform:none}
   .etapas:after{width:80%}
 }
+
+/* T-028: banda «La demanda que vinimos a resolver» */
+.dem{margin-top:var(--c-spacing-7);background:#272a2f;color:#fff;border-radius:var(--c-border-radius-medium);padding:var(--c-spacing-6);display:grid;grid-template-columns:1.1fr 2fr auto;gap:var(--c-spacing-6);align-items:center}
+.dem h3{font-family:var(--c-font-family-headline);font-size:24px;line-height:28px;margin:var(--c-spacing-1) 0 var(--c-spacing-2);color:#fff}
+.dem p{margin:0;font-size:14px;line-height:20px;color:#dfe1e3}
+.dem .ey{font-size:12px;line-height:16px;letter-spacing:.12em;text-transform:uppercase;color:#ffb3b6}
+.dem ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:var(--c-spacing-4)}
+.dem li{border-left:3px solid var(--c-red-600);padding-left:var(--c-spacing-3)}
+.dem li b{display:block;font-family:var(--c-font-family-headline);font-size:28px;line-height:32px;white-space:nowrap}
+.dem li span{display:block;font-size:13px;line-height:18px;color:#dfe1e3;margin-top:var(--c-spacing-1)}
+.dem .btn-w{background:#fff;color:#b0141a}
+@media (max-width:1023px){.dem{grid-template-columns:1fr}.dem ul{grid-template-columns:1fr 1fr}.dem .btn{width:90%;justify-self:center}}
 </style>
 <script>document.documentElement.className+=" js";</script>
 </head>
@@ -268,6 +280,7 @@ section{scroll-margin-top:72px}
       <a href="#probalo">Probalo</a>
       <a href="#dia">Horarios</a>
       <a href="#preguntas">Preguntas</a>
+      <a href="../alta-demanda/">La demanda</a>
     </nav>
   </div>
 </header>
@@ -328,6 +341,15 @@ section{scroll-margin-top:72px}
           <li><span><b>Te avisamos cuando quedó cargado</b>o, si no se pudo, por qué y qué sigue.</span></li>
         </ul>
       </div>
+    </div>
+    <div class="dem rev">
+      <div><span class="ey">La demanda que vinimos a resolver</span><h3>Más de un año de altas a mano</h3><p>Antes de automatizar, contamos todo lo que pasó por el grupo de configuración DMS.</p></div>
+      <ul>
+        <li><b>1.408</b><span>pedidos de alta procesados a mano</span></li>
+        <li><b>1 de cada 8</b><span>contratos se configuró más de una vez</span></li>
+        <li><b>117 h</b><span>de trabajo solo en revisar y enviar</span></li>
+      </ul>
+      <a class="btn btn-w" href="../alta-demanda/">Ver la demanda</a>
     </div>
   </div>
 </section>
@@ -477,7 +499,7 @@ section{scroll-margin-top:72px}
 <footer class="ft">
   <div class="in">
     <span>Andreani · Portal de soluciones · Alta automática de contratos DMS</span>
-    <span>Versión 2.1 · <time datetime="2026-11-24">24/11/2026</time></span>
+    <span>Versión 2.2 · <time datetime="2026-11-24">24/11/2026</time></span>
   </div>
 </footer>
 
