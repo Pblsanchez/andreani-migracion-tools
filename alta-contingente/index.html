@@ -3,247 +3,601 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Cómo funciona el alta automática de contratos DMS: el comercial manda el Excel por Teams y el resto pasa solo - Andreani">
-<title>Alta automática de contratos DMS · Cómo funciona · Andreani</title>
+<meta name="description" content="Alta automática de contratos DMS: mandás el Excel por Teams, como siempre, y del resto nos ocupamos nosotros. Andreani">
+<title>Alta automática de contratos DMS · Andreani</title>
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="../portal.css?v=2.2">
-<link rel="stylesheet" href="alta.css?v=1.0">
-<script>document.documentElement.className += " js";</script>
+<style>
+:root{
+  --c-red-50:#fbe8e9;--c-red-100:#f7d1d2;--c-red-600:#d71920;--c-red-700:#b6040b;--c-red-800:#810f13;--c-red-900:#560a0d;
+  --c-gray-000:#ffffff;--c-gray-50:#fafafa;--c-gray-100:#dfe1e3;--c-gray-200:#c0c3c8;--c-gray-300:#a0a6ac;--c-gray-400:#818891;--c-gray-500:#616a75;--c-gray-600:#4e555e;--c-gray-700:#3a4046;--c-gray-800:#272a2f;--c-gray-900:#1d2023;
+  --c-color-bg:#fafafa;--c-color-surface:#ffffff;
+  --c-color-surface-primary:#d71920;--c-color-surface-primary-subtle:#fbe8e9;
+  --c-color-surface-success-subtle:#ddf3ea;--c-color-text-success:#1f7e5a;--c-color-text-success-strong:#0c3224;
+  --c-color-surface-info-subtle:#edeffb;--c-color-text-info:#4e63d7;--c-color-text-info-strong:#1f2856;
+  --c-color-surface-warning-subtle:#fdefe9;--c-color-text-warning-strong:#5d2810;--c-color-border-warning:#e86427;
+  --c-color-text-strong:#272a2f;--c-color-text:#4e555e;--c-color-text-inverse:#ffffff;
+  --c-color-border-subtle:#c0c3c8;
+  --c-border-radius-xsmall:4px;--c-border-radius-small:8px;--c-border-radius-medium:16px;--c-border-radius-large:24px;--c-border-radius-xlarge:99px;
+  --c-spacing-1:4px;--c-spacing-2:8px;--c-spacing-3:12px;--c-spacing-4:16px;--c-spacing-5:24px;--c-spacing-6:32px;--c-spacing-7:48px;--c-spacing-8:64px;--c-spacing-9:80px;
+  --c-font-family-headline:"Rubik","Roboto",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --c-font-family-body:"Roboto",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --shadow-bottom-subtle:0 1px 2px #4e555e40;--shadow-bottom-regular:0 2px 2px #4e555e40;
+  --shadow-focus-regular:0 0 0 3px #ffffff,0 0 0 6px #d71920;
+  --ancho:1160px
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--c-color-bg);color:var(--c-color-text);font:400 16px/24px var(--c-font-family-body)}
+h1,h2,h3,h4{font-family:var(--c-font-family-headline);color:var(--c-color-text-strong);margin:0}
+p{margin:0}
+a{color:var(--c-red-700)}
+:focus-visible{outline:2px solid transparent;box-shadow:var(--shadow-focus-regular);border-radius:var(--c-border-radius-xsmall)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:var(--c-spacing-4);top:-60px;background:var(--c-gray-900);color:#fff;padding:var(--c-spacing-2) var(--c-spacing-4);border-radius:var(--c-border-radius-small);z-index:50}
+.skip:focus{top:var(--c-spacing-4)}
+.in{max-width:var(--ancho);margin:0 auto;padding:0 var(--c-spacing-5)}
+section{scroll-margin-top:72px}
+
+/* header */
+.hd{position:sticky;top:0;z-index:30;background:#fff;box-shadow:var(--shadow-bottom-subtle)}
+.hd .in{display:flex;align-items:center;gap:var(--c-spacing-5);min-height:64px}
+.logo{font:900 24px/28px var(--c-font-family-headline);color:var(--c-red-600);text-decoration:none;letter-spacing:-.5px}
+.ruta{font-size:14px;line-height:20px;color:var(--c-gray-600)}
+.ruta a{color:var(--c-gray-600)}
+.hd nav{margin-left:auto;display:flex;gap:var(--c-spacing-1)}
+.hd nav a{color:var(--c-color-text-strong);text-decoration:none;font-weight:500;font-size:14px;line-height:20px;padding:var(--c-spacing-2) var(--c-spacing-3);border-radius:var(--c-border-radius-xlarge)}
+.hd nav a:hover{background:var(--c-red-50);color:var(--c-red-700)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--c-spacing-2);min-height:48px;padding:var(--c-spacing-3) var(--c-spacing-5);border-radius:var(--c-border-radius-xlarge);font:500 16px/24px var(--c-font-family-body);text-decoration:none;border:2px solid transparent;cursor:pointer}
+.btn-p{background:var(--c-red-600);color:#fff}
+.btn-p:hover{background:var(--c-red-700)}
+.btn-s{background:transparent;color:var(--c-red-700);border-color:var(--c-red-600)}
+.btn-s:hover{background:var(--c-red-50)}
+.btn-w{background:#fff;color:var(--c-red-700)}
+.btn-w:hover{background:var(--c-red-50)}
+.btn-o{background:transparent;color:#fff;border-color:#fff}
+.btn-o:hover{background:#ffffff1f}
+
+.eyebrow{display:inline-block;font:500 14px/20px var(--c-font-family-body);letter-spacing:1px;text-transform:uppercase;color:var(--c-red-600)}
+.sec{padding:var(--c-spacing-9) 0}
+.sec-h{max-width:760px;margin-bottom:var(--c-spacing-7)}
+.sec-h h2{font-size:40px;line-height:44px;margin:var(--c-spacing-2) 0 var(--c-spacing-4)}
+.sec-h p{font-size:18px;line-height:28px}
+.centro{text-align:center;margin-left:auto;margin-right:auto}
+
+/* hero */
+.hero{position:relative;overflow:hidden;background:var(--c-gray-900);color:#fff}
+.hero:before{content:"";position:absolute;right:-220px;top:-220px;width:720px;height:720px;border-radius:50%;background:radial-gradient(circle,#d7192055 0,#d7192000 65%)}
+.hero:after{content:"";position:absolute;left:-160px;bottom:-260px;width:520px;height:520px;border-radius:50%;border:2px solid #ffffff14;box-shadow:0 0 0 64px #ffffff08}
+.hero .in{position:relative;z-index:1;display:grid;grid-template-columns:1.05fr .95fr;gap:var(--c-spacing-8);align-items:center;padding-top:var(--c-spacing-9);padding-bottom:var(--c-spacing-9)}
+.pill{display:inline-flex;align-items:center;gap:var(--c-spacing-2);background:#ffffff14;border:1px solid #ffffff33;color:#fff;border-radius:var(--c-border-radius-xlarge);padding:var(--c-spacing-1) var(--c-spacing-3);font-size:14px;line-height:20px}
+.pill i{width:8px;height:8px;border-radius:50%;background:#66ad92;box-shadow:0 0 0 0 #66ad92;animation:pulso 2s infinite}
+@keyframes pulso{70%{box-shadow:0 0 0 8px #66ad9200}100%{box-shadow:0 0 0 0 #66ad9200}}
+.hero h1{color:#fff;font-size:56px;line-height:60px;letter-spacing:-1px;margin:var(--c-spacing-5) 0}
+.hero h1 em{font-style:normal;color:#e77579}
+.hero .bajada{font-size:20px;line-height:30px;color:var(--c-gray-100);max-width:560px}
+.cta{display:flex;flex-wrap:wrap;gap:var(--c-spacing-3);margin-top:var(--c-spacing-6)}
+
+/* teams mock */
+.tel{background:#fff;color:var(--c-color-text-strong);border-radius:var(--c-border-radius-large);box-shadow:0 24px 64px #00000066;overflow:hidden;max-width:460px;margin-left:auto;width:100%}
+.tel-top{display:flex;align-items:center;gap:var(--c-spacing-3);padding:var(--c-spacing-3) var(--c-spacing-4);background:var(--c-gray-50);border-bottom:1px solid var(--c-gray-100)}
+.av{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font:500 14px/1 var(--c-font-family-body);color:#fff;background:var(--c-gray-500)}
+.av.bot{background:var(--c-red-600)}
+.tel-top b{display:block;font-size:14px;line-height:20px}
+.tel-top span{font-size:12px;line-height:16px;color:var(--c-gray-600)}
+.chat{display:flex;flex-direction:column;gap:var(--c-spacing-3);padding:var(--c-spacing-4);min-height:380px;background:#fafafa}
+.m{max-width:86%;padding:var(--c-spacing-2) var(--c-spacing-3);border-radius:var(--c-border-radius-small);font-size:14px;line-height:20px;box-shadow:var(--shadow-bottom-subtle);animation:entra .35s ease-out both}
+.m small{display:block;font-size:12px;line-height:16px;color:var(--c-gray-600);margin-bottom:2px}
+.m.yo{align-self:flex-end;background:var(--c-gray-100);border-bottom-right-radius:var(--c-border-radius-xsmall)}
+.m.bot{align-self:flex-start;background:#fff;border-left:3px solid var(--c-red-600);border-bottom-left-radius:var(--c-border-radius-xsmall)}
+.m.bot.ok{border-left-color:var(--c-color-text-success)}
+.m.bot.cambio{border-left-color:var(--c-color-border-warning)}
+.m.bot.info{border-left-color:var(--c-color-text-info)}
+.m.sys{align-self:center;box-shadow:none;background:var(--c-gray-100);color:var(--c-gray-700);border-radius:var(--c-border-radius-xlarge);font-size:12px;line-height:16px;padding:var(--c-spacing-1) var(--c-spacing-3);text-align:center}
+.adj{display:flex;align-items:center;gap:var(--c-spacing-2);margin-top:var(--c-spacing-2);background:#fff;border:1px solid var(--c-gray-100);border-radius:var(--c-border-radius-small);padding:var(--c-spacing-2)}
+.adj:before{content:"XLS";flex:none;width:32px;height:28px;border-radius:var(--c-border-radius-xsmall);background:var(--c-gray-600);color:#fff;font:700 10px/28px var(--c-font-family-body);text-align:center}
+.typing{align-self:flex-start;display:flex;gap:4px;padding:var(--c-spacing-3);background:#fff;border-radius:var(--c-border-radius-small);box-shadow:var(--shadow-bottom-subtle)}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--c-gray-400);animation:tip 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes tip{50%{transform:translateY(-4px);background:var(--c-red-600)}}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* numeros */
+.nums{background:#fff;border-bottom:1px solid var(--c-gray-100)}
+.nums ul{list-style:none;margin:0 auto;padding:var(--c-spacing-7) var(--c-spacing-5);max-width:var(--ancho);display:grid;grid-template-columns:repeat(4,1fr);gap:var(--c-spacing-5)}
+.nums li{border-left:3px solid var(--c-red-600);padding-left:var(--c-spacing-4)}
+.nums b{display:block;font:700 40px/44px var(--c-font-family-headline);color:var(--c-color-text-strong)}
+.nums span{display:block;font-size:14px;line-height:20px;color:var(--c-gray-600);margin-top:var(--c-spacing-1)}
+
+/* antes / ahora */
+.vs{display:grid;grid-template-columns:1fr auto 1fr;gap:var(--c-spacing-5);align-items:stretch}
+.vs-col{border-radius:var(--c-border-radius-medium);padding:var(--c-spacing-6)}
+.vs-col h3{font-size:24px;line-height:28px;margin-bottom:var(--c-spacing-5);display:flex;align-items:center;gap:var(--c-spacing-3)}
+.vs-col ul{list-style:none;margin:0;padding:0;display:grid;gap:var(--c-spacing-4)}
+.vs-col li{display:grid;grid-template-columns:28px 1fr;gap:var(--c-spacing-3);font-size:16px;line-height:24px}
+.vs-col li b{display:block;color:var(--c-color-text-strong);font-weight:500}
+.antes{background:#fff;border:1px solid var(--c-gray-100)}
+.antes li:before{content:"";width:24px;height:24px;border-radius:50%;background:var(--c-gray-100) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23616a75' d='M7 11h10v2H7z'/%3E%3C/svg%3E") center/16px no-repeat}
+.ahora{background:var(--c-gray-900);color:var(--c-gray-100)}
+.ahora h3,.ahora li b{color:#fff}
+.ahora li:before{content:"";width:24px;height:24px;border-radius:50%;background:var(--c-red-600) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z'/%3E%3C/svg%3E") center/16px no-repeat}
+.flecha{display:grid;place-items:center}
+.flecha span{width:56px;height:56px;border-radius:50%;background:var(--c-red-600);display:grid;place-items:center;box-shadow:var(--shadow-bottom-regular)}
+
+/* recorrido */
+.ruta-wrap{position:relative}
+.etapas{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:var(--c-spacing-4);position:relative}
+.etapas:before{content:"";position:absolute;left:10%;right:10%;top:40px;height:4px;background:var(--c-gray-100);border-radius:2px}
+.etapas:after{content:"";position:absolute;left:10%;top:40px;height:4px;width:0;background:var(--c-red-600);border-radius:2px;transition:width 1.6s ease-out}
+.etapas.on:after{width:80%}
+.etapa{position:relative;text-align:center;padding:0 var(--c-spacing-2)}
+.etapa .ic{position:relative;z-index:1;width:84px;height:84px;margin:0 auto var(--c-spacing-4);border-radius:50%;display:grid;place-items:center;background:#fff;border:3px solid var(--c-red-600);color:var(--c-red-600)}
+.etapa.vos .ic{background:var(--c-red-600);color:#fff}
+.etapa.dms .ic{border-color:var(--c-gray-500);color:var(--c-gray-600)}
+.etapa .ic svg{width:36px;height:36px}
+.tag{display:inline-block;border-radius:var(--c-border-radius-xlarge);padding:2px var(--c-spacing-3);font-size:12px;line-height:16px;font-weight:500;margin-bottom:var(--c-spacing-2);background:var(--c-gray-100);color:var(--c-gray-700)}
+.vos .tag{background:var(--c-red-600);color:#fff}
+.auto .tag{background:var(--c-red-50);color:var(--c-red-800)}
+.etapa h3{font-size:18px;line-height:22px;margin-bottom:var(--c-spacing-2)}
+.etapa p{font-size:14px;line-height:20px}
+.nota{margin-top:var(--c-spacing-7);display:flex;gap:var(--c-spacing-4);align-items:center;background:var(--c-red-50);border-radius:var(--c-border-radius-medium);padding:var(--c-spacing-5) var(--c-spacing-6);color:var(--c-red-900)}
+.nota b{font:700 32px/36px var(--c-font-family-headline);color:var(--c-red-700)}
+
+/* simulador */
+.sim-sec{background:#fff;border-top:1px solid var(--c-gray-100);border-bottom:1px solid var(--c-gray-100)}
+.sim{display:grid;grid-template-columns:360px 1fr;gap:var(--c-spacing-6);align-items:start}
+.casos{display:grid;gap:var(--c-spacing-3)}
+.caso{display:grid;grid-template-columns:40px 1fr;gap:var(--c-spacing-3);align-items:center;text-align:left;width:100%;min-height:72px;padding:var(--c-spacing-3) var(--c-spacing-4);background:#fff;border:2px solid var(--c-gray-100);border-radius:var(--c-border-radius-medium);font:inherit;color:inherit;cursor:pointer}
+.caso:hover{border-color:var(--c-gray-300)}
+.caso[aria-selected="true"]{border-color:var(--c-red-600);background:var(--c-red-50)}
+.caso .n{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--c-gray-100);font:700 16px/1 var(--c-font-family-headline);color:var(--c-color-text-strong)}
+.caso[aria-selected="true"] .n{background:var(--c-red-600);color:#fff}
+.caso b{display:block;color:var(--c-color-text-strong);font-weight:500}
+.caso span{display:block;font-size:14px;line-height:20px;color:var(--c-gray-600)}
+.sim .tel{max-width:none;margin:0;box-shadow:0 8px 32px #1d202326}
+.sim .chat{min-height:440px}
+.sim-pie{display:flex;justify-content:space-between;align-items:center;gap:var(--c-spacing-3);padding:var(--c-spacing-3) var(--c-spacing-4);border-top:1px solid var(--c-gray-100);background:#fff}
+.sim-pie p{font-size:14px;line-height:20px;color:var(--c-color-text-strong)}
+.repetir{min-height:40px;padding:var(--c-spacing-2) var(--c-spacing-4);font-size:14px}
+
+/* dia */
+.dia{background:#fff;border:1px solid var(--c-gray-100);border-radius:var(--c-border-radius-medium);padding:var(--c-spacing-6)}
+.eje{position:relative;height:120px;margin:var(--c-spacing-5) var(--c-spacing-4) 0}
+.eje .barra{position:absolute;left:0;right:0;top:56px;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--c-gray-100),var(--c-gray-200))}
+.hito{position:absolute;top:0;transform:translateX(-50%);text-align:center;width:72px}
+.hito i{display:block;margin:0 auto;border-radius:50%}
+.hito.rev-h i{width:12px;height:12px;background:var(--c-gray-500);margin-top:54px}
+.hito.corte i{width:28px;height:28px;background:var(--c-red-600);margin-top:46px;box-shadow:0 0 0 6px var(--c-red-50)}
+.hito.salud i{width:16px;height:16px;background:var(--c-color-text-info);margin-top:52px}
+.hito b{position:absolute;left:0;right:0;font-size:12px;line-height:16px;color:var(--c-gray-700);font-weight:500}
+.hito.rev-h b{top:78px}
+.hito.corte b{top:0;color:var(--c-red-700);font-size:14px;line-height:20px;font-weight:700}
+.hito.salud b{top:16px;color:var(--c-color-text-info-strong)}
+.hora{position:absolute;top:96px;transform:translateX(-50%);font-size:12px;line-height:16px;color:var(--c-gray-600)}
+.leyenda{display:flex;flex-wrap:wrap;gap:var(--c-spacing-5);margin-top:var(--c-spacing-5);font-size:14px;line-height:20px}
+.leyenda span{display:inline-flex;align-items:center;gap:var(--c-spacing-2)}
+.leyenda i{width:14px;height:14px;border-radius:50%;display:inline-block}
+.plazos{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--c-spacing-4);margin-top:var(--c-spacing-6)}
+.plazo{border-radius:var(--c-border-radius-medium);padding:var(--c-spacing-5);background:var(--c-color-bg);border:1px solid var(--c-gray-100)}
+.plazo small{display:block;font-size:12px;line-height:16px;text-transform:uppercase;letter-spacing:1px;color:var(--c-gray-600);margin-bottom:var(--c-spacing-2)}
+.plazo b{display:block;font:500 18px/22px var(--c-font-family-headline);color:var(--c-color-text-strong);margin-bottom:var(--c-spacing-2)}
+.plazo p{font-size:14px;line-height:20px}
+
+/* beneficios */
+.bens{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--c-spacing-4)}
+.ben{background:#fff;border-radius:var(--c-border-radius-medium);padding:var(--c-spacing-5);box-shadow:var(--shadow-bottom-subtle);border-top:4px solid var(--c-red-600);transition:transform .2s}
+.ben:hover{transform:translateY(-4px)}
+.ben svg{width:40px;height:40px;color:var(--c-red-600);margin-bottom:var(--c-spacing-4)}
+.ben h3{font-size:20px;line-height:24px;margin-bottom:var(--c-spacing-2)}
+.ben p{font-size:14px;line-height:20px}
+
+/* faq */
+.faq{max-width:820px;margin:0 auto;display:grid;gap:var(--c-spacing-3)}
+.faq details{background:#fff;border:1px solid var(--c-gray-100);border-radius:var(--c-border-radius-medium)}
+.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:var(--c-spacing-4);min-height:56px;padding:var(--c-spacing-4) var(--c-spacing-5);font:500 18px/22px var(--c-font-family-headline);color:var(--c-color-text-strong)}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary:after{content:"+";flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--c-red-50);color:var(--c-red-700);font:500 22px/1 var(--c-font-family-body)}
+.faq details[open] summary:after{content:"\2212"}
+.faq details p{padding:0 var(--c-spacing-5) var(--c-spacing-5)}
+
+/* detras */
+.piezas{display:flex;flex-wrap:wrap;gap:var(--c-spacing-3);justify-content:center}
+.pz{display:inline-flex;flex-direction:column;align-items:flex-start;background:#fff;border:1px solid var(--c-gray-100);border-radius:var(--c-border-radius-medium);padding:var(--c-spacing-4) var(--c-spacing-5);max-width:270px}
+.pz b{color:var(--c-color-text-strong);font-weight:500}
+.pz span{font-size:14px;line-height:20px}
+
+/* final */
+.final{background:var(--c-red-600);color:#fff;position:relative;overflow:hidden}
+.final:before{content:"";position:absolute;right:-120px;top:-160px;width:420px;height:420px;border-radius:50%;border:56px solid #ffffff14}
+.final .in{position:relative;padding-top:var(--c-spacing-9);padding-bottom:var(--c-spacing-9);text-align:center}
+.final h2{color:#fff;font-size:40px;line-height:44px;max-width:760px;margin:0 auto var(--c-spacing-4)}
+.final p{font-size:18px;line-height:28px;max-width:640px;margin:0 auto}
+.final .cta{justify-content:center}
+.ft{background:var(--c-gray-900);color:var(--c-gray-200);font-size:14px;line-height:20px}
+.ft .in{display:flex;flex-wrap:wrap;justify-content:space-between;gap:var(--c-spacing-3);padding-top:var(--c-spacing-5);padding-bottom:var(--c-spacing-5)}
+
+/* aparicion */
+.js .rev{opacity:0;transform:translateY(24px);transition:opacity .6s ease-out,transform .6s ease-out}
+.js .rev.on{opacity:1;transform:none}
+
+@media (max-width:1023px){
+  .hero .in{grid-template-columns:1fr;gap:var(--c-spacing-7)}
+  .hero h1{font-size:40px;line-height:44px}
+  .tel{margin:0 auto}
+  .sec-h h2,.final h2{font-size:28px;line-height:32px}
+  .nums ul{grid-template-columns:repeat(2,1fr)}
+  .vs{grid-template-columns:1fr}
+  .flecha span{transform:rotate(90deg)}
+  .etapas{grid-template-columns:1fr;gap:var(--c-spacing-5)}
+  .etapas:before,.etapas:after{display:none}
+  .etapa{display:grid;grid-template-columns:72px 1fr;gap:var(--c-spacing-4);text-align:left}
+  .etapa .ic{width:72px;height:72px;margin:0}
+  .sim{grid-template-columns:1fr}
+  .plazos,.bens{grid-template-columns:1fr 1fr}
+  .hd nav,.ruta{display:none}
+  .eje{overflow-x:auto}
+}
+@media (max-width:640px){
+  .plazos,.bens,.nums ul{grid-template-columns:1fr}
+  .sec{padding:var(--c-spacing-8) 0}
+  .dia{padding:var(--c-spacing-4)}
+  .eje{height:auto;margin:var(--c-spacing-4) 0 0}
+  .eje-movil{display:block}
+  .eje .barra,.eje .hito,.eje .hora{display:none}
+}
+.eje-movil{display:none;list-style:none;margin:0;padding:0;font-size:14px;line-height:20px}
+.eje-movil li{padding:var(--c-spacing-2) 0;border-bottom:1px solid var(--c-gray-100)}
+@media (prefers-reduced-motion:reduce){
+  *,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .js .rev{opacity:1;transform:none}
+  .etapas:after{width:80%}
+}
+</style>
+<script>document.documentElement.className+=" js";</script>
 </head>
 <body>
-<a class="skip-link" href="#contenido">Saltar al contenido</a>
+<a class="skip" href="#contenido">Saltar al contenido</a>
 
-<header class="header">
-  <div class="header-in">
-    <a class="logo" href="../" aria-label="Andreani, volver al Portal de soluciones">Andreani</a>
-    <span class="ruta"><a href="../">Portal de soluciones</a> / <strong>Alta automática de contratos DMS</strong></span>
-    <nav aria-label="Secciones de la página">
-      <a href="#recorrido">Recorrido</a>
-      <a href="#decide">Qué decide</a>
-      <a href="#horarios">Horarios</a>
-      <a href="#como">Cómo está hecho</a>
+<header class="hd">
+  <div class="in">
+    <a class="logo" href="../" aria-label="Andreani, volver al Portal de soluciones">andreani</a>
+    <span class="ruta"><a href="../">Portal de soluciones</a> / Alta automática de contratos DMS</span>
+    <nav aria-label="Secciones">
+      <a href="#como">Cómo funciona</a>
+      <a href="#probalo">Probalo</a>
+      <a href="#dia">Horarios</a>
+      <a href="#preguntas">Preguntas</a>
     </nav>
   </div>
 </header>
 
 <section class="hero" aria-labelledby="titulo">
-  <svg class="hero-deco" viewBox="0 0 600 600" aria-hidden="true" focusable="false">
-    <circle cx="300" cy="300" r="280"/><circle cx="300" cy="300" r="210"/><circle cx="300" cy="300" r="140"/>
-    <circle class="r" cx="300" cy="300" r="175"/>
-    <g class="g"><circle class="p" cx="300" cy="20" r="7"/><circle class="p" cx="510" cy="300" r="5"/><circle class="p" cx="160" cy="300" r="4"/></g>
-  </svg>
-  <div class="hero-in">
-    <span class="eyebrow anim">Alta de contratos en DMS · en producción desde el 24/11/2026</span>
-    <h1 id="titulo" class="anim">El comercial manda el Excel. <em>Lo demás pasa solo.</em></h1>
-    <p class="hero-bajada anim">Automatizamos el proceso contingente de alta de contratos en DMS. Desde que el comercial nos manda el Excel por Teams hasta que le avisamos que el contrato quedó cargado, nadie tiene que mirar la bandeja: se valida la información, se corrige lo que se puede corregir, se le entrega a configuración DMS y, si algo no tiene arreglo, se le explica al comercial qué pasó y qué sigue.</p>
-    <div class="hero-cta anim">
-      <a class="btn btn-primary btn-lg" href="#recorrido">Ver el recorrido</a>
-      <a class="btn btn-secondary btn-lg btn-claro" href="#decide">Qué valida y qué corrige</a>
+  <div class="in">
+    <div>
+      <span class="pill"><i aria-hidden="true"></i>Funcionando todos los días hábiles desde el 24/11/2026</span>
+      <h1 id="titulo">Mandás el Excel.<br><em>Del resto nos ocupamos nosotros.</em></h1>
+      <p class="bajada">El alta de contratos en DMS ahora se mueve sola: validamos, corregimos, lo pasamos a configurar y te avisamos en el mismo chat de Teams cuando podés pedir la validación en A.com.</p>
+      <div class="cta">
+        <a class="btn btn-p" href="#probalo">Mirá cómo te responde</a>
+        <a class="btn btn-o" href="#como">Cómo funciona</a>
+      </div>
+    </div>
+    <div class="tel" aria-label="Ejemplo de conversación en Teams, con datos ficticios">
+      <div class="tel-top"><span class="av" aria-hidden="true">AG</span><div><b>Ana García</b><span>Chat de Teams · ejemplo con datos ficticios</span></div></div>
+      <div class="chat" id="chat-hero" aria-live="off"></div>
     </div>
   </div>
 </section>
 
+<section class="nums" aria-label="En números">
+  <ul>
+    <li class="rev"><b>1 hora</b><span>como máximo para que te respondamos, en horario hábil</span></li>
+    <li class="rev"><b>3 cortes</b><span>por día para configurar: 11, 14 y 17 h</span></li>
+    <li class="rev"><b>1 día hábil</b><span>después del corte, a más tardar, validás en A.com</span></li>
+    <li class="rev"><b>0</b><span>herramientas nuevas: seguís usando Teams y el mismo Excel</span></li>
+  </ul>
+</section>
+
 <main id="contenido" tabindex="-1">
 
-  <section id="recorrido" aria-labelledby="t-recorrido">
-    <div class="sec-head rev">
-      <span class="eyebrow">El recorrido</span>
-      <h2 id="t-recorrido">Del mensaje del comercial al contrato cargado en DMS</h2>
-      <p>El comercial sigue haciendo lo mismo de siempre: completa el Excel de alta y lo manda por Teams. A partir de ahí, la automatización hace todo, salvo la carga en DMS, que sigue a cargo de configuración DMS.</p>
+<section class="sec" aria-labelledby="t-vs">
+  <div class="in">
+    <div class="sec-h rev">
+      <span class="eyebrow">El cambio</span>
+      <h2 id="t-vs">Un proceso que dependía de alguien mirando la bandeja</h2>
+      <p>El alta contingente de contratos en DMS funcionaba a mano: cada Excel había que abrirlo, revisarlo, reenviarlo y después contarle al comercial cómo terminó. Eso es lo que automatizamos.</p>
     </div>
-    <ol class="recorrido">
-      <li class="paso humano rev">
-        <span class="paso-num" aria-hidden="true">1</span>
-        <span class="paso-quien">Comercial</span>
-        <h3>Manda el Excel por Teams</h3>
-        <p>Completa el modelo de alta de contrato y lo envía en un mensaje, como hasta ahora. No tiene que usar ninguna herramienta nueva.</p>
+    <div class="vs">
+      <div class="vs-col antes rev">
+        <h3>Antes</h3>
+        <ul>
+          <li><span><b>Alguien tenía que estar atento</b>a cada Excel que llegaba por Teams.</span></li>
+          <li><span><b>Los datos se revisaban a ojo</b>y un código mal cargado aparecía recién al configurar.</span></li>
+          <li><span><b>El comercial no sabía en qué estaba</b>su pedido hasta preguntar.</span></li>
+          <li><span><b>El cierre dependía de un aviso manual</b>para saber si ya podía validar en A.com.</span></li>
+        </ul>
+      </div>
+      <div class="flecha" aria-hidden="true"><span><svg width="28" height="28" viewBox="0 0 24 24"><path fill="#fff" d="M12 4l-1.4 1.4 5.6 5.6H4v2h12.2l-5.6 5.6L12 20l8-8z"/></svg></span></div>
+      <div class="vs-col ahora rev">
+        <h3>Ahora</h3>
+        <ul>
+          <li><span><b>Revisamos los pedidos cada hora</b>y te respondemos en el mismo chat.</span></li>
+          <li><span><b>Validamos contra el CRM</b>y corregimos solos lo que tiene una única respuesta.</span></li>
+          <li><span><b>Sabés el plazo desde el primer mensaje:</b>cuándo vas a poder pedir la validación.</span></li>
+          <li><span><b>Te avisamos cuando quedó cargado</b>o, si no se pudo, por qué y qué sigue.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="como" aria-labelledby="t-como" style="padding-top:0">
+  <div class="in">
+    <div class="sec-h rev">
+      <span class="eyebrow">Cómo funciona</span>
+      <h2 id="t-como">Tu parte es una sola</h2>
+      <p>Completás el Excel de alta y lo mandás por Teams, como siempre. Todo lo demás pasa sin que tengas que seguirlo.</p>
+    </div>
+    <ol class="etapas" id="etapas">
+      <li class="etapa vos">
+        <div class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></div>
+        <div><span class="tag">Vos</span><h3>Mandás el Excel</h3><p>Por Teams, en un mensaje, con el modelo de siempre.</p></div>
       </li>
-      <li class="paso rev">
-        <span class="paso-num" aria-hidden="true">2</span>
-        <span class="paso-quien">Automático</span>
-        <h3>Encuentra el pedido</h3>
-        <p>Una vez por hora revisa los mensajes nuevos, se queda con los que traen un Excel y descarta lo que no es un alta de contrato.</p>
-        <p class="cuando">Días hábiles, de 7 a 18 h. Lo que llega el fin de semana o un feriado se toma el siguiente día hábil.</p>
+      <li class="etapa auto">
+        <div class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M15.5 14h-.8l-.3-.3A6.5 6.5 0 1 0 14 15.5l.3.3v.8l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg></div>
+        <div><span class="tag">Automático</span><h3>Lo validamos</h3><p>Solicitante y razón social contra el CRM; formato y fórmulas del archivo.</p></div>
       </li>
-      <li class="paso rev">
-        <span class="paso-num" aria-hidden="true">3</span>
-        <span class="paso-quien">Automático</span>
-        <h3>Valida contra el CRM</h3>
-        <p>Controla que el código de solicitante y la razón social del Excel correspondan al mismo cliente en la base de clientes del CRM.</p>
+      <li class="etapa auto">
+        <div class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg></div>
+        <div><span class="tag">Automático</span><h3>Lo dejamos listo</h3><p>Corregimos lo que tiene una sola respuesta y te contamos qué cambiamos.</p></div>
       </li>
-      <li class="paso rev">
-        <span class="paso-num" aria-hidden="true">4</span>
-        <span class="paso-quien">Automático</span>
-        <h3>Normaliza el archivo</h3>
-        <p>Deja el Excel en el formato que necesita DMS: corrige lo que tiene una única respuesta correcta y frena lo que no se puede resolver.</p>
+      <li class="etapa dms">
+        <div class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.3 7.3 0 0 0-1.7-1L15 3h-4l-.4 2.9c-.6.2-1.2.6-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1c.5.4 1.1.8 1.7 1L11 21h4l.4-2.9c.6-.2 1.2-.6 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg></div>
+        <div><span class="tag">Configuración DMS</span><h3>Se configura</h3><p>Recibe los archivos listos en los cortes de las 11, 14 y 17 h.</p></div>
       </li>
-      <li class="paso rev">
-        <span class="paso-num" aria-hidden="true">5</span>
-        <span class="paso-quien">Automático</span>
-        <h3>Le responde al comercial</h3>
-        <p>En el mismo chat: le confirma que lo recibimos y cuándo va a poder pedir la validación en A.com, o le explica qué tiene que corregir y que vuelva a mandarlo.</p>
-        <p class="cuando">Si el comercial contesta con un dato corregido (código de solicitante, razón social o número de contrato), lo valida en el CRM y, si coincide, toma el ajuste y se lo confirma. Si no coincide, el pedido sigue su curso y se le explica por qué.</p>
-      </li>
-      <li class="paso rev">
-        <span class="paso-num" aria-hidden="true">6</span>
-        <span class="paso-quien">Automático → configuración DMS</span>
-        <h3>Entrega en el corte</h3>
-        <p>En cada corte pasa los archivos listos a la carpeta del día y le avisa a configuración DMS por Teams, con la lista de archivos y el link a la carpeta.</p>
-        <p class="cuando">Cortes a las 11, 14 y 17 h. Configuración DMS no ve nada antes del corte.</p>
-      </li>
-      <li class="paso humano rev">
-        <span class="paso-num" aria-hidden="true">7</span>
-        <span class="paso-quien">Configuración DMS</span>
-        <h3>Carga y deja el resultado</h3>
-        <p>Carga los contratos en DMS y mueve cada archivo a la carpeta OK o Errores del día. Si algo no se pudo cargar, cuenta en el grupo qué pasó con ese archivo.</p>
-      </li>
-      <li class="paso rev">
-        <span class="paso-num" aria-hidden="true">8</span>
-        <span class="paso-quien">Automático</span>
-        <h3>Le cuenta el resultado al comercial</h3>
-        <p>Si el contrato quedó cargado, le avisa que ya puede pedir la validación en A.com. Si no, le explica por qué: si es algo del Excel, le pide que lo corrija; si es un tema fuera del proceso, se lo aclara para que no lo reenvíe.</p>
-        <p class="cuando">Se revisa a primera hora y en cada corte. Lo que no tiene resultado al día hábil siguiente del corte se le avisa a Pablo.</p>
+      <li class="etapa auto">
+        <div class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2zm6-6V11c0-3.1-1.6-5.6-4.5-6.3V4a1.5 1.5 0 0 0-3 0v.7C7.6 5.4 6 7.9 6 11v5l-2 2v1h16v-1z"/></svg></div>
+        <div><span class="tag">Automático</span><h3>Te avisamos</h3><p>Cuando quedó cargado, para que pidas la validación en A.com. Y si no, por qué.</p></div>
       </li>
     </ol>
-  </section>
+    <div class="nota rev"><b>🤖</b><p>Todo lo que te escribimos de forma automática empieza con 🤖. Si te equivocaste en el código de solicitante, la razón social o el número de contrato, no hace falta mandar otro Excel: respondé el dato correcto en el mismo chat y lo validamos.</p></div>
+  </div>
+</section>
 
-  <section id="decide" aria-labelledby="t-decide">
-    <div class="sec-head rev">
-      <span class="eyebrow">Qué decide sola</span>
-      <h2 id="t-decide">Valida, corrige y, si no puede, pide el cambio</h2>
-      <p>La regla es simple: si hay una sola respuesta correcta, la automatización la toma y lo cuenta en el mensaje. Si no la hay, no adivina: le devuelve el pedido al comercial con el detalle.</p>
+<section class="sec sim-sec" id="probalo" aria-labelledby="t-sim">
+  <div class="in">
+    <div class="sec-h rev">
+      <span class="eyebrow">Probalo</span>
+      <h2 id="t-sim">¿Qué pasa si…?</h2>
+      <p>Elegí una situación y mirá cómo sería la conversación. Son ejemplos con datos ficticios, con los mismos mensajes que manda la automatización.</p>
     </div>
-    <div class="decide">
-      <article class="col valida rev">
-        <div class="col-head"><span class="col-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M15.5 14h-.8l-.3-.3A6.5 6.5 0 1 0 14 15.5l.3.3v.8l5 5 1.5-1.5-5-5Zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z"/></svg></span><h3>Valida</h3></div>
-        <p>Antes de tocar nada, controla que el pedido tenga sentido.</p>
-        <ul>
-          <li>Que el archivo sea un alta de contrato<span>Si no tiene el Formulario, lo deja de lado sin molestar a nadie.</span></li>
-          <li>Solicitante y razón social contra el CRM<span>Busca por código y, si no coincide, por nombre del cliente.</span></li>
-          <li>Que el cliente esté en el maestro de datos<span>Si el cliente no tiene número de SAP, lo avisa.</span></li>
-          <li>Errores de fórmula en las hojas<span>Nunca le llega a configuración DMS un archivo con #¡REF!.</span></li>
-          <li>Reenvíos del mismo contrato<span>Vale la última versión que mandó el comercial.</span></li>
-          <li>Datos que el comercial corrige en el chat<span>Solo los toma si coinciden en el CRM.</span></li>
-        </ul>
-      </article>
-      <article class="col corrige rev">
-        <div class="col-head"><span class="col-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2Z"/></svg></span><h3>Corrige sola</h3></div>
-        <p>Lo que tiene una única respuesta correcta lo arregla y sigue.</p>
-        <ul>
-          <li>Código de solicitante equivocado<span>Si el CRM permite saber cuál es, lo corrige y se lo cuenta al comercial.</span></li>
-          <li>SLA que no coincide con el continente<span>Lo alinea en el Formulario y en la hoja Contrato.</span></li>
-          <li>Hoja Direcciones rota<span>La arma de nuevo desde el Formulario y le explica al comercial cómo evitarlo.</span></li>
-          <li>Domicilios vacíos o en cero<span>No se configuran.</span></li>
-          <li>Domicilio sin tipo<span>Toma el tipo 1 por defecto.</span></li>
-          <li>Espacios de más al final de los textos<span>Se quitan siempre.</span></li>
-        </ul>
-      </article>
-      <article class="col devuelve rev">
-        <div class="col-head"><span class="col-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M1 21h22L12 2 1 21Zm12-3h-2v-2h2v2Zm0-4h-2v-4h2v4Z"/></svg></span><h3>Pide el cambio</h3></div>
-        <p>Si no hay forma de resolverlo sin adivinar, frena y le escribe al comercial.</p>
-        <ul>
-          <li>No se puede saber el solicitante<span>El Excel no lo trae o no es válido, y el CRM no permite determinarlo.</span></li>
-          <li>Errores de fórmula fuera de Direcciones<span>Por ejemplo, en la hoja Contrato.</span></li>
-          <li>Datos obligatorios que faltan o no son válidos<span>Le dice cuáles, en lenguaje simple.</span></li>
-          <li>Errores de carga en DMS que vienen del Excel<span>Con el motivo que informa configuración DMS.</span></li>
-        </ul>
-        <p>El comercial corrige el Excel y lo vuelve a mandar por el mismo chat; si lo que falla es el solicitante, la razón social o el contrato, alcanza con responder el dato correcto. Los problemas técnicos no le llegan a él: le llegan a Pablo.</p>
-      </article>
-    </div>
-  </section>
-
-  <section aria-labelledby="t-mensajes">
-    <div class="mensajes rev">
-      <div class="intro">
-        <span class="eyebrow">Así se ven los mensajes</span>
-        <h3 id="t-mensajes">Respuestas claras, en el mismo chat</h3>
-        <p>Todo lo que manda la automatización empieza con 🤖, para que se sepa que es un mensaje automático. Al comercial le dice qué pasó y qué sigue, desde que recibimos el pedido hasta que el contrato queda cargado; a configuración DMS le pasa los archivos y los avisos que tiene que tener en cuenta.</p>
-        <p class="aclara">Ejemplos con datos ficticios.</p>
-      </div>
-      <div class="chat">
-        <div class="burbuja ok"><span class="de">Al comercial · pedido tomado</span>🤖 Hola Ana, recibimos el pedido de Ejemplo S.A. (351000000) y ya lo enviamos a configurar. Hoy al final de la tarde o a más tardar mañana vas a poder pedir la validación en A.com. Corregimos el código de solicitante: el Excel decía 100001 y en el CRM es 100002.</div>
-        <div class="burbuja error"><span class="de">Al comercial · pedido de cambio</span>🤖 Hola Juan, no pudimos tomar el pedido de Comercio Modelo S.R.L.: la hoja Contrato tiene errores de fórmula (#¡REF!). Corregilo en el Excel y volvé a enviarlo por acá.</div>
-        <div class="burbuja ok"><span class="de">Al comercial · ajuste tomado</span>🤖 Listo Sofía, tomamos el ajuste: solicitante 100004 (lo validamos en el CRM). Hoy al final de la tarde o a más tardar mañana vas a poder pedir la validación en A.com.</div>
-        <div class="burbuja corte"><span class="de">A configuración DMS · corte</span>🤖 Hola, te paso 2 archivos para alta de contratos DMS: Alta de contrato DMS 351000000 100002 Ejemplo S.A.xlsx · Alta de contrato DMS 351000001 100003 Muestra S.A.xlsx. Carpeta: link a la carpeta del día.</div>
-        <div class="burbuja ok"><span class="de">Al comercial · cargado en DMS</span>🤖 Hola Ana, el contrato 351000000 de Ejemplo S.A. ya está dado de alta en DMS. Ya podés pedir la validación en A.com.</div>
-        <div class="burbuja error"><span class="de">Al comercial · no se pudo cargar</span>🤖 Hola Luis, el contrato 351000001 de Muestra S.A. todavía no se pudo dar de alta en DMS: el cliente no está dado de alta en el maestro de datos. Es un tema que está fuera de este proceso, así que no hace falta que reenvíes el Excel. Pablo ya está al tanto y te avisamos cuando quede cargado.</div>
+    <div class="sim">
+      <div class="casos" role="tablist" aria-label="Situaciones" aria-orientation="vertical" id="casos"></div>
+      <div class="tel" role="tabpanel" id="sim-panel" aria-labelledby="caso-0">
+        <div class="tel-top"><span class="av" aria-hidden="true" id="sim-av">AG</span><div><b id="sim-nombre">Ana García</b><span>Chat de Teams · ejemplo con datos ficticios</span></div></div>
+        <div class="chat" id="chat-sim" aria-live="polite"></div>
+        <div class="sim-pie"><p id="sim-resumen"></p><button class="btn btn-s repetir" type="button" id="repetir">Ver de nuevo</button></div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section id="horarios" aria-labelledby="t-horarios">
-    <div class="sec-head rev">
+<section class="sec" id="dia" aria-labelledby="t-dia">
+  <div class="in">
+    <div class="sec-h rev">
       <span class="eyebrow">Horarios y plazos</span>
-      <h2 id="t-horarios">Cuándo pasa cada cosa</h2>
-      <p>El plazo que le damos al comercial es cuándo va a poder pedir la validación en A.com, que es lo próximo que tiene que hacer. Nuestro compromiso es que pueda hacerlo, a más tardar, el día hábil siguiente al corte.</p>
+      <h2 id="t-dia">Un día hábil, de punta a punta</h2>
+      <p>El compromiso es simple: que puedas pedir la validación en A.com, a más tardar, el día hábil siguiente al corte. Muchas veces queda el mismo día.</p>
     </div>
-    <div class="tabla-wrap rev">
-      <table>
-        <caption>Calendario de la automatización (días hábiles, hora de Buenos Aires)</caption>
-        <thead><tr><th scope="col">Qué</th><th scope="col">Cuándo</th><th scope="col">Qué ve el comercial o configuración DMS</th></tr></thead>
-        <tbody>
-          <tr><th scope="row">Revisión de pedidos</th><td>Una vez por hora, de 7 a 18 h (a los 50 minutos de cada hora)</td><td>El comercial recibe la respuesta, como máximo, una hora hábil después de mandar el Excel o el dato corregido.</td></tr>
-          <tr><th scope="row">Cortes</th><td>11, 14 y 17 h</td><td>Configuración DMS recibe los archivos nuevos en la carpeta del día y un aviso por Teams.</td></tr>
-          <tr><th scope="row">Pedido antes de las 17 h</th><td>Va al corte de ese mismo día</td><td>«Hoy al final de la tarde o a más tardar mañana vas a poder pedir la validación en A.com.»</td></tr>
-          <tr><th scope="row">Pedido después de las 17 h</th><td>Va al primer corte del próximo día hábil</td><td>El plazo se corre al próximo día hábil.</td></tr>
-          <tr><th scope="row">Fin de semana o feriado</th><td>Se toma en la primera revisión del próximo día hábil</td><td>Si hubo un feriado en el medio, el mensaje lo aclara.</td></tr>
-          <tr><th scope="row">Resultado de la carga</th><td>A las 8:30 y en cada corte (11, 14 y 17 h)</td><td>El comercial recibe el aviso de que el contrato quedó cargado o el motivo por el que no se pudo cargar.</td></tr>
-          <tr><th scope="row">Sin resultado a tiempo</th><td>Al terminar el día hábil siguiente al corte</td><td>Pablo recibe el aviso a primera hora para hacer el seguimiento.</td></tr>
-        </tbody>
-      </table>
+    <div class="dia rev">
+      <div class="eje" id="eje" aria-hidden="true"><div class="barra"></div></div>
+      <ul class="eje-movil">
+        <li><b>8:30</b> · Repaso del día y resultados de la carga</li>
+        <li><b>Cada hora, de 7:50 a 17:50</b> · Revisamos los pedidos nuevos y te respondemos</li>
+        <li><b>11, 14 y 17 h</b> · Cortes: los archivos listos pasan a configuración DMS</li>
+      </ul>
+      <div class="leyenda" aria-hidden="true">
+        <span><i style="background:#616a75"></i>Revisión de pedidos (cada hora)</span>
+        <span><i style="background:#d71920"></i>Corte para configurar</span>
+        <span><i style="background:#4e63d7"></i>Repaso del día y resultados</span>
+      </div>
+      <div class="plazos">
+        <div class="plazo"><small>Mandás antes de las 17 h</small><b>Va al corte de hoy</b><p>«Hoy al final de la tarde o a más tardar mañana vas a poder pedir la validación en A.com.»</p></div>
+        <div class="plazo"><small>Mandás después de las 17 h</small><b>Va al primer corte del día hábil siguiente</b><p>El plazo se corre un día hábil y el mensaje te lo dice.</p></div>
+        <div class="plazo"><small>Fin de semana o feriado</small><b>Lo tomamos el próximo día hábil</b><p>Si en el medio hay un feriado, el mensaje lo aclara.</p></div>
+      </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section aria-labelledby="t-resuelve">
-    <div class="sec-head rev">
-      <span class="eyebrow">Qué resuelve</span>
-      <h2 id="t-resuelve">Menos idas y vueltas para todos</h2>
+<section class="sec" aria-labelledby="t-ben" style="padding-top:0">
+  <div class="in">
+    <div class="sec-h rev">
+      <span class="eyebrow">Qué ganás</span>
+      <h2 id="t-ben">Menos idas y vueltas, más tiempo con el cliente</h2>
     </div>
-    <div class="resuelve">
-      <div class="dato rev"><b>Comercial</b><span>Manda el Excel como siempre y recibe respuesta en el mismo chat: el plazo, lo que corregimos o lo que tiene que cambiar, y el aviso cuando el contrato queda cargado. Si se equivocó en un dato, lo corrige respondiendo ahí mismo.</span></div>
-      <div class="dato rev"><b>Configuración DMS</b><span>Recibe archivos ya validados y normalizados, juntos en la carpeta del día, en tres horarios fijos. Solo tiene que dejar cada archivo en OK o Errores.</span></div>
-      <div class="dato rev"><b>Nadie en el medio</b><span>No hace falta que una persona mire la bandeja, abra cada Excel, reenvíe archivos ni le avise al comercial cómo terminó.</span></div>
-      <div class="dato rev"><b>Todo queda registrado</b><span>Cada pedido queda anotado con su estado hasta que se carga y, todos los días hábiles, Pablo recibe un aviso con lo pendiente y lo que se pasó del plazo.</span></div>
+    <div class="bens">
+      <article class="ben rev"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 10.4V6h-2v7.4l5.3 3.2 1-1.6z"/></svg><h3>Sabés cuándo</h3><p>Desde el primer mensaje te decimos cuándo vas a poder pedir la validación en A.com.</p></article>
+      <article class="ben rev"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zM9 11H7V9h2zm4 0h-2V9h2zm4 0h-2V9h2z"/></svg><h3>Todo en el mismo chat</h3><p>Pedido, correcciones y resultado, en la conversación donde mandaste el Excel.</p></article>
+      <article class="ben rev"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg><h3>Menos rebotes</h3><p>Lo que tiene una sola respuesta correcta lo arreglamos sin devolvértelo.</p></article>
+      <article class="ben rev"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 1 3 5v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V5zm-1 15-4-4 1.4-1.4L11 13.2l5.6-5.6L18 9z"/></svg><h3>Nada se pierde</h3><p>Cada pedido queda registrado con su estado hasta que el contrato está cargado.</p></article>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section id="como" aria-labelledby="t-como">
-    <div class="sec-head rev">
-      <span class="eyebrow">Cómo está hecho</span>
-      <h2 id="t-como">Las piezas</h2>
-      <p>Usamos herramientas que ya tenemos en Andreani. Los datos de los pedidos se quedan en OneDrive y Teams.</p>
+<section class="sec sim-sec" id="preguntas" aria-labelledby="t-faq">
+  <div class="in">
+    <div class="sec-h centro rev">
+      <span class="eyebrow">Preguntas frecuentes</span>
+      <h2 id="t-faq">Lo que nos preguntan los comerciales</h2>
     </div>
-    <ul class="piezas">
-      <li class="rev"><b>Agente de Copilot Studio</b>Lee los pedidos, decide, normaliza y escribe los mensajes, siguiendo un manual de operación con todas las reglas.</li>
-      <li class="rev"><b>Flujos programados</b>Despiertan al agente en cada revisión, en cada corte y para el aviso diario de salud.</li>
-      <li class="rev"><b>CRM (Dataverse)</b>Base de clientes para validar el solicitante y la razón social. Solo se consulta, no se modifica.</li>
-      <li class="rev"><b>Teams</b>Por donde llegan los pedidos y las correcciones, y salen las respuestas, el aviso a configuración DMS, el motivo de los errores de carga y el aviso diario.</li>
-      <li class="rev"><b>OneDrive</b>Carpetas de archivos listos y de cada día (con sus carpetas OK y Errores), y el registro de pedidos.</li>
-      <li class="rev"><b>Normalizador DMS</b>Las mismas reglas del <a href="https://pblsanchez.github.io/dms-contract-normalizer/" target="_blank" rel="noopener noreferrer">DMS Contract Normalizer<span class="sr"> (se abre en una pestaña nueva)</span></a>, más las que sumamos para la automatización.</li>
-    </ul>
-  </section>
+    <div class="faq">
+      <details class="rev"><summary>¿Tengo que usar algo nuevo?</summary><p>No. Completás el mismo Excel de alta y lo mandás por Teams. La respuesta te llega en ese mismo chat.</p></details>
+      <details class="rev"><summary>¿Cuándo puedo pedir la validación en A.com?</summary><p>Te lo decimos en el primer mensaje. Si mandás el Excel antes de las 17 h de un día hábil, a más tardar el día hábil siguiente; muchas veces queda el mismo día. Cuando el contrato queda cargado, te avisamos.</p></details>
+      <details class="rev"><summary>¿Qué hago si me piden un cambio?</summary><p>Corregís el Excel y lo volvés a mandar por el mismo chat. Si lo que estaba mal era el código de solicitante, la razón social o el número de contrato, alcanza con responder el dato correcto: lo validamos en el CRM y te confirmamos el ajuste.</p></details>
+      <details class="rev"><summary>¿Qué pasa si el cliente todavía no está en SAP?</summary><p>El pedido sigue su curso igual. Si no se puede configurar porque el cliente todavía no figura bien en la base, te lo contamos: suele ser una demora de sincronización entre SAP y el CRM. Cuando el cliente aparece, lo volvemos a mandar a configurar sin que tengas que reenviar nada, y te avisamos cuando queda cargado.</p></details>
+      <details class="rev"><summary>¿Por qué los mensajes empiezan con 🤖?</summary><p>Para que sepas que es un mensaje automático. Si tenés una consulta que no es un dato del pedido, escribila igual: la ve Pablo Sánchez.</p></details>
+      <details class="rev"><summary>¿Qué pasa con los pedidos de fin de semana o feriado?</summary><p>Se toman en la primera revisión del próximo día hábil y el plazo se calcula desde ahí. Si hubo un feriado en el medio, el mensaje lo aclara.</p></details>
+    </div>
+  </div>
+</section>
 
-  <section aria-label="Volver" class="volver rev">
-    <a class="btn btn-primary" href="../">Volver al Portal de soluciones</a>
-    <a class="btn btn-secondary" href="mailto:psanchez@andreani.com?subject=Alta%20autom%C3%A1tica%20de%20contratos%20DMS">Escribirle a Pablo Sánchez</a>
-  </section>
+<section class="sec" aria-labelledby="t-detras">
+  <div class="in">
+    <div class="sec-h centro rev">
+      <span class="eyebrow">Detrás de escena</span>
+      <h2 id="t-detras">Hecho con herramientas que ya tenemos</h2>
+      <p>No sumamos sistemas nuevos: los datos de los pedidos se quedan en Teams y OneDrive, y el CRM solo se consulta.</p>
+    </div>
+    <div class="piezas">
+      <div class="pz rev"><b>Agente de Copilot Studio</b><span>Lee, valida, normaliza y escribe los mensajes.</span></div>
+      <div class="pz rev"><b>Flujos programados</b><span>Lo activan en cada revisión, en cada corte y en el repaso diario.</span></div>
+      <div class="pz rev"><b>CRM</b><span>Base de clientes para validar solicitante y razón social.</span></div>
+      <div class="pz rev"><b>Teams</b><span>Por donde llegan los pedidos y salen las respuestas.</span></div>
+      <div class="pz rev"><b>OneDrive</b><span>Carpetas de cada día y el registro de pedidos.</span></div>
+      <div class="pz rev"><b>Normalizador DMS</b><span>Las reglas del <a href="https://pblsanchez.github.io/dms-contract-normalizer/" target="_blank" rel="noopener noreferrer">DMS Contract Normalizer<span class="sr"> (se abre en una pestaña nueva)</span></a>.</span></div>
+    </div>
+  </div>
+</section>
+
 </main>
 
-<footer class="footer">
-  <div class="footer-in">
+<section class="final" aria-labelledby="t-final">
+  <div class="in">
+    <h2 id="t-final">Tu próximo contrato, por el mismo camino de siempre</h2>
+    <p>Mandá el Excel por Teams. Nosotros te contamos cuándo lo podés validar.</p>
+    <div class="cta">
+      <a class="btn btn-w" href="mailto:psanchez@andreani.com?subject=Alta%20autom%C3%A1tica%20de%20contratos%20DMS">Escribirle a Pablo Sánchez</a>
+      <a class="btn btn-o" href="../">Volver al Portal de soluciones</a>
+    </div>
+  </div>
+</section>
+
+<footer class="ft">
+  <div class="in">
     <span>Andreani · Portal de soluciones · Alta automática de contratos DMS</span>
-    <span>Versión 1.2 · <time datetime="2026-11-24">24/11/2026</time></span>
+    <span>Versión 2.0 · <time datetime="2026-11-24">24/11/2026</time></span>
   </div>
 </footer>
 
 <script>
 (function () {
-  var els = document.querySelectorAll(".rev");
-  if (!("IntersectionObserver" in window) || /[?&]estatico/.test(location.search)) { Array.prototype.forEach.call(els, function (e) { e.classList.add("on"); }); return; }
+  var estatico = /[?&]estatico/.test(location.search) ||
+    (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+  var XLS = function (n) { return '<span class="adj">Alta de contrato DMS ' + n + '.xlsx</span>'; };
+  var CASOS = [
+    { t: "Todo en orden", d: "El Excel viene bien y el cliente está en la base.", c: "Ana García", i: "AG",
+      r: "Te respondemos en menos de una hora y te avisamos cuando quedó cargado.",
+      m: [["yo", "Te paso el alta de Ejemplo S.A." + XLS("351000000")],
+          ["bot ok", "🤖 Hola Ana, recibimos el pedido de Ejemplo S.A. (351000000) y ya lo enviamos a configurar. Hoy al final de la tarde o a más tardar mañana vas a poder pedir la validación en A.com."],
+          ["sys", "11:00 · Corte: el archivo pasa a configuración DMS"],
+          ["bot ok", "🤖 Hola Ana, el contrato 351000000 de Ejemplo S.A. ya está dado de alta en DMS. Ya podés pedir la validación en A.com."]] },
+    { t: "El código de solicitante está mal", d: "El CRM permite saber cuál es el correcto.", c: "Martín Díaz", i: "MD",
+      r: "Lo corregimos solos y te contamos qué cambiamos.",
+      m: [["yo", "Alta nueva" + XLS("351000002")],
+          ["bot ok", "🤖 Hola Martín, recibimos el pedido de Muestra S.A. (351000002) y ya lo enviamos a configurar. Hoy al final de la tarde o a más tardar mañana vas a poder pedir la validación en A.com. Corregimos el código de solicitante: el Excel decía 100001 y en el CRM es 100002."]] },
+    { t: "Me equivoqué en un dato", d: "Respondés el dato correcto en el chat.", c: "Sofía Ruiz", i: "SR",
+      r: "No hace falta mandar otro Excel: validamos el dato y tomamos el ajuste.",
+      m: [["yo", "Va el alta" + XLS("351000004")],
+          ["bot ok", "🤖 Hola Sofía, recibimos el pedido de Comercio Modelo S.R.L. (351000004) y ya lo enviamos a configurar. Hoy al final de la tarde o a más tardar mañana vas a poder pedir la validación en A.com."],
+          ["yo", "Perdón, el solicitante es 100004"],
+          ["bot ok", "🤖 Listo Sofía, tomamos el ajuste: solicitante 100004 (lo validamos en el CRM). Hoy al final de la tarde o a más tardar mañana vas a poder pedir la validación en A.com."]] },
+    { t: "El Excel tiene un error", d: "Algo que solo vos podés corregir.", c: "Juan Pérez", i: "JP",
+      r: "Te decimos qué corregir, en lenguaje simple.",
+      m: [["yo", "Te mando el contrato" + XLS("351000006")],
+          ["bot cambio", "🤖 Hola Juan, no pudimos tomar el pedido de Distribuidora Ejemplo S.A.: la hoja Contrato tiene errores de fórmula (#¡REF!). Corregilo en el Excel y volvé a enviarlo por acá."],
+          ["yo", "Listo, va corregido" + XLS("351000006")],
+          ["bot ok", "🤖 Hola Juan, recibimos el pedido de Distribuidora Ejemplo S.A. (351000006) y ya lo enviamos a configurar. Hoy al final de la tarde o a más tardar mañana vas a poder pedir la validación en A.com."]] },
+    { t: "El cliente todavía no está en SAP", d: "Un tema de la base, fuera del proceso.", c: "Luis Romero", i: "LR",
+      r: "No reenviás nada: cuando el cliente aparece, lo volvemos a mandar.",
+      m: [["yo", "Alta de cliente nuevo" + XLS("351000008")],
+          ["bot ok", "🤖 Hola Luis, recibimos el pedido de Cliente Nuevo S.A. (351000008) y ya lo enviamos a configurar. Hoy al final de la tarde o a más tardar mañana vas a poder pedir la validación en A.com."],
+          ["sys", "Configuración DMS: el cliente todavía no tiene perfil en la base"],
+          ["bot info", "🤖 Hola Luis, el contrato 351000008 de Cliente Nuevo S.A. todavía no se pudo dar de alta en DMS: el cliente todavía no figura en el maestro de datos. Suele ser una demora en la sincronización entre SAP y el CRM: apenas el cliente figure bien en la base, lo volvemos a mandar a configurar. No hace falta que reenvíes el Excel; te avisamos cuando quede cargado."],
+          ["sys", "Al día siguiente el cliente aparece en el CRM y se vuelve a configurar"],
+          ["bot ok", "🤖 Hola Luis, el contrato 351000008 de Cliente Nuevo S.A. ya está dado de alta en DMS. Ya podés pedir la validación en A.com."]] }
+  ];
+
+  function burbuja(c, html) {
+    var d = document.createElement("div");
+    var tipo = c.split(" ")[0];
+    d.className = "m " + c;
+    d.innerHTML = (tipo === "bot" ? "<small>Respuesta automática</small>" : "") + html;
+    return d;
+  }
+  function reproducir(box, msgs, al, fin) {
+    box.innerHTML = "";
+    if (box._t) clearTimeout(box._t);
+    if (estatico) { msgs.forEach(function (m) { box.appendChild(burbuja(m[0], m[1])); }); if (fin) fin(); return; }
+    var i = 0;
+    (function paso() {
+      if (i >= msgs.length) { if (fin) box._t = setTimeout(fin, al || 0); return; }
+      var m = msgs[i++];
+      if (m[0].indexOf("bot") === 0) {
+        var t = document.createElement("div"); t.className = "typing"; t.innerHTML = "<i></i><i></i><i></i>";
+        box.appendChild(t);
+        box._t = setTimeout(function () { t.remove(); box.appendChild(burbuja(m[0], m[1])); box._t = setTimeout(paso, 1300); }, 1100);
+      } else { box.appendChild(burbuja(m[0], m[1])); box._t = setTimeout(paso, 1000); }
+    })();
+  }
+
+  /* hero: loop del caso 1 */
+  var hero = document.getElementById("chat-hero");
+  (function loop() { reproducir(hero, CASOS[0].m, 3500, estatico ? null : loop); })();
+
+  /* simulador */
+  var cont = document.getElementById("casos"), sim = document.getElementById("chat-sim"), act = 0;
+  CASOS.forEach(function (c, i) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "caso"; b.id = "caso-" + i;
+    b.setAttribute("role", "tab"); b.setAttribute("aria-controls", "sim-panel");
+    b.innerHTML = '<span class="n" aria-hidden="true">' + (i + 1) + "</span><span><b>" + c.t + "</b><span>" + c.d + "</span></span>";
+    b.addEventListener("click", function () { elegir(i); });
+    b.addEventListener("keydown", function (e) {
+      var k = e.key, n = null;
+      if (k === "ArrowDown" || k === "ArrowRight") n = (i + 1) % CASOS.length;
+      if (k === "ArrowUp" || k === "ArrowLeft") n = (i - 1 + CASOS.length) % CASOS.length;
+      if (n !== null) { e.preventDefault(); elegir(n); document.getElementById("caso-" + n).focus(); }
+    });
+    cont.appendChild(b);
+  });
+  function elegir(i) {
+    act = i;
+    CASOS.forEach(function (c, j) {
+      var b = document.getElementById("caso-" + j);
+      b.setAttribute("aria-selected", j === i ? "true" : "false");
+      b.tabIndex = j === i ? 0 : -1;
+    });
+    document.getElementById("sim-panel").setAttribute("aria-labelledby", "caso-" + i);
+    document.getElementById("sim-nombre").textContent = CASOS[i].c;
+    document.getElementById("sim-av").textContent = CASOS[i].i;
+    document.getElementById("sim-resumen").textContent = CASOS[i].r;
+    reproducir(sim, CASOS[i].m);
+  }
+  document.getElementById("repetir").addEventListener("click", function () { elegir(act); });
+  elegir(0);
+
+  /* eje del dia: 7 a 18 h */
+  var eje = document.getElementById("eje"), html = "";
+  function pos(h) { return ((h - 7) / 11 * 100).toFixed(2) + "%"; }
+  for (var h = 7; h <= 18; h++) html += '<span class="hora" style="left:' + pos(h) + '">' + h + " h</span>";
+  for (var r = 7; r <= 17; r++) html += '<span class="hito rev-h" style="left:' + pos(r + 50 / 60) + '"><i></i><b>' + r + ":50</b></span>";
+  [11, 14, 17].forEach(function (c) { html += '<span class="hito corte" style="left:' + pos(c) + '"><i></i><b>Corte ' + c + " h</b></span>"; });
+  html += '<span class="hito salud" style="left:' + pos(8.5) + '"><i></i><b>8:30</b></span>';
+  eje.insertAdjacentHTML("beforeend", html);
+
+  /* aparicion al hacer scroll */
+  var els = document.querySelectorAll(".rev"), et = document.getElementById("etapas");
+  if (estatico || !("IntersectionObserver" in window)) {
+    Array.prototype.forEach.call(els, function (e) { e.classList.add("on"); }); et.classList.add("on"); return;
+  }
   var io = new IntersectionObserver(function (es) {
     es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("on"); io.unobserve(e.target); } });
-  }, { threshold: 0.1 });
-  Array.prototype.forEach.call(els, function (e, i) { if (e.tagName === "LI") e.style.animationDelay = (i % 3) * 0.12 + "s"; io.observe(e); });
+  }, { threshold: 0.15 });
+  Array.prototype.forEach.call(els, function (e, i) { e.style.transitionDelay = (i % 4) * 0.08 + "s"; io.observe(e); });
+  io.observe(et);
 })();
 </script>
 </body>
