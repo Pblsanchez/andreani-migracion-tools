@@ -1,4 +1,4 @@
-/* ==SEG-VISTAS== Seguimiento de actividades (T-017, D-081) v1.6 — T-019 E2 (D-131): componentes del Portal; v1.6 (D-132): pills de estado en la tabla.
+/* ==SEG-VISTAS== Seguimiento de actividades (T-017, D-081) v1.6 — T-019 E2 (D-131): componentes del Portal; v1.6 (D-132): pills de estado en la tabla; v1.7 (D-133): cerradas apagadas de entrada.
    Franja con 3 números (Esperan tu OK · En curso · Cerradas), filtros con etiquetas (chips) de estado y proceso,
    tarjetas del portal para «Esperan tu OK» y «Bloqueadas y en pausa», línea de tiempo para la actividad reciente.
    La tabla de tareas sigue en seguimiento.js. Recibe los helpers de la interfaz (ui) desde seguimiento.js. */
@@ -63,39 +63,50 @@ function SEG_VISTAS(ui) {
     renderFranja(d); vigilarDatos(); vigilarTabla();
   }
 
-  /* ---------- Tabla: filtro propio con pills de estado (T-019, D-132) ----------
-     Pills con el mismo diseño que la columna «Estado». Se pueden marcar varios (ej.: En curso + En revisión).
+  /* ---------- Tabla: interruptores de estado (T-019, D-132 + D-133) ----------
+     Un pill por estado con el mismo diseño que la columna «Estado»: prendido = se ve en la tabla, apagado = se oculta.
+     D-133: de entrada están prendidos todos menos «Cerrada» (las cerradas se prenden a mano). «Todas» prende todo.
      Filtran solo la tabla, sobre lo que ya dejan los filtros de arriba. La tabla la arma seguimiento.js:
      cuando se vuelve a pintar, se agregan los pills y se aplica la selección (MutationObserver). */
-  var selTabla = [];
+  var POR_DEFECTO = L.ESTADOS.filter(function (e) { return e !== "Cerrada"; });
+  var verTabla = POR_DEFECTO.slice();
   function prepararTabla() {
     var cont = $("seg-lista"); if (!cont) return;
     var cuerpo = $("seg-lista-cuerpo");
-    hijosConClase(cont, "pills-tabla").forEach(function (n) { cont.removeChild(n); });
+    hijosConClase(cont, "pills-tabla").concat(hijosConClase(cont, "pills-vacio")).forEach(function (n) { cont.removeChild(n); });
     if (!cuerpo || !enArbol(cont, cuerpo)) return;
     var filas = cuerpo.children || [], c = {};
     L.ESTADOS.forEach(function (e) { c[e] = 0; });
     filas.forEach(function (tr) { var e = tr.getAttribute("data-estado"); if (c[e] != null) c[e]++; });
-    selTabla = selTabla.filter(function (e) { return c[e] > 0; });
-    var pills = el("div", { "class": "pills-tabla" + (selTabla.length ? " hay-sel" : ""), role: "group", "aria-label": "Filtrar la tabla por estado" }, [
+    function visible(tr) { var e = tr.getAttribute("data-estado"); return c[e] == null || verTabla.indexOf(e) >= 0; }
+    var todasPrendidas = L.ESTADOS.every(function (e) { return !c[e] || verTabla.indexOf(e) >= 0; });
+    var pills = el("div", { "class": "pills-tabla", role: "group", "aria-label": "Estados que se ven en la tabla" }, [
       el("span", { "class": "chips-fila__label", text: "Ver en la tabla" }),
-      el("button", { type: "button", "class": "chip chip--todas", "aria-pressed": selTabla.length ? "false" : "true", "data-estado": "",
-        onclick: function () { selTabla = []; prepararTabla(); anunciarTabla(); } }, ["Todas", el("span", { "class": "n", text: String(filas.length) })])
+      el("button", { type: "button", "class": "chip chip--todas", "aria-pressed": todasPrendidas ? "true" : "false", "data-estado": "",
+        title: "Prender todos los estados, también las cerradas",
+        onclick: function () { verTabla = L.ESTADOS.slice(); prepararTabla(); anunciarTabla(); } }, ["Todas", el("span", { "class": "n", text: String(filas.length) })])
     ].concat(L.ESTADOS.map(function (e) {
-      var activo = selTabla.indexOf(e) >= 0, n = c[e];
-      return el("button", { type: "button", "class": "pill-estado", "aria-pressed": activo ? "true" : "false", "data-estado": e, disabled: n === 0,
-        title: n === 0 ? "No hay tareas «" + e + "» en la tabla" : (activo ? "Quitar «" + e + "»" : "Sumar «" + e + "» a la tabla"),
-        onclick: function () { if (activo) selTabla = selTabla.filter(function (x) { return x !== e; }); else selTabla = selTabla.concat([e]); prepararTabla(); anunciarTabla(); } },
+      var prendido = verTabla.indexOf(e) >= 0, n = c[e];
+      return el("button", { type: "button", "class": "pill-estado", "aria-pressed": prendido ? "true" : "false", "data-estado": e, disabled: n === 0,
+        title: n === 0 ? "No hay tareas «" + e + "» en la tabla" : (prendido ? "Ocultar «" + e + "» de la tabla" : "Mostrar «" + e + "» en la tabla"),
+        onclick: function () { if (prendido) verTabla = verTabla.filter(function (x) { return x !== e; }); else verTabla = verTabla.concat([e]); prepararTabla(); anunciarTabla(); } },
         [etiquetaEstado({ estado: e }), el("span", { "class": "pill-n", text: String(n) })]);
     })));
     var cab = hijosConClase(cont, "seccion__cab")[0];
     if (cab) cont.insertBefore(pills, cab.nextSibling); else cont.appendChild(pills);
     var visibles = 0;
-    filas.forEach(function (tr) { var ver = !selTabla.length || selTabla.indexOf(tr.getAttribute("data-estado")) >= 0; tr.hidden = !ver; if (ver) visibles++; });
+    filas.forEach(function (tr) { var ver = visible(tr); tr.hidden = !ver; if (ver) visibles++; });
     var tot = $("seg-lista-total");
     if (tot) {
       if (tot.getAttribute("data-base") == null) tot.setAttribute("data-base", tot.textContent);
-      tot.textContent = selTabla.length ? visibles + " de " + filas.length + " en la tabla" : tot.getAttribute("data-base");
+      tot.textContent = visibles === filas.length ? tot.getAttribute("data-base") : visibles + " de " + filas.length + " en la tabla";
+    }
+    /* Si todo lo que hay quedó apagado (ej.: arriba se eligió «Cerrada»), se avisa y se ofrece prenderlo */
+    if (filas.length && !visibles) {
+      cont.appendChild(el("div", { "class": "vacio pills-vacio" }, [
+        filas.length === 1 ? "La tarea de la tabla está en un estado apagado. " : "Las " + filas.length + " tareas de la tabla están en estados apagados. ",
+        el("button", { type: "button", "class": "btn btn-secondary btn--chico", onclick: function () { verTabla = L.ESTADOS.slice(); prepararTabla(); anunciarTabla(); } }, ["Ver todas"])
+      ]));
     }
   }
   function anunciarTabla() {

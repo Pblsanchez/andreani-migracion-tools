@@ -1,4 +1,4 @@
-/* Seguimiento de actividades · T-019 E2 (D-131) · componentes del Portal (v1.5).
+/* Seguimiento de actividades · T-019 E2 (D-131) · componentes del Portal (v1.5) · pills de la tabla (D-132, D-133, v1.7).
    Va después de ../portal.css y seguimiento.css: ajusta lo viejo del Seguimiento a las piezas del portal.
    Paleta D-045 · solo modo claro. */
 
@@ -39,8 +39,8 @@
 .seg-tl .timeline .actividad__que { color: var(--c-color-text-strong); }
 .seg-tl .timeline .sr-only { font-size: 1px; }
 
-/* Tabla: pills de estado (D-132). Mismo diseño que la columna «Estado», un poco más grandes para tocar.
-   Elegido = anillo grafito alrededor + contador invertido; se pueden elegir varios. */
+/* Tabla: pills de estado (D-132, D-133). Mismo diseño que la columna «Estado», un poco más grandes para tocar.
+   Funcionan como interruptores: prendido = se ve en la tabla (contador invertido); de entrada «Cerrada» está apagado. */
 .pills-tabla { display: flex; flex-wrap: wrap; align-items: center; gap: var(--c-spacing-2); margin: 0 0 var(--c-spacing-4); }
 .pills-tabla .chips-fila__label { margin-right: var(--c-spacing-1); }
 .pills-tabla .chip { height: 36px; }
@@ -51,8 +51,12 @@
   display: inline-flex; align-items: center; justify-content: center; font: 500 12px/16px var(--c-font-family-body);
   background: var(--c-color-surface); color: var(--c-color-text-strong); border: 1px solid var(--c-color-border-subtle); }
 .pill-estado:hover:not(:disabled) .estado { box-shadow: 0 0 0 1px currentColor; }
-.pill-estado[aria-pressed="true"] .estado { box-shadow: 0 0 0 2px var(--c-color-surface), 0 0 0 4px var(--c-gray-900); font-weight: 700; }
+/* D-133: prendido = igual que la columna (color del estado); apagado = gris, borde punteado y texto tachado */
+.pill-estado[aria-pressed="false"] .estado { background: var(--c-color-surface); border-color: var(--c-gray-400); border-style: dashed; color: var(--c-gray-600); }
+.pill-estado[aria-pressed="false"]:not(:disabled) .estado { text-decoration: line-through; text-decoration-thickness: 1px; }
+.pill-estado[aria-pressed="false"] .pill-n { background: var(--c-color-surface); color: var(--c-gray-600); }
 .pill-estado[aria-pressed="true"] .pill-n { background: var(--c-gray-900); color: var(--c-gray-000); border-color: var(--c-gray-900); }
+.pills-vacio { display: flex; flex-wrap: wrap; align-items: center; gap: var(--c-spacing-3); margin-top: var(--c-spacing-3); }
 .pill-estado:disabled { cursor: not-allowed; opacity: .45; }
 .pill-estado:disabled .estado { filter: none; }
 .pill-estado:focus-visible { outline: 2px solid transparent; box-shadow: var(--shadow-focus-regular); }
