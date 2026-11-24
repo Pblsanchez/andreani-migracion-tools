@@ -1,4 +1,4 @@
-/* Portal de soluciones (T-016, D-076, D-077) · catálogo y comportamiento. Separado de index.html en T-017 E3 (v2.2). Grupos colapsables: T-022 (v2.7). Sin destacado «Lo nuevo»: T-023 (v2.8). Relevamiento comercial: T-024 (v2.9). Seguimiento v1.6 con el estilo del portal: T-019 (v2.11). Alta automática v1.1 con cierre del pedido: T-020 (v2.12). Relevamiento con acceso a «Publicar carteras»: T-024 (v2.13). Alta automática v1.2 con respuestas en texto: T-020 (v2.14). */
+/* Portal de soluciones (T-016, D-076, D-077) · catálogo y comportamiento. Separado de index.html en T-017 E3 (v2.2). Grupos colapsables: T-022 (v2.7). Sin destacado «Lo nuevo»: T-023 (v2.8). Relevamiento comercial: T-024 (v2.9). Seguimiento v1.6 con el estilo del portal: T-019 (v2.11). Alta automática v1.1 con cierre del pedido: T-020 (v2.12). Relevamiento con acceso a «Publicar carteras»: T-024 (v2.13). Alta automática v1.2 con respuestas en texto: T-020 (v2.14). Alta automática v2.0, página para el equipo comercial: T-026 (v2.15). */
 /*
  * Catálogo del portal (D-008, T-016). Para sumar una herramienta, agregar un objeto a HERRAMIENTAS.
  *   tipo: "uso" (en uso) | "proto" (prototipo / propuesta) | "archivo" (en pausa)
@@ -36,9 +36,9 @@ var HERRAMIENTAS = [
   {
     id: "alta-auto", tipo: "uso", estado: "beta", icono: "automatizacion", proceso: "contratos",
     nombre: "Alta automática de contratos DMS",
-    descripcion: "El comercial manda el Excel de alta por Teams y el resto pasa solo: valida contra el CRM, corrige lo que tiene una única respuesta, le responde al comercial, entrega los archivos listos a configuración DMS en los cortes de las 11, 14 y 17 h y le avisa al comercial cuando el contrato quedó cargado o por qué no.",
-    para: "Sacar del medio el trabajo manual del proceso contingente de alta: nadie mira la bandeja, y si algo no se puede resolver, el comercial recibe el detalle para corregirlo. En producción desde el 24/11/2026.",
-    version: "v1.2", actualizado: "2026-11-24",
+    descripcion: "Mandás el Excel por Teams y del resto nos ocupamos nosotros: validamos contra el CRM, corregimos lo que tiene una única respuesta, lo pasamos a configurar en los cortes de las 11, 14 y 17 h y te avisamos en el mismo chat cuando podés pedir la validación en A.com.",
+    para: "Contarle al equipo comercial cómo funciona el alta de contratos en DMS: qué hace el comercial, qué pasa solo, en qué horarios y qué responde en cada situación, con un simulador de conversaciones. En producción desde el 24/11/2026.",
+    version: "v2.0", actualizado: "2026-11-24",
     acciones: [
       { texto: "Cómo funciona", href: "./alta-contingente/", estilo: "primary" }
     ]
@@ -101,6 +101,7 @@ var PROCESOS = [
 ];
 
 var NOVEDADES = [
+  { fecha: "2026-11-24", titulo: "Alta automática de contratos DMS · v2.0", texto: "Nueva página «Cómo funciona», pensada para el equipo comercial: el antes y el ahora, el recorrido en cinco pasos, un simulador de conversaciones («¿qué pasa si…?»), los horarios del día y preguntas frecuentes." },
   { fecha: "2026-11-24", titulo: "Alta automática de contratos DMS · v1.2", texto: "Si el comercial se equivocó en el código de solicitante, la razón social o el número de contrato, alcanza con responder el dato correcto en el mismo chat: lo validamos en el CRM y, si coincide, tomamos el ajuste y se lo confirmamos." },
   { fecha: "2026-11-24", titulo: "Alta automática de contratos DMS · v1.1", texto: "Ahora el comercial también se entera de cómo terminó: cuando configuración DMS carga el contrato, le avisamos que ya puede pedir la validación en A.com, y si no se pudo cargar, le contamos por qué y qué sigue." },
   { fecha: "2026-11-23", titulo: "Seguimiento de actividades · v1.6", texto: "Nuevo diseño con el estilo del portal: los números clave arriba, filtros con etiquetas de estado y proceso, tarjetas para lo que espera tu OK, la actividad como línea de tiempo y etiquetas de estado para filtrar la tabla." },
