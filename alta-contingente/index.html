@@ -82,6 +82,7 @@
         <span class="paso-quien">Automático</span>
         <h3>Le responde al comercial</h3>
         <p>En el mismo chat: le confirma que lo recibimos y cuándo va a poder pedir la validación en A.com, o le explica qué tiene que corregir y que vuelva a mandarlo.</p>
+        <p class="cuando">Si el comercial contesta con un dato corregido (código de solicitante, razón social o número de contrato), lo valida en el CRM y, si coincide, toma el ajuste y se lo confirma. Si no coincide, el pedido sigue su curso y se le explica por qué.</p>
       </li>
       <li class="paso rev">
         <span class="paso-num" aria-hidden="true">6</span>
@@ -122,6 +123,7 @@
           <li>Que el cliente esté en el maestro de datos<span>Si el cliente no tiene número de SAP, lo avisa.</span></li>
           <li>Errores de fórmula en las hojas<span>Nunca le llega a configuración DMS un archivo con #¡REF!.</span></li>
           <li>Reenvíos del mismo contrato<span>Vale la última versión que mandó el comercial.</span></li>
+          <li>Datos que el comercial corrige en el chat<span>Solo los toma si coinciden en el CRM.</span></li>
         </ul>
       </article>
       <article class="col corrige rev">
@@ -145,7 +147,7 @@
           <li>Datos obligatorios que faltan o no son válidos<span>Le dice cuáles, en lenguaje simple.</span></li>
           <li>Errores de carga en DMS que vienen del Excel<span>Con el motivo que informa configuración DMS.</span></li>
         </ul>
-        <p>El comercial corrige el Excel y lo vuelve a mandar por el mismo chat. Los problemas técnicos no le llegan a él: le llegan a Pablo.</p>
+        <p>El comercial corrige el Excel y lo vuelve a mandar por el mismo chat; si lo que falla es el solicitante, la razón social o el contrato, alcanza con responder el dato correcto. Los problemas técnicos no le llegan a él: le llegan a Pablo.</p>
       </article>
     </div>
   </section>
@@ -161,6 +163,7 @@
       <div class="chat">
         <div class="burbuja ok"><span class="de">Al comercial · pedido tomado</span>🤖 Hola Ana, recibimos el pedido de Ejemplo S.A. (351000000) y ya lo enviamos a configurar. Hoy al final de la tarde o a más tardar mañana vas a poder pedir la validación en A.com. Corregimos el código de solicitante: el Excel decía 100001 y en el CRM es 100002.</div>
         <div class="burbuja error"><span class="de">Al comercial · pedido de cambio</span>🤖 Hola Juan, no pudimos tomar el pedido de Comercio Modelo S.R.L.: la hoja Contrato tiene errores de fórmula (#¡REF!). Corregilo en el Excel y volvé a enviarlo por acá.</div>
+        <div class="burbuja ok"><span class="de">Al comercial · ajuste tomado</span>🤖 Listo Sofía, tomamos el ajuste: solicitante 100004 (lo validamos en el CRM). Hoy al final de la tarde o a más tardar mañana vas a poder pedir la validación en A.com.</div>
         <div class="burbuja corte"><span class="de">A configuración DMS · corte</span>🤖 Hola, te paso 2 archivos para alta de contratos DMS: Alta de contrato DMS 351000000 100002 Ejemplo S.A.xlsx · Alta de contrato DMS 351000001 100003 Muestra S.A.xlsx. Carpeta: link a la carpeta del día.</div>
         <div class="burbuja ok"><span class="de">Al comercial · cargado en DMS</span>🤖 Hola Ana, el contrato 351000000 de Ejemplo S.A. ya está dado de alta en DMS. Ya podés pedir la validación en A.com.</div>
         <div class="burbuja error"><span class="de">Al comercial · no se pudo cargar</span>🤖 Hola Luis, el contrato 351000001 de Muestra S.A. todavía no se pudo dar de alta en DMS: el cliente no está dado de alta en el maestro de datos. Es un tema que está fuera de este proceso, así que no hace falta que reenvíes el Excel. Pablo ya está al tanto y te avisamos cuando quede cargado.</div>
@@ -179,7 +182,7 @@
         <caption>Calendario de la automatización (días hábiles, hora de Buenos Aires)</caption>
         <thead><tr><th scope="col">Qué</th><th scope="col">Cuándo</th><th scope="col">Qué ve el comercial o configuración DMS</th></tr></thead>
         <tbody>
-          <tr><th scope="row">Revisión de pedidos</th><td>Una vez por hora, de 7 a 18 h (a los 50 minutos de cada hora)</td><td>El comercial recibe la respuesta, como máximo, una hora hábil después de mandar el Excel.</td></tr>
+          <tr><th scope="row">Revisión de pedidos</th><td>Una vez por hora, de 7 a 18 h (a los 50 minutos de cada hora)</td><td>El comercial recibe la respuesta, como máximo, una hora hábil después de mandar el Excel o el dato corregido.</td></tr>
           <tr><th scope="row">Cortes</th><td>11, 14 y 17 h</td><td>Configuración DMS recibe los archivos nuevos en la carpeta del día y un aviso por Teams.</td></tr>
           <tr><th scope="row">Pedido antes de las 17 h</th><td>Va al corte de ese mismo día</td><td>«Hoy al final de la tarde o a más tardar mañana vas a poder pedir la validación en A.com.»</td></tr>
           <tr><th scope="row">Pedido después de las 17 h</th><td>Va al primer corte del próximo día hábil</td><td>El plazo se corre al próximo día hábil.</td></tr>
@@ -197,7 +200,7 @@
       <h2 id="t-resuelve">Menos idas y vueltas para todos</h2>
     </div>
     <div class="resuelve">
-      <div class="dato rev"><b>Comercial</b><span>Manda el Excel como siempre y recibe respuesta en el mismo chat: el plazo, lo que corregimos o lo que tiene que cambiar, y el aviso cuando el contrato queda cargado.</span></div>
+      <div class="dato rev"><b>Comercial</b><span>Manda el Excel como siempre y recibe respuesta en el mismo chat: el plazo, lo que corregimos o lo que tiene que cambiar, y el aviso cuando el contrato queda cargado. Si se equivocó en un dato, lo corrige respondiendo ahí mismo.</span></div>
       <div class="dato rev"><b>Configuración DMS</b><span>Recibe archivos ya validados y normalizados, juntos en la carpeta del día, en tres horarios fijos. Solo tiene que dejar cada archivo en OK o Errores.</span></div>
       <div class="dato rev"><b>Nadie en el medio</b><span>No hace falta que una persona mire la bandeja, abra cada Excel, reenvíe archivos ni le avise al comercial cómo terminó.</span></div>
       <div class="dato rev"><b>Todo queda registrado</b><span>Cada pedido queda anotado con su estado hasta que se carga y, todos los días hábiles, Pablo recibe un aviso con lo pendiente y lo que se pasó del plazo.</span></div>
@@ -214,7 +217,7 @@
       <li class="rev"><b>Agente de Copilot Studio</b>Lee los pedidos, decide, normaliza y escribe los mensajes, siguiendo un manual de operación con todas las reglas.</li>
       <li class="rev"><b>Flujos programados</b>Despiertan al agente en cada revisión, en cada corte y para el aviso diario de salud.</li>
       <li class="rev"><b>CRM (Dataverse)</b>Base de clientes para validar el solicitante y la razón social. Solo se consulta, no se modifica.</li>
-      <li class="rev"><b>Teams</b>Por donde llegan los pedidos y salen las respuestas, el aviso a configuración DMS, el motivo de los errores de carga y el aviso diario.</li>
+      <li class="rev"><b>Teams</b>Por donde llegan los pedidos y las correcciones, y salen las respuestas, el aviso a configuración DMS, el motivo de los errores de carga y el aviso diario.</li>
       <li class="rev"><b>OneDrive</b>Carpetas de archivos listos y de cada día (con sus carpetas OK y Errores), y el registro de pedidos.</li>
       <li class="rev"><b>Normalizador DMS</b>Las mismas reglas del <a href="https://pblsanchez.github.io/dms-contract-normalizer/" target="_blank" rel="noopener noreferrer">DMS Contract Normalizer<span class="sr"> (se abre en una pestaña nueva)</span></a>, más las que sumamos para la automatización.</li>
     </ul>
@@ -229,7 +232,7 @@
 <footer class="footer">
   <div class="footer-in">
     <span>Andreani · Portal de soluciones · Alta automática de contratos DMS</span>
-    <span>Versión 1.1 · <time datetime="2026-11-24">24/11/2026</time></span>
+    <span>Versión 1.2 · <time datetime="2026-11-24">24/11/2026</time></span>
   </div>
 </footer>
 
