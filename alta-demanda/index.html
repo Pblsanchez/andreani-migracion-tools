@@ -38,7 +38,7 @@ nav.top a:hover{color:var(--c-color-text-strong);text-decoration:underline}
 .hero p.lead{font-size:18px;line-height:28px;max-width:720px;color:#e9eaec;margin:0}
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--c-spacing-4);margin-top:var(--c-spacing-6)}
 .kpi{background:#ffffff14;border:1px solid #ffffff2e;border-radius:var(--c-border-radius-medium);padding:var(--c-spacing-5)}
-.kpi b{display:block;font:700 38px/44px var(--c-font-family-headline);color:#fff}
+.kpi b{display:block;font:700 32px/40px var(--c-font-family-headline);color:#fff;white-space:nowrap}
 .kpi span{display:block;font-size:14px;line-height:20px;color:#e9eaec;margin-top:var(--c-spacing-1)}
 .kpi.alerta b{color:#ffb38f}
 section{padding:var(--c-spacing-7) 0}
@@ -66,7 +66,7 @@ h3{font:500 20px/24px var(--c-font-family-headline);color:var(--c-color-text-str
 .chart{width:100%;overflow-x:auto}
 .chart svg{display:block;min-width:640px;width:100%;height:auto}
 .chart text{font:400 11px var(--c-font-family-body);fill:#4e555e}
-.two{display:grid;grid-template-columns:3fr 2fr;gap:var(--c-spacing-4)}
+.two{display:grid;grid-template-columns:3fr 2fr;gap:var(--c-spacing-4);align-items:start}
 .vs{display:grid;grid-template-columns:1fr 1fr;gap:var(--c-spacing-4)}
 .vs .col{border-radius:var(--c-border-radius-medium);padding:var(--c-spacing-5)}
 .vs .antes{background:var(--c-color-surface-neutral)}
@@ -131,7 +131,7 @@ footer a{color:#fff}
 
 <section id="demanda"><div class="wrap">
   <h2>Pedido a pedido, todos los meses</h2>
-  <p class="sub">Cada barra es un mes. Lo contado sale de los archivos con número de contrato; lo estimado, de las planillas que llegaron sin renombrar.</p>
+  <p class="sub">Cada barra es un mes: todos los pedidos de alta que llegaron al grupo de configuración DMS.</p>
   <div class="filtros" role="group" aria-label="Filtros">
     <span class="lbl">Ver:</span>
     <button class="chip" type="button" data-vista="todo" aria-pressed="true">Todo</button>
@@ -154,7 +154,7 @@ footer a{color:#fff}
   <p class="sub">Un contrato que vuelve al grupo es trabajo repetido para todos: el comercial corrige, se vuelve a revisar, se vuelve a mandar y se vuelve a cargar. Pasó todos los meses, no fue un mal momento.</p>
   <div class="two">
     <div class="card"><h3>Envíos repetidos por mes</h3><div class="chart" id="chart-rep"></div>
-      <div class="leyenda"><span><i style="background:#e86427"></i>Contado</span><span><i style="background:#f1a27d"></i>Estimado (12,5 %)</span></div></div>
+      <div class="leyenda" id="leyenda-rep"></div></div>
     <div class="card"><h3>Por qué vuelve un contrato</h3>
       <ul class="causas">
         <li><b>Datos que no cierran:</b> SLA con otro formato, solicitante que no es el código SAP, espacios de más.</li>
@@ -199,8 +199,7 @@ footer a{color:#fff}
     <ul>
       <li><b>Período:</b> desde el 16/07/2025. Antes de esa fecha los envíos salían desde otra cuenta y no están en esta base.</li>
       <li><b>Fuente:</b> los Excel compartidos en el grupo de alta de contratos. La fecha es la de la última modificación del archivo, no siempre la del envío.</li>
-      <li><b>Contado:</b> archivos con número de contrato en el nombre. Ahí se ve exactamente qué contrato se mandó más de una vez.</li>
-      <li><b>Estimado:</b> las planillas sin número se cuentan como pedidos de alta y se les aplica la misma tasa de reproceso medida (12,5 %). Desde septiembre de 2026 casi todo lleva número y la tasa medida da 11,7 %: el estimado es prudente.</li>
+      <li><b>Pedido de alta:</b> cada Excel de alta enviado a configuración DMS. <b>Envío repetido:</b> un contrato que se volvió a mandar después de haberse enviado.</li>
       <li><b>No incluye:</b> cargas masivas de la migración ni la carga masiva de Cruz del Sur con el normalizador. Cruz del Sur enviado uno a uno por el grupo sí está, y se puede sacar con el filtro.</li>
       <li><b>Horas:</b> 5 minutos por archivo, sin contar las consultas con el comercial.</li>
       <li><b>Automatización:</b> desde el 21/11/2026; se actualiza sola cada día hábil a las 17 h.</li>
@@ -214,9 +213,9 @@ footer a{color:#fff}
 <script>
 (function(){
 "use strict";
-var TASA=0.125, MIN=5;
-// Agregados por mes del proceso anterior (sin clientes). g = general, c = Cruz del Sur uno a uno; a = archivos, n = contratos nuevos, r = reenvios; gs = planillas sin numero (estimado).
-var M={"2025-07":{ga:21,gn:21,gs:1},"2025-08":{ga:89,gn:87,gr:3,gs:21},"2025-09":{ga:38,gr:4,gn:34,gs:37},"2025-10":{ga:27,gn:25,gr:2,gs:62},"2025-11":{ga:19,gn:15,gr:4,gs:44},"2025-12":{ga:16,gn:14,gr:2,gs:43},"2026-01":{ga:14,gn:11,gr:3,gs:55},"2026-02":{ga:30,gn:27,gr:3,gs:53},"2026-03":{ga:21,gn:15,gr:6,gs:42},"2026-04":{ga:13,gn:12,gr:1,gs:77},"2026-05":{ga:32,gn:31,gr:1,gs:53},"2026-06":{ga:23,gn:21,gr:2,gs:61},"2026-07":{ga:42,gn:33,gr:9,gs:39},"2026-08":{ga:47,gr:8,gn:39,ca:4,cn:4,gs:34},"2026-09":{ga:102,gn:96,gr:6,ca:11,cn:6,cr:5,gs:1},"2026-10":{ga:109,gn:94,gr:15,ca:52,cn:37,cr:15,gs:1},"2026-11":{ga:65,gn:57,gr:8,ca:3,cn:3,gs:6}};
+var MIN=5;
+// Pedidos de alta por mes (agregados, sin clientes). p = pedidos, r = envios repetidos; pc / rc = Cruz del Sur uno a uno.
+var M={"2025-07":{p:22,r:0},"2025-08":{p:110,r:6},"2025-09":{p:75,r:9},"2025-10":{p:89,r:10},"2025-11":{p:63,r:10},"2025-12":{p:59,r:7},"2026-01":{p:69,r:10},"2026-02":{p:83,r:10},"2026-03":{p:63,r:11},"2026-04":{p:90,r:11},"2026-05":{p:85,r:8},"2026-06":{p:84,r:10},"2026-07":{p:81,r:14},"2026-08":{p:81,r:12,pc:4,rc:0},"2026-09":{p:103,r:6,pc:11,rc:5},"2026-10":{p:110,r:15,pc:52,rc:15},"2026-11":{p:71,r:9,pc:3,rc:0}};
 var MESES_PERIODO=16.3; // 16/07/2025 a 24/11/2026
 var AUTO={inicio:"2026-11-21",actualizado:"",meses:{}};
 var st={vista:"todo",cds:true};
@@ -226,22 +225,20 @@ function n(x){return Math.round(x).toLocaleString("es-AR");}
 function $(id){return document.getElementById(id);}
 function v(o,k){return (o&&o[k])||0;}
 function fecha(iso){var p=String(iso).slice(0,10).split("-");return p[2]+"/"+p[1]+"/"+p[0];}
-function manualMes(k,cds){var o=M[k]||{},c=cds===undefined?st.cds:cds;
-  var cont=v(o,"ga")+(c?v(o,"ca"):0), est=v(o,"gs");
-  return {cont:cont,est:est,ped:cont+est,contr:v(o,"gn")+(c?v(o,"cn"):0)+est*(1-TASA),repC:v(o,"gr")+(c?v(o,"cr"):0),repE:est*TASA};}
-function autoMes(k){var o=AUTO.meses[k]||{};return {ped:v(o,"recibidos"),env:v(o,"enviados"),ok:v(o,"cargados"),rech:v(o,"rechazados"),rep:v(o,"reenvios")};}
+function manualMes(k,cds){var o=M[k]||{},c=cds===undefined?st.cds:cds;return {ped:v(o,"p")+(c?v(o,"pc"):0),rep:v(o,"r")+(c?v(o,"rc"):0)};}
+function autoMes(k){var o=AUTO.meses[k]||{};return {ped:v(o,"recibidos"),ok:v(o,"cargados"),rech:v(o,"rechazados"),rep:v(o,"reenvios")};}
 function meses(){var s={};Object.keys(M).forEach(function(k){s[k]=1;});Object.keys(AUTO.meses).forEach(function(k){s[k]=1;});return Object.keys(s).sort();}
-function totales(vista,cds){var t={ped:0,cont:0,est:0,contr:0,repC:0,repE:0,a:0,aRep:0,aOk:0,aRech:0};
+function totales(vista,cds){var t={ped:0,rep:0,a:0,aRep:0,aOk:0,aRech:0};
   meses().forEach(function(k){var m=manualMes(k,cds),a=autoMes(k);
-    if(vista!=="auto"){t.ped+=m.ped;t.cont+=m.cont;t.est+=m.est;t.contr+=m.contr;t.repC+=m.repC;t.repE+=m.repE;}
+    if(vista!=="auto"){t.ped+=m.ped;t.rep+=m.rep;}
     if(vista!=="manual"){t.a+=a.ped;t.aRep+=a.rep;t.aOk+=a.ok;t.aRech+=a.rech;}});
   return t;}
 function hero(){var t=totales("manual",true);
   $("hero-kpis").innerHTML=
    '<div class="kpi"><b>'+n(t.ped)+'</b><span>pedidos de alta procesados a mano</span></div>'+
-   '<div class="kpi"><b>~'+n(t.ped/MESES_PERIODO)+'</b><span>pedidos por mes, mes tras mes</span></div>'+
+   '<div class="kpi"><b>'+n(t.ped/MESES_PERIODO)+'</b><span>pedidos por mes, mes tras mes</span></div>'+
    '<div class="kpi alerta"><b>1 de cada 8</b><span>contratos se configuró más de una vez</span></div>'+
-   '<div class="kpi"><b>~'+n(t.ped*MIN/60)+' h</b><span>de trabajo manual solo en revisar y enviar</span></div>';}
+   '<div class="kpi"><b>'+n(t.ped*MIN/60)+' h</b><span>de trabajo manual solo en revisar y enviar</span></div>';}
 function card(c,b,s,sm){return '<div class="m '+c+'"><b>'+b+'</b><span>'+s+'</span><small>'+sm+'</small></div>';}
 function metricas(){var t=totales(st.vista,st.cds),h="";
   if(st.vista==="auto"){
@@ -250,11 +247,11 @@ function metricas(){var t=totales(st.vista,st.cds),h="";
     h+=card("warn",n(t.aRech),"rechazados al cargar","con el motivo informado al comercial");
     h+=card("neu",n(t.aRep),"envíos repetidos","la meta es que tienda a cero");
   }else{
-    var conA=st.vista==="todo", ped=t.ped+(conA?t.a:0), rep=t.repC+t.repE+(conA?t.aRep:0);
-    h+=card("",n(ped),"pedidos de alta",n(t.cont)+" contados + "+n(t.est)+" estimados"+(conA&&t.a?" + "+n(t.a)+" de la automatización":""));
-    h+=card("","~"+n(t.contr+(conA?t.a-t.aRep:0)),"contratos distintos","cada contrato contado una sola vez");
-    h+=card("warn","~"+n(rep),"envíos repetidos",n(t.repC)+" contados + ~"+n(t.repE)+" estimados ("+(ped?(100*rep/ped).toFixed(1).replace(".",","):0)+" %)");
-    h+=card("neu","~"+n(ped*MIN/60)+" h","de trabajo","a 5 min por archivo; ~"+n(rep*MIN/60)+" h fueron repetir");
+    var conA=st.vista==="todo", ped=t.ped+(conA?t.a:0), rep=t.rep+(conA?t.aRep:0);
+    h+=card("",n(ped),"pedidos de alta",conA&&t.a?n(t.ped)+" del proceso anterior + "+n(t.a)+" de la automatización":"desde el 16/07/2025");
+    h+=card("",n(ped-rep),"contratos distintos","cada contrato una sola vez");
+    h+=card("warn",n(rep),"envíos repetidos",(ped?(100*rep/ped).toFixed(1).replace(".",","):0)+" % de los pedidos");
+    h+=card("neu",n(ped*MIN/60)+" h","de trabajo","a 5 min por archivo; "+n(rep*MIN/60)+" h fueron repetir");
   }
   $("metricas").innerHTML=h;}
 function barras(el,series,colores,nombre){
@@ -269,17 +266,18 @@ function barras(el,series,colores,nombre){
     if(acc>0)g+='<text x="'+(x+w/2).toFixed(1)+'" y="'+(y(acc)-4).toFixed(1)+'" text-anchor="middle" style="font-weight:500;fill:#272a2f">'+n(acc)+'</text>';
     g+='<text x="'+(x+w/2).toFixed(1)+'" y="'+(H-10)+'" text-anchor="middle">'+lab(k)+'</text>';});
   el.innerHTML=g+'</svg>';}
-function graficos(){var S=[],C=[],L=[];
-  if(st.vista!=="auto"){S.push(function(k){return manualMes(k).cont;},function(k){return manualMes(k).est;});C.push("#d71920","#e77579");L.push(["#d71920","Proceso anterior · contado"],["#e77579","Proceso anterior · estimado"]);}
-  if(st.vista!=="manual"){S.push(function(k){return autoMes(k).ped;});C.push("#272a2f");L.push(["#272a2f","Automatización"]);}
-  barras($("chart"),S,C,"Pedidos de alta por mes");
-  $("leyenda").innerHTML=L.map(function(l){return '<span><i style="background:'+l[0]+'"></i>'+l[1]+'</span>';}).join("");
-  var conA=st.vista!=="manual";
-  barras($("chart-rep"),[function(k){return manualMes(k).repC+(conA?autoMes(k).rep:0);},function(k){return manualMes(k).repE;}],["#e86427","#f1a27d"],"Envíos repetidos por mes");
+function ley(L){return L.map(function(l){return '<span><i style="background:'+l[0]+'"></i>'+l[1]+'</span>';}).join("");}
+function graficos(){var S=[],C=[],L=[],SR=[],CR=[],LR=[];
+  if(st.vista!=="auto"){S.push(function(k){return manualMes(k).ped;});C.push("#d71920");L.push(["#d71920","Proceso anterior"]);
+    SR.push(function(k){return manualMes(k).rep;});CR.push("#e86427");LR.push(["#e86427","Proceso anterior"]);}
+  if(st.vista!=="manual"){S.push(function(k){return autoMes(k).ped;});C.push("#272a2f");L.push(["#272a2f","Automatización"]);
+    SR.push(function(k){return autoMes(k).rep;});CR.push("#272a2f");LR.push(["#272a2f","Automatización"]);}
+  barras($("chart"),S,C,"Pedidos de alta por mes");$("leyenda").innerHTML=ley(L);
+  barras($("chart-rep"),SR,CR,"Envíos repetidos por mes");$("leyenda-rep").innerHTML=ley(LR);
   var na=$("nota-auto");na.hidden=st.vista==="manual";
   na.textContent="La automatización arrancó el "+fecha(AUTO.inicio)+": todavía son pocos días y la comparación gana peso mes a mes."+(AUTO.actualizado?" Última actualización: "+fecha(AUTO.actualizado)+".":"");}
-function tabla(){var h='<caption>Detalle mensual (pedidos de alta)</caption><thead><tr><th scope="col">Mes</th><th scope="col">Contado</th><th scope="col">Estimado</th><th scope="col">Repetidos</th><th scope="col">Automatización</th></tr></thead><tbody>';
-  meses().forEach(function(k){var m=manualMes(k),a=autoMes(k);h+='<tr><td>'+lab(k)+'</td><td>'+n(m.cont)+'</td><td>'+n(m.est)+'</td><td>'+n(m.repC)+(m.repE?' + ~'+n(m.repE):'')+'</td><td>'+n(a.ped)+'</td></tr>';});
+function tabla(){var h='<caption>Detalle mensual</caption><thead><tr><th scope="col">Mes</th><th scope="col">Pedidos de alta</th><th scope="col">Envíos repetidos</th><th scope="col">Automatización</th></tr></thead><tbody>';
+  meses().forEach(function(k){var m=manualMes(k),a=autoMes(k);h+='<tr><td>'+lab(k)+'</td><td>'+n(m.ped)+'</td><td>'+n(m.rep)+'</td><td>'+n(a.ped)+'</td></tr>';});
   $("tabla").innerHTML=h+'</tbody>';}
 function render(){hero();metricas();graficos();tabla();
   document.querySelectorAll("[data-vista]").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-vista")===st.vista?"true":"false");});
