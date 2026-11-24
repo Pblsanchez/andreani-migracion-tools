@@ -35,7 +35,7 @@
   <div class="hero-in">
     <span class="eyebrow anim">Alta de contratos en DMS · en producción desde el 24/11/2026</span>
     <h1 id="titulo" class="anim">El comercial manda el Excel. <em>Lo demás pasa solo.</em></h1>
-    <p class="hero-bajada anim">Automatizamos el proceso contingente de alta de contratos en DMS. Desde que el comercial nos manda el Excel por Teams hasta que el archivo queda listo en manos de configuración DMS, nadie tiene que mirar la bandeja: se valida la información, se corrige lo que se puede corregir y, si algo no tiene arreglo, se le pide el cambio al comercial con el detalle de qué falta.</p>
+    <p class="hero-bajada anim">Automatizamos el proceso contingente de alta de contratos en DMS. Desde que el comercial nos manda el Excel por Teams hasta que le avisamos que el contrato quedó cargado, nadie tiene que mirar la bandeja: se valida la información, se corrige lo que se puede corregir, se le entrega a configuración DMS y, si algo no tiene arreglo, se le explica al comercial qué pasó y qué sigue.</p>
     <div class="hero-cta anim">
       <a class="btn btn-primary btn-lg" href="#recorrido">Ver el recorrido</a>
       <a class="btn btn-secondary btn-lg btn-claro" href="#decide">Qué valida y qué corrige</a>
@@ -48,8 +48,8 @@
   <section id="recorrido" aria-labelledby="t-recorrido">
     <div class="sec-head rev">
       <span class="eyebrow">El recorrido</span>
-      <h2 id="t-recorrido">Del mensaje del comercial a la carpeta de configuración DMS</h2>
-      <p>El comercial sigue haciendo lo mismo de siempre: completa el Excel de alta y lo manda por Teams. A partir de ahí, cada paso lo hace la automatización.</p>
+      <h2 id="t-recorrido">Del mensaje del comercial al contrato cargado en DMS</h2>
+      <p>El comercial sigue haciendo lo mismo de siempre: completa el Excel de alta y lo manda por Teams. A partir de ahí, la automatización hace todo, salvo la carga en DMS, que sigue a cargo de configuración DMS.</p>
     </div>
     <ol class="recorrido">
       <li class="paso humano rev">
@@ -89,6 +89,19 @@
         <h3>Entrega en el corte</h3>
         <p>En cada corte pasa los archivos listos a la carpeta del día y le avisa a configuración DMS por Teams, con la lista de archivos y el link a la carpeta.</p>
         <p class="cuando">Cortes a las 11, 14 y 17 h. Configuración DMS no ve nada antes del corte.</p>
+      </li>
+      <li class="paso humano rev">
+        <span class="paso-num" aria-hidden="true">7</span>
+        <span class="paso-quien">Configuración DMS</span>
+        <h3>Carga y deja el resultado</h3>
+        <p>Carga los contratos en DMS y mueve cada archivo a la carpeta OK o Errores del día. Si algo no se pudo cargar, cuenta en el grupo qué pasó con ese archivo.</p>
+      </li>
+      <li class="paso rev">
+        <span class="paso-num" aria-hidden="true">8</span>
+        <span class="paso-quien">Automático</span>
+        <h3>Le cuenta el resultado al comercial</h3>
+        <p>Si el contrato quedó cargado, le avisa que ya puede pedir la validación en A.com. Si no, le explica por qué: si es algo del Excel, le pide que lo corrija; si es un tema fuera del proceso, se lo aclara para que no lo reenvíe.</p>
+        <p class="cuando">Se revisa a primera hora y en cada corte. Lo que no tiene resultado al día hábil siguiente del corte se le avisa a Pablo.</p>
       </li>
     </ol>
   </section>
@@ -130,6 +143,7 @@
           <li>No se puede saber el solicitante<span>El Excel no lo trae o no es válido, y el CRM no permite determinarlo.</span></li>
           <li>Errores de fórmula fuera de Direcciones<span>Por ejemplo, en la hoja Contrato.</span></li>
           <li>Datos obligatorios que faltan o no son válidos<span>Le dice cuáles, en lenguaje simple.</span></li>
+          <li>Errores de carga en DMS que vienen del Excel<span>Con el motivo que informa configuración DMS.</span></li>
         </ul>
         <p>El comercial corrige el Excel y lo vuelve a mandar por el mismo chat. Los problemas técnicos no le llegan a él: le llegan a Pablo.</p>
       </article>
@@ -141,13 +155,15 @@
       <div class="intro">
         <span class="eyebrow">Así se ven los mensajes</span>
         <h3 id="t-mensajes">Respuestas claras, en el mismo chat</h3>
-        <p>Todo lo que manda la automatización empieza con 🤖, para que se sepa que es un mensaje automático. Al comercial le dice qué pasó y qué sigue; a configuración DMS le pasa los archivos y los avisos que tiene que tener en cuenta.</p>
+        <p>Todo lo que manda la automatización empieza con 🤖, para que se sepa que es un mensaje automático. Al comercial le dice qué pasó y qué sigue, desde que recibimos el pedido hasta que el contrato queda cargado; a configuración DMS le pasa los archivos y los avisos que tiene que tener en cuenta.</p>
         <p class="aclara">Ejemplos con datos ficticios.</p>
       </div>
       <div class="chat">
         <div class="burbuja ok"><span class="de">Al comercial · pedido tomado</span>🤖 Hola Ana, recibimos el pedido de Ejemplo S.A. (351000000) y ya lo enviamos a configurar. Hoy al final de la tarde o a más tardar mañana vas a poder pedir la validación en A.com. Corregimos el código de solicitante: el Excel decía 100001 y en el CRM es 100002.</div>
         <div class="burbuja error"><span class="de">Al comercial · pedido de cambio</span>🤖 Hola Juan, no pudimos tomar el pedido de Comercio Modelo S.R.L.: la hoja Contrato tiene errores de fórmula (#¡REF!). Corregilo en el Excel y volvé a enviarlo por acá.</div>
         <div class="burbuja corte"><span class="de">A configuración DMS · corte</span>🤖 Hola, te paso 2 archivos para alta de contratos DMS: Alta de contrato DMS 351000000 100002 Ejemplo S.A.xlsx · Alta de contrato DMS 351000001 100003 Muestra S.A.xlsx. Carpeta: link a la carpeta del día.</div>
+        <div class="burbuja ok"><span class="de">Al comercial · cargado en DMS</span>🤖 Hola Ana, el contrato 351000000 de Ejemplo S.A. ya está dado de alta en DMS. Ya podés pedir la validación en A.com.</div>
+        <div class="burbuja error"><span class="de">Al comercial · no se pudo cargar</span>🤖 Hola Luis, el contrato 351000001 de Muestra S.A. todavía no se pudo dar de alta en DMS: el cliente no está dado de alta en el maestro de datos. Es un tema que está fuera de este proceso, así que no hace falta que reenvíes el Excel. Pablo ya está al tanto y te avisamos cuando quede cargado.</div>
       </div>
     </div>
   </section>
@@ -156,7 +172,7 @@
     <div class="sec-head rev">
       <span class="eyebrow">Horarios y plazos</span>
       <h2 id="t-horarios">Cuándo pasa cada cosa</h2>
-      <p>El plazo que le damos al comercial no es «queda cargado»: es cuándo va a poder pedir la validación en A.com, que es lo próximo que tiene que hacer.</p>
+      <p>El plazo que le damos al comercial es cuándo va a poder pedir la validación en A.com, que es lo próximo que tiene que hacer. Nuestro compromiso es que pueda hacerlo, a más tardar, el día hábil siguiente al corte.</p>
     </div>
     <div class="tabla-wrap rev">
       <table>
@@ -168,6 +184,8 @@
           <tr><th scope="row">Pedido antes de las 17 h</th><td>Va al corte de ese mismo día</td><td>«Hoy al final de la tarde o a más tardar mañana vas a poder pedir la validación en A.com.»</td></tr>
           <tr><th scope="row">Pedido después de las 17 h</th><td>Va al primer corte del próximo día hábil</td><td>El plazo se corre al próximo día hábil.</td></tr>
           <tr><th scope="row">Fin de semana o feriado</th><td>Se toma en la primera revisión del próximo día hábil</td><td>Si hubo un feriado en el medio, el mensaje lo aclara.</td></tr>
+          <tr><th scope="row">Resultado de la carga</th><td>A las 8:30 y en cada corte (11, 14 y 17 h)</td><td>El comercial recibe el aviso de que el contrato quedó cargado o el motivo por el que no se pudo cargar.</td></tr>
+          <tr><th scope="row">Sin resultado a tiempo</th><td>Al terminar el día hábil siguiente al corte</td><td>Pablo recibe el aviso a primera hora para hacer el seguimiento.</td></tr>
         </tbody>
       </table>
     </div>
@@ -179,10 +197,10 @@
       <h2 id="t-resuelve">Menos idas y vueltas para todos</h2>
     </div>
     <div class="resuelve">
-      <div class="dato rev"><b>Comercial</b><span>Manda el Excel como siempre y recibe respuesta en el mismo chat: el plazo, lo que corregimos o lo que tiene que cambiar.</span></div>
-      <div class="dato rev"><b>Configuración DMS</b><span>Recibe archivos ya validados y normalizados, juntos en la carpeta del día, en tres horarios fijos.</span></div>
-      <div class="dato rev"><b>Nadie en el medio</b><span>No hace falta que una persona mire la bandeja, abra cada Excel ni reenvíe archivos.</span></div>
-      <div class="dato rev"><b>Todo queda registrado</b><span>Cada pedido queda anotado con su estado y, todos los días hábiles, Pablo recibe un aviso de que todo funciona.</span></div>
+      <div class="dato rev"><b>Comercial</b><span>Manda el Excel como siempre y recibe respuesta en el mismo chat: el plazo, lo que corregimos o lo que tiene que cambiar, y el aviso cuando el contrato queda cargado.</span></div>
+      <div class="dato rev"><b>Configuración DMS</b><span>Recibe archivos ya validados y normalizados, juntos en la carpeta del día, en tres horarios fijos. Solo tiene que dejar cada archivo en OK o Errores.</span></div>
+      <div class="dato rev"><b>Nadie en el medio</b><span>No hace falta que una persona mire la bandeja, abra cada Excel, reenvíe archivos ni le avise al comercial cómo terminó.</span></div>
+      <div class="dato rev"><b>Todo queda registrado</b><span>Cada pedido queda anotado con su estado hasta que se carga y, todos los días hábiles, Pablo recibe un aviso con lo pendiente y lo que se pasó del plazo.</span></div>
     </div>
   </section>
 
@@ -196,8 +214,8 @@
       <li class="rev"><b>Agente de Copilot Studio</b>Lee los pedidos, decide, normaliza y escribe los mensajes, siguiendo un manual de operación con todas las reglas.</li>
       <li class="rev"><b>Flujos programados</b>Despiertan al agente en cada revisión, en cada corte y para el aviso diario de salud.</li>
       <li class="rev"><b>CRM (Dataverse)</b>Base de clientes para validar el solicitante y la razón social. Solo se consulta, no se modifica.</li>
-      <li class="rev"><b>Teams</b>Por donde llegan los pedidos y salen las respuestas, el aviso a configuración DMS y el aviso diario.</li>
-      <li class="rev"><b>OneDrive</b>Carpetas de archivos listos y de cada día, y el registro de pedidos.</li>
+      <li class="rev"><b>Teams</b>Por donde llegan los pedidos y salen las respuestas, el aviso a configuración DMS, el motivo de los errores de carga y el aviso diario.</li>
+      <li class="rev"><b>OneDrive</b>Carpetas de archivos listos y de cada día (con sus carpetas OK y Errores), y el registro de pedidos.</li>
       <li class="rev"><b>Normalizador DMS</b>Las mismas reglas del <a href="https://pblsanchez.github.io/dms-contract-normalizer/" target="_blank" rel="noopener noreferrer">DMS Contract Normalizer<span class="sr"> (se abre en una pestaña nueva)</span></a>, más las que sumamos para la automatización.</li>
     </ul>
   </section>
@@ -211,7 +229,7 @@
 <footer class="footer">
   <div class="footer-in">
     <span>Andreani · Portal de soluciones · Alta automática de contratos DMS</span>
-    <span>Versión 1.0 · <time datetime="2026-11-21">21/11/2026</time></span>
+    <span>Versión 1.1 · <time datetime="2026-11-24">24/11/2026</time></span>
   </div>
 </footer>
 
