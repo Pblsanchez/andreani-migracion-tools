@@ -1,8 +1,8 @@
 {
   "nota": "Totales de la automatizacion del alta de contratos DMS (T-020). Solo cantidades por mes, sin clientes ni contratos. Lo actualiza la corrida de las 17 h (D-142).",
   "inicio": "2026-11-21",
-  "actualizado": "2026-11-24",
+  "actualizado": "2026-11-25",
   "meses": {
-    "2026-11": {"recibidos": 1, "enviados": 1, "cargados": 0, "rechazados": 1, "reenvios": 0, "ignorados": 1}
+    "2026-11": {"recibidos": 10, "enviados": 7, "cargados": 3, "rechazados": 1, "reenvios": 1, "ignorados": 2}
   }
 }
