@@ -3,7 +3,8 @@
 .hero--mapa .hero-in { padding-top: var(--c-spacing-7); padding-bottom: var(--c-spacing-6); }
 .btn--chico { min-height: 36px; padding: 0 var(--c-spacing-4); font-size: 14px; }
 .mapa-main { max-width: none; padding: var(--c-spacing-6) var(--c-spacing-5); gap: var(--c-spacing-4); }
-.mapa-main > * { max-width: 1480px; width: 100%; margin: 0 auto; }
+.mapa-main { grid-template-columns: minmax(0, 1fr); }
+.mapa-main > * { max-width: 1480px; width: 100%; min-width: 0; margin: 0 auto; }
 .mapa-aviso { display: flex; flex-wrap: wrap; align-items: center; gap: var(--c-spacing-3); background: var(--c-color-surface); border: 1px solid var(--c-color-border-subtle); border-left: 3px solid var(--c-color-border-info); border-radius: var(--c-border-radius-small); padding: var(--c-spacing-4) var(--c-spacing-5); color: var(--c-color-text-strong); }
 .mapa-aviso--error { border-left-color: var(--c-color-border-warning); background: var(--c-color-surface-warning-subtle); color: var(--c-color-text-warning-strong); }
 .mapa-leido { font-size: 13px; line-height: 18px; }
@@ -21,7 +22,7 @@
 
 /* lienzo */
 .mapa-lienzo { overflow-x: auto; background: var(--c-color-surface); border-radius: var(--c-border-radius-medium); box-shadow: var(--shadow-bottom-regular); padding: var(--c-spacing-4); }
-.mapa-lienzo svg { display: block; margin: 0 auto; font-family: var(--c-font-family-body); }
+.mapa-lienzo svg { display: block; margin: 0 auto; font-family: var(--c-font-family-body); width: 100%; height: auto; min-width: 1100px; }
 .mapa-cab { font: 700 12px/1 var(--c-font-family-body); letter-spacing: 1px; fill: var(--c-red-700); }
 .mapa-cab-n { fill: var(--c-gray-500); font-weight: 500; }
 .fl { fill: none; stroke: var(--c-gray-300); stroke-width: 1.3; transition: opacity .15s; }
@@ -76,7 +77,7 @@ svg.foco .nodo.activo, svg.foco .nodo.vecino { opacity: 1; }
 
 @media (max-width: 759px) {
   .mapa-lienzo, .mapa-ayuda { display: none; }
-  .mapa-lista { display: block; }
+  .mapa-lista { display: block; margin-top: var(--c-spacing-3); }
   .mapa-ficha { left: var(--c-spacing-3); right: var(--c-spacing-3); top: auto; bottom: var(--c-spacing-3); width: auto; max-height: 70vh; }
   .mapa-main { padding: var(--c-spacing-5) var(--c-spacing-4); }
 }
