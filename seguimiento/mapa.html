@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Mapa de soluciones · Portal de soluciones</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../portal.css?v=2.2">
+<link rel="stylesheet" href="mapa.css?v=0.2">
+</head>
+<body>
+<a class="skip-link" href="#mapa-main">Saltar al contenido</a>
+
+<header class="header">
+  <div class="header-in">
+    <a class="logo" href="../" aria-label="Andreani, ir al Portal de soluciones">Andreani</a>
+    <span class="ruta"><a href="../">Portal de soluciones</a> / <a href="./">Seguimiento de actividades</a> / <strong>Mapa de soluciones</strong></span>
+  </div>
+</header>
+
+<section class="hero hero--mapa" aria-labelledby="mapa-titulo">
+  <div class="hero-in">
+    <span class="eyebrow">Portal de soluciones · Transversal</span>
+    <h1 id="mapa-titulo">Mapa de soluciones, <em>de un vistazo.</em></h1>
+    <p class="hero-bajada">Qué piezas tenemos, cómo se conectan, qué corre solo y en qué estado está cada una.</p>
+    <div class="hero-cta"><a class="btn btn-secondary btn-claro" href="./">Volver al seguimiento</a></div>
+    <div class="hero-meta" id="mapa-hero-meta" aria-label="Resumen del mapa" hidden></div>
+  </div>
+</section>
+
+<main id="mapa-main" class="mapa-main" tabindex="-1">
+  <p id="mapa-estado" class="mapa-aviso" role="status">Preparando el mapa…<noscript> Esta página necesita JavaScript.</noscript></p>
+  <div id="mapa-cuerpo" hidden>
+    <p class="mapa-leido" id="mapa-leido"></p>
+    <div class="mapa-barra">
+      <p class="mapa-ayuda">Tocá una pieza para ver su ficha y resaltar sus conexiones. Esc o tocar de nuevo la cierra.</p>
+      <div class="mapa-leyenda" id="mapa-leyenda" aria-label="Leyenda"></div>
+    </div>
+    <div class="mapa-lienzo" id="mapa-lienzo"></div>
+    <div class="mapa-lista" id="mapa-lista"></div>
+  </div>
+  <aside class="mapa-ficha" id="mapa-ficha" aria-labelledby="mapa-ficha-tit" hidden>
+    <button type="button" class="btn btn-ghost btn--chico mapa-ficha-cerrar" id="mapa-ficha-cerrar" aria-label="Cerrar la ficha">✕</button>
+    <div id="mapa-ficha-cuerpo"></div>
+  </aside>
+</main>
+
+<footer class="footer">
+  <div class="footer-in">
+    <span>Andreani · Portal de soluciones · Mapa de soluciones</span>
+    <span>El mapa se lee en tu navegador con tu clave de GitHub y no se guarda acá.</span>
+  </div>
+</footer>
+
+<script src="seguimiento-gh.js?v=1.5"></script>
+<script src="mapa-lib.js?v=0.2"></script>
+<script src="mapa.js?v=0.2"></script>
+</body>
+</html>

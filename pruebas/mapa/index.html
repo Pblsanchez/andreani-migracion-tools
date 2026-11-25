@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>PRUEBA · Mapa de soluciones · Portal de soluciones</title>
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../portal.css?v=2.2">
+<link rel="stylesheet" href="../../seguimiento/mapa.css?v=0.2">
+</head>
+<body>
+<a class="skip-link" href="#mapa-main">Saltar al contenido</a>
+<header class="header">
+  <div class="header-in">
+    <a class="logo" href="../../" aria-label="Andreani, ir al Portal de soluciones">Andreani</a>
+    <span class="ruta"><a href="../../">Portal de soluciones</a> / <strong>PRUEBA · Mapa de soluciones (datos sintéticos)</strong></span>
+  </div>
+</header>
+<section class="hero hero--mapa" aria-labelledby="mapa-titulo">
+  <div class="hero-in">
+    <span class="eyebrow">Prueba con datos sintéticos (T-030, D-014)</span>
+    <h1 id="mapa-titulo">Mapa de soluciones, <em>de un vistazo.</em></h1>
+    <p class="hero-bajada">Qué piezas tenemos, cómo se conectan, qué corre solo y en qué estado está cada una.</p>
+    <div class="hero-meta" id="mapa-hero-meta" aria-label="Resumen del mapa" hidden></div>
+  </div>
+</section>
+<main id="mapa-main" class="mapa-main" tabindex="-1">
+  <p id="mapa-estado" class="mapa-aviso" role="status">Preparando el mapa…</p>
+  <div id="mapa-cuerpo" hidden>
+    <p class="mapa-leido" id="mapa-leido"></p>
+    <div class="mapa-barra">
+      <p class="mapa-ayuda">Tocá una pieza para ver su ficha y resaltar sus conexiones. Esc o tocar de nuevo la cierra.</p>
+      <div class="mapa-leyenda" id="mapa-leyenda" aria-label="Leyenda"></div>
+    </div>
+    <div class="mapa-lienzo" id="mapa-lienzo"></div>
+    <div class="mapa-lista" id="mapa-lista"></div>
+  </div>
+  <aside class="mapa-ficha" id="mapa-ficha" aria-labelledby="mapa-ficha-tit" hidden>
+    <button type="button" class="btn btn-ghost btn--chico mapa-ficha-cerrar" id="mapa-ficha-cerrar" aria-label="Cerrar la ficha">✕</button>
+    <div id="mapa-ficha-cuerpo"></div>
+  </aside>
+</main>
+<script>
+/* Datos sintéticos: piezas y conexiones al azar (semilla fija). No representan nada real. */
+(function () {
+  var s = 30; function r() { s = (s * 16807) % 2147483647; return s / 2147483647; }
+  var T = [["repo", "Repositorios", 9], ["agente", "Agentes", 3], ["automatizacion", "Automatizaciones", 10],
+    ["servicio", "Servicios externos", 6], ["persona", "Personas y roles", 4], ["herramienta", "Herramientas publicadas", 9]];
+  var EST = [["ok", "Funcionando"], ["revision", "En revisión"], ["pausa", "En pausa"], ["problema", "Con problema"], ["sinuso", "Sin uso registrado"]];
+  var PESO = [12, 3, 2, 1, 1], L = "ABCDEFGHIJ", nodos = [], flujos = [], visto = {};
+  function estado() { var x = r() * 19, a = 0; for (var i = 0; i < 5; i++) { a += PESO[i]; if (x < a) return EST[i][0]; } return "ok"; }
+  T.forEach(function (t) {
+    for (var i = 0; i < t[2]; i++) {
+      var n = { id: t[0].slice(0, 3) + i, tipo: t[0], nombre: "Pieza de prueba " + L[i] + (i === 1 ? " con nombre largo" : ""),
+        que: "Texto de ejemplo: qué hace esta pieza", donde: "Lugar de ejemplo", cuando: "Momento de ejemplo", estado: estado(), verificado: "2026-11-25" };
+      if (n.estado === "problema") n.detalle = "Ejemplo de detalle de un problema y qué falta verificar.";
+      nodos.push(n);
+    }
+  });
+  nodos[10].externo = true; nodos[7].sinTarea = true; nodos[7].estado = "sinuso"; nodos[20].estado = "problema"; nodos[20].detalle = "Ejemplo: corrió en otro horario; verificar mañana.";
+  var R = ["publica", "lee", "avisa", "valida", "despliega", "ejecuta", "pide y valida", "manda el Excel"];
+  while (flujos.length < 46) {
+    var a = nodos[Math.floor(r() * nodos.length)].id, b = nodos[Math.floor(r() * nodos.length)].id;
+    if (a === b || visto[a + ">" + b]) continue; visto[a + ">" + b] = 1;
+    flujos.push({ de: a, a: b, rotulo: R[Math.floor(r() * R.length)] });
+  }
+  window.MAPA_DEMO = { version: "demo", actualizado: "2026-11-25", tipos: T.map(function (t) { return { id: t[0], nombre: t[1] }; }),
+    estados: EST.map(function (e) { return { id: e[0], nombre: e[1] }; }), nodos: nodos, flujos: flujos };
+})();
+</script>
+<script src="../../seguimiento/mapa-lib.js?v=0.2"></script>
+<script src="../../seguimiento/mapa.js?v=0.2"></script>
+</body>
+</html>
