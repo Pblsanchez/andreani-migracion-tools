@@ -1,0 +1,34 @@
+name: Parches del agente
+# Aplica los scripts de .github/parches/ (idempotentes, con verificacion de SHA) y commitea el resultado.
+# Si falla, deshace los cambios de codigo y deja solo el informe resultado-*.md.
+on:
+  push:
+    branches: [main]
+    paths: ['.github/parches/*.py']
+permissions:
+  contents: write
+jobs:
+  aplicar:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Aplicar parches
+        id: aplicar
+        continue-on-error: true
+        run: |
+          for f in .github/parches/*.py; do python3 "$f" || exit 1; done
+      - name: Si fallo, deshacer los cambios de codigo
+        if: steps.aplicar.outcome == 'failure'
+        run: git checkout -- . ':(exclude).github/parches'
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m "parches: resultado ${{ steps.aplicar.outcome }}"
+          git push
