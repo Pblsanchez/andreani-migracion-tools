@@ -76,7 +76,7 @@
     window.addEventListener("hashchange", leerHash);
   }
   function leerHash() {
-    var r = /#r=([\w-]+)/.exec(location.hash), m = /#n=([\w-]+)/.exec(location.hash);
+    var r = /[#&]r=([\w-]+)/.exec(location.hash), m = /[#&]n=([\w-]+)/.exec(location.hash);
     if (r && recPorId(r[1]) && !(REC && REC.id === r[1])) recorrido(r[1], false);
     if (m && NOD[m[1]] && SEL !== m[1]) elegir(m[1], false);
   }
