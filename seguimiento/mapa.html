@@ -8,6 +8,7 @@
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../portal.css?v=2.2">
 <link rel="stylesheet" href="mapa.css?v=0.2.1">
+<link rel="stylesheet" href="mapa-e2b.css?v=0.3">
 </head>
 <body>
 <a class="skip-link" href="#mapa-main">Saltar al contenido</a>
@@ -34,9 +35,10 @@
   <div id="mapa-cuerpo" hidden>
     <p class="mapa-leido" id="mapa-leido"></p>
     <div class="mapa-barra">
-      <p class="mapa-ayuda">Tocá una pieza para ver su ficha y resaltar sus conexiones. Esc o tocar de nuevo la cierra.</p>
+      <p class="mapa-ayuda">Pasá el mouse por una pieza o una flecha para resaltarla; tocá una pieza para ver su ficha (Esc la cierra).</p>
       <div class="mapa-leyenda" id="mapa-leyenda" aria-label="Leyenda"></div>
     </div>
+    <div class="mapa-rec" id="mapa-rec" hidden></div>
     <div class="mapa-lienzo" id="mapa-lienzo"></div>
     <div class="mapa-lista" id="mapa-lista"></div>
   </div>
@@ -55,6 +57,6 @@
 
 <script src="seguimiento-gh.js?v=1.5"></script>
 <script src="mapa-lib.js?v=0.2"></script>
-<script src="mapa.js?v=0.2"></script>
+<script src="mapa.js?v=0.3"></script>
 </body>
 </html>

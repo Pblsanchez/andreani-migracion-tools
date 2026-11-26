@@ -1,0 +1,37 @@
+/* Mapa de soluciones v0.3 (T-030, E2b) · va después de mapa.css. Flechas legibles: reposo tenue, halo blanco en los
+   cruces, resaltado en rojo al pasar el mouse, recorridos. Paleta D-045 (rojo de marca + grises). */
+.mapa-flechas .fl { stroke: var(--c-gray-300); stroke-width: 1.2; opacity: .75; }
+.punta.fl { fill: var(--c-gray-400); }
+.punta.fl-rec { fill: var(--c-gray-700); }
+.fl-halo { fill: none; stroke: var(--c-gray-000, #fff); stroke-width: 5; stroke-linejoin: round; }
+.fl-hit { fill: none; stroke: transparent; stroke-width: 10; pointer-events: stroke; cursor: help; }
+.fl-g { transition: opacity .15s; }
+
+/* recorrido elegido: sus conexiones en gris oscuro, el resto casi invisible */
+svg.rec .fl-g { opacity: .07; }
+svg.rec .fl-g.en-rec { opacity: 1; }
+svg.rec .fl-g.en-rec .fl { stroke: var(--c-gray-700); stroke-width: 1.6; opacity: 1; }
+svg.rec .nodo { opacity: .25; }
+svg.rec .nodo.en-rec { opacity: 1; }
+
+/* foco (mouse encima o pieza elegida): manda sobre el recorrido */
+svg.foco .fl-g { opacity: .1; }
+svg.foco .fl-g.activa { opacity: 1; }
+svg.foco .fl-g.activa .fl, svg.foco .fl-g.activa.en-rec .fl { stroke: var(--c-red-600); stroke-width: 2.2; opacity: 1; }
+svg.foco .fl-g.activa .fl-halo { stroke-width: 6; }
+svg.foco .fl { opacity: 1; }
+svg.foco .nodo, svg.foco .nodo.en-rec { opacity: .3; }
+svg.foco .nodo.activo, svg.foco .nodo.vecino { opacity: 1; }
+
+/* botones de recorrido */
+.mapa-rec { display: flex; flex-wrap: wrap; align-items: center; gap: var(--c-spacing-2); margin: var(--c-spacing-3) 0; font-size: 13px; color: var(--c-color-text-strong); }
+.mapa-rec .mapa-ley-tit { margin-right: var(--c-spacing-2); }
+.mapa-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 14px; border-radius: 99px; border: 1px solid var(--c-gray-300); background: var(--c-color-surface); color: var(--c-gray-800); font: 500 14px/20px var(--c-font-family-body); cursor: pointer; }
+.mapa-chip:hover { border-color: var(--c-gray-600); }
+.mapa-chip:focus-visible { outline: 2px solid transparent; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #1d2023; }
+.mapa-chip[aria-pressed="true"] { background: var(--c-red-600); border-color: var(--c-red-600); color: #fff; }
+.mapa-chip-n { font-size: 12px; font-weight: 500; padding: 0 6px; border-radius: 99px; background: var(--c-gray-100); color: var(--c-gray-700); }
+.mapa-chip[aria-pressed="true"] .mapa-chip-n { background: rgba(255, 255, 255, .25); color: #fff; }
+.mapa-rec-que { flex-basis: 100%; margin: 0; font-size: 13px; line-height: 18px; color: var(--c-color-text-strong); }
+.mapa-rec-que[hidden], .mapa-rec[hidden] { display: none; }
+.mapa-lista li[hidden] { display: none; }

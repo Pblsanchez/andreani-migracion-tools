@@ -8,6 +8,7 @@
 <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../../portal.css?v=2.2">
 <link rel="stylesheet" href="../../seguimiento/mapa.css?v=0.2.1">
+<link rel="stylesheet" href="../../seguimiento/mapa-e2b.css?v=0.3">
 </head>
 <body>
 <a class="skip-link" href="#mapa-main">Saltar al contenido</a>
@@ -30,9 +31,10 @@
   <div id="mapa-cuerpo" hidden>
     <p class="mapa-leido" id="mapa-leido"></p>
     <div class="mapa-barra">
-      <p class="mapa-ayuda">Tocá una pieza para ver su ficha y resaltar sus conexiones. Esc o tocar de nuevo la cierra.</p>
+      <p class="mapa-ayuda">Pasá el mouse por una pieza o una flecha para resaltarla; tocá una pieza para ver su ficha (Esc la cierra).</p>
       <div class="mapa-leyenda" id="mapa-leyenda" aria-label="Leyenda"></div>
     </div>
+    <div class="mapa-rec" id="mapa-rec" hidden></div>
     <div class="mapa-lienzo" id="mapa-lienzo"></div>
     <div class="mapa-lista" id="mapa-lista"></div>
   </div>
@@ -42,7 +44,7 @@
   </aside>
 </main>
 <script>
-/* Datos sintéticos: piezas y conexiones al azar (semilla fija). No representan nada real. */
+/* Datos sintéticos: piezas, conexiones y recorridos al azar (semilla fija). No representan nada real. */
 (function () {
   var s = 30; function r() { s = (s * 16807) % 2147483647; return s / 2147483647; }
   var T = [["repo", "Repositorios", 9], ["agente", "Agentes", 3], ["automatizacion", "Automatizaciones", 10],
@@ -65,11 +67,20 @@
     if (a === b || visto[a + ">" + b]) continue; visto[a + ">" + b] = 1;
     flujos.push({ de: a, a: b, rotulo: R[Math.floor(r() * R.length)] });
   }
+  /* recorridos de prueba: se arma cada uno siguiendo conexiones desde una pieza al azar */
+  var recorridos = ["A", "B", "C", "D"].map(function (letra) {
+    var set = {}, cola = [nodos[Math.floor(r() * nodos.length)].id], k = 0;
+    while (cola.length && k < 12) {
+      var id = cola.shift(); if (set[id]) continue; set[id] = 1; k++;
+      flujos.forEach(function (f) { if (f.de === id && !set[f.a]) cola.push(f.a); if (f.a === id && !set[f.de]) cola.push(f.de); });
+    }
+    return { id: "rec" + letra, nombre: "Recorrido de prueba " + letra, que: "Ejemplo: descripción corta del circuito " + letra, nodos: Object.keys(set) };
+  });
   window.MAPA_DEMO = { version: "demo", actualizado: "2026-11-25", tipos: T.map(function (t) { return { id: t[0], nombre: t[1] }; }),
-    estados: EST.map(function (e) { return { id: e[0], nombre: e[1] }; }), nodos: nodos, flujos: flujos };
+    estados: EST.map(function (e) { return { id: e[0], nombre: e[1] }; }), nodos: nodos, flujos: flujos, recorridos: recorridos };
 })();
 </script>
 <script src="../../seguimiento/mapa-lib.js?v=0.2"></script>
-<script src="../../seguimiento/mapa.js?v=0.2"></script>
+<script src="../../seguimiento/mapa.js?v=0.3"></script>
 </body>
 </html>
